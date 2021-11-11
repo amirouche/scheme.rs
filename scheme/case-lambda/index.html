@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme case-lambda)</code></h1>
+<h2><code>(case-lambda &lt;clause1&gt; ...)</code> syntax</h2>
+<p>Each clause is of the form <code>(&lt;formals&gt; &lt;body&gt;)</code>, where <code>&lt;formals&gt;</code> and
+<code>&lt;body&gt;</code> have the same syntax as in a lambda expression.</p>
+<p>A case-lambda expression evaluates to a procedure that accepts a
+variable number of arguments and is lexically scoped in the same
+manner as a procedure resulting from a lambda expression. When the
+procedure is called, the first clause for which the arguments agree
+with <code>&lt;formals&gt;</code> is selected, where agreement is specified as for the
+<code>&lt;formals&gt;</code> of a lambda expression. The variables of <code>&lt;formals&gt;</code> are
+bound to fresh locations, the values of the arguments are stored in
+those locations, the <code>&lt;body&gt;</code> is evaluated in the extended
+environment, and the results of <code>&lt;body&gt;</code> are returned as the results
+of the procedure call.</p>
+<p>It is an error for the arguments not to agree with the <code>&lt;formals&gt;</code> of
+any clause`.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">add1</span>
+  <span class="p">(</span><span class="nf">case-lambda</span>
+    <span class="p">((</span><span class="nf">a</span><span class="p">)</span> <span class="p">(</span><span class="nf">add1</span> <span class="nv">a</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="p">((</span><span class="nf">a</span> <span class="nv">b</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="nv">a</span> <span class="nv">b</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nf">add1</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">;; =&gt; 2</span>
+<span class="p">(</span><span class="nf">add1</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">;; =&gt; 4</span>
+</pre></div>
+</div>
+    </div>
+  </body>
+</html>

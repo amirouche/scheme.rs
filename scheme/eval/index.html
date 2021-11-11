@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme eval)</code></h1>
+<h2><code>(environment list1 ...)</code></h2>
+<p>This procedure returns a specifier for the environment that results by
+starting with an empty environment and then importing each list,
+considered as an import set, into it. The bindings of the environment
+represented by the specifier are immutable, as is the environment
+itself.</p>
+<h2><code>(eval expr-or-def environment-specifier)</code></h2>
+<p>If <code>expr-or-def</code> is an expression, it is evaluated in the specified
+environment and its values are returned. If it is a definition, the
+specified identifier(s) are defined in the specified environment,
+provided the environment is not immutable. Implementations may extend
+<code>eval</code> to allow other objects.</p>
+</div>
+    </div>
+  </body>
+</html>

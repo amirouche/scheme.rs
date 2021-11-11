@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme bytevector)</code></h1>
+<p>This is based on <a href="http://www.r6rs.org/final/html/r6rs-lib/r6rs-lib-Z-H-3.html#node_chap_2">R6RS bytevectors
+library</a></p>
+<h2><code>(endianness &lt;endianess symbol&gt;)</code> syntax</h2>
+<h2><code>(native-endianness)</code></h2>
+<p>Returns the endianness symbol associated implementation's preferred
+endianness (usually that of the underlying machine architecture). This
+may be any <code>&lt;endianness symbol&gt;</code>, including a symbol other than big
+and little.</p>
+<h2><code>(bytevector? obj)</code></h2>
+<p>Returns #t if obj is a bytevector, otherwise returns #f.</p>
+<h2><code>(make-bytevector k [fill])</code></h2>
+<p>Returns a newly allocated bytevector of <code>K</code> bytes.</p>
+<p>If the <code>FILL</code> argument is missing, the initial contents of the
+returned bytevector are unspecified.</p>
+<p>If the <code>FILL</code> argument is present, it must be an exact integer object
+in the interval {-128, ... 255} that specifies the initial value for
+the bytes of the bytevector: If <code>FILL</code> is positive, it is interpreted
+as an octet; if it is negative, it is interpreted as a byte.</p>
+<h2><code>(bytevector-length bytevector)</code></h2>
+<p>Returns, as an exact integer object, the number of bytes in bytevector.</p>
+<h2><code>(bytevector=? bytevector1 bytevector2)</code></h2>
+<p>Returns #t if bytevector1 and bytevector2 are equal-that is, if they
+have the same length and equal bytes at all valid indices. It returns</p>
+<h1>f otherwise.</h1>
+<h2><code>(bytevector-fill! bytevector fill)</code></h2>
+<p>The fill argument is as in the description of the make-bytevector
+procedure. The bytevector-fill!  procedure stores fill in every
+element of bytevector and returns unspecified values. Analogous to
+vector-fill!.</p>
+<h2><code>(bytevector-copy! source source-start‌‌ target target-start k)</code></h2>
+<h2><code>(bytevector-copy bytevector)‌‌</code></h2>
+<p>Returns a newly allocated copy of bytevector.</p>
+<h2><code>(bytevector-u8-ref bytevector k)‌‌</code></h2>
+<p>The bytevector-u8-ref procedure returns the byte at index k of
+bytevector, as an octet.</p>
+<h2><code>(bytevector-s8-ref bytevector k)‌‌</code></h2>
+<p>The bytevector-s8-ref procedure returns the byte at index k of
+bytevector, as a (signed) byte.</p>
+<h2><code>(bytevector-u8-set! bytevector k octet)‌‌</code></h2>
+<p>The bytevector-u8-set! procedure stores octet in element k of
+bytevector.</p>
+<h2><code>(bytevector-s8-set! bytevector k byte)‌‌</code></h2>
+<p>The bytevector-s8-set! procedure stores the two's-complement
+representation of byte in element k of bytevector.</p>
+<h2><code>(bytevector-&gt;u8-list bytevector)‌‌</code></h2>
+<p>The bytevector-&gt;u8-list procedure returns a newly allocated list of
+the octets of bytevector in the same order.</p>
+<h2><code>(u8-list-&gt;bytevector list)‌‌</code></h2>
+<p>The u8-list-&gt;bytevector procedure returns a newly allocated bytevector
+whose elements are the elements of list list, in the same order. It is
+analogous to list-&gt;vector.</p>
+<h2><code>(bytevector-uint-ref bytevector k endianness size)‌‌</code></h2>
+<h2><code>(bytevector-sint-ref bytevector k endianness size)‌‌</code></h2>
+<h2><code>(bytevector-uint-set! bytevector k n endianness size)‌‌</code></h2>
+<h2><code>(bytevector-sint-set! bytevector k n endianness size)‌‌</code></h2>
+<h2><code>(bytevector-&gt;uint-list bytevector endianness size)‌‌</code></h2>
+<h2><code>(bytevector-&gt;sint-list bytevector endianness sizee‌‌</code></h2>
+<h2><code>(uint-list-&gt;bytevector list endianness size)‌‌</code></h2>
+<h2><code>(sint-list-&gt;bytevector list endianness size)‌‌</code></h2>
+<h2><code>(bytevector-u16-ref bytevector k endianness)‌‌</code></h2>
+<h2><code>(bytevector-s16-ref bytevector k endianness)‌‌</code></h2>
+<h2><code>(bytevector-u16-native-ref bytevector k)‌‌</code></h2>
+<h2><code>(bytevector-s16-native-ref bytevector k)‌‌</code></h2>
+<h2><code>(bytevector-u16-set! bytevector k n endianness)‌‌</code></h2>
+<h2><code>(bytevector-s16-set! bytevector k n endianness)‌‌</code></h2>
+<h2><code>(bytevector-u16-native-set! bytevector k n)‌‌</code></h2>
+<h2><code>(bytevector-s16-native-set! bytevector k n)‌‌</code></h2>
+<h2><code>(bytevector-u32-ref bytevector k endianness)‌‌</code></h2>
+<h2><code>(bytevector-s32-ref bytevector k endianness)‌‌</code></h2>
+<h2><code>(bytevector-u32-native-ref bytevector k)‌‌</code></h2>
+<h2><code>(bytevector-s32-native-ref bytevector k)‌‌</code></h2>
+<h2><code>(bytevector-u32-set! bytevector k n endianness)‌‌</code></h2>
+<h2><code>(bytevector-s32-set! bytevector k n endianness)‌‌</code></h2>
+<h2><code>(bytevector-u32-native-set! bytevector k n)‌‌</code></h2>
+<h2><code>(bytevector-s32-native-set! bytevector k n)‌‌</code></h2>
+<h2><code>(bytevector-u64-ref bytevector k endianness)‌‌</code></h2>
+<h2><code>(bytevector-s64-ref bytevector k endianness)‌‌</code></h2>
+<h2><code>(bytevector-u64-native-ref bytevector k)‌‌</code></h2>
+<h2><code>(bytevector-s64-native-ref bytevector k)‌‌</code></h2>
+<h2><code>(bytevector-u64-set! bytevector k n endianness)‌‌</code></h2>
+<h2><code>(bytevector-s64-set! bytevector k n endianness)‌‌</code></h2>
+<h2><code>(bytevector-u64-native-set! bytevector k n)‌‌</code></h2>
+<h2><code>(bytevector-s64-native-set! bytevector k n)‌‌</code></h2>
+<h2><code>(bytevector-ieee-single-native-ref bytevector k)‌‌</code></h2>
+<h2><code>(bytevector-ieee-single-ref bytevector k endianness)‌‌</code></h2>
+<h2><code>(bytevector-ieee-double-native-ref bytevector k)‌‌</code></h2>
+<h2><code>(bytevector-ieee-double-ref bytevector k endianness)‌‌</code></h2>
+<h2><code>(bytevector-ieee-single-native-set! bytevector k x)‌‌</code></h2>
+<h2><code>(bytevector-ieee-single-set! bytevector ‌k x endianness)</code></h2>
+<h2><code>(bytevector-ieee-double-native-set! bytevector k x)‌‌</code></h2>
+<h2><code>(bytevector-ieee-double-set! bytevector k x endianness)‌</code></h2>
+<h2><code>(string-&gt;utf8 string)‌‌</code></h2>
+<h2><code>(string-&gt;utf16 string)‌‌</code></h2>
+<h2><code>(string-&gt;utf16 string endianness)‌‌</code></h2>
+<h2><code>(string-&gt;utf32 string)‌‌</code></h2>
+<h2><code>(string-&gt;utf32 string endianness)‌‌</code></h2>
+<h2><code>(utf8-&gt;string bytevector)‌‌</code></h2>
+<h2><code>(utf16-&gt;string bytevector endianness)‌‌</code></h2>
+<h2><code>(utf16-&gt;string bytevector‌ endianness endianness-mandatory)</code></h2>
+<h2><code>(utf32-&gt;string bytevector endianness)‌‌</code></h2>
+<h2><code>(utf32-&gt;string bytevector‌ endianness endianness-mandatory)</code></h2>
+</div>
+    </div>
+  </body>
+</html>

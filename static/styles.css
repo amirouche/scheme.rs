@@ -1,0 +1,115 @@
+@font-face {
+    font-family: 'tex_gyre_pagellaregular';
+    src: url('texgyrepagella_regular_macroman/texgyrepagella-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("EBGaramond12-Regular.ttf");
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+  font-family: "tex_gyre_pagellaregular", serif;
+  background: url("graphy.png");
+  font-size: 22px;
+  color: #131313;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Linux Biolinum", sans;
+}
+
+code, pre {
+  font-family: Hack, mono, monospace;
+  font-size: 0.7em;
+  padding: 10px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #e5e5e5;
+    background-size: cover;
+    margin: 0px;
+    padding: 0px;
+    line-height: 1.6em;
+}
+
+a:link, a:visited, a:active {
+    color: #500001;
+}
+
+a:hover {
+    color: #015101;
+}
+
+
+h1 > a {
+    text-decoration: none;
+}
+
+blockquote {
+    border: 1px solid black;
+    border-left: 5px solid black;
+    padding: 15px 30px;
+    text-align: justify;
+}
+
+blockquote > p {
+    font-size: 1.2em;
+}
+
+#overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -99;
+    transform: translateX(-50%) translateY(-50%);
+    // background: url(overlay-video-dark.png);
+}
+
+#container {
+    max-width: 777px;
+    background: hsla(0, 0%, 0%, 0.1);
+    margin: 100px auto;
+    padding: 15px 30px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px black;
+    text-align: justify;
+}
+
+.stdout {
+    font-family: Hack, mono, monospace;
+    color: #BBB;
+    margin-bottom: 5px;
+}
+
+.stdin {
+    font-family: Hack, mono, monospace;
+    color: #777;
+    background: hsla(0, 0%, 0%, 0.9);
+    padding: 5px 10px;
+    margin-bottom: 10px;
+}
+
+#input {
+    background: transparent;
+    color: white;
+    border: 1px solid white;
+    width: 100%;
+    padding: 5px 10px;
+    font-family: Hack, mono, monospace;
+    font-size: 20px;
+}

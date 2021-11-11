@@ -1,0 +1,667 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme show)</code></h1>
+<p>This library is based on
+<a href="https://srfi.schemers.org/srfi-159/">SRFI-159</a>.</p>
+<p>A library of procedures for formatting Scheme objects to text in
+various ways, and for easily concatenating, composing and extending
+these formatters efficiently without resorting to capturing and
+manipulating intermediate strings.</p>
+<h2><code>(show output-dest fmt ...)</code></h2>
+<p>The entry point for all formatting. Applies the fmt formatters in
+sequence, accumulating the output to output-dest. As with SRFI 28
+format, output-dest can be an output port, #t to indicate the current
+output port, or #f to accumulate the output into a string and return
+that as the result of show.</p>
+<p>Each fmt should be a formatter as discussed below. As a convenience,
+non-formatter arguments are also allowed and are formatted as if
+wrapped with displayed, described below, so that</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="s">&quot;π = &quot;</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">precision</span> <span class="mi">2</span><span class="p">))</span> <span class="p">(</span><span class="nb">acos </span><span class="mi">-1</span><span class="p">))</span> <span class="nv">nl</span><span class="p">)</span>
+</pre></div>
+<p>would return the string "π = 3.14\n".</p>
+<p>As mentioned, formatters are an opaque type and cannot directly be
+applied outside of show. Custom formatters are built on the existing
+formatters, and as first class objects may be named or computed
+dynamically, so that:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">~</span><span class="o">.</span><span class="mi">2</span><span class="nv">f</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">precision</span> <span class="mi">2</span><span class="p">))</span> <span class="nv">x</span><span class="p">))))</span>
+        <span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="s">&quot;π = &quot;</span> <span class="p">(</span><span class="nf">~</span><span class="o">.</span><span class="mi">2</span><span class="nv">f</span> <span class="p">(</span><span class="nb">acos </span><span class="mi">-1</span><span class="p">))</span> <span class="nv">nl</span><span class="p">))</span>
+</pre></div>
+<p>produces the same result. For typical uses you only need to combine
+the existing high level formatters described in the succeeding
+sections, but see the section Higher Order Formatters and State for
+control flow and state manipulation primitives.</p>
+<p>The return value of show is the accumulated string if output-dest is</p>
+<h1>f and unspecified otherwise.</h1>
+<h2><code>(displayed obj)</code></h2>
+<p>If obj is a formatter, returns obj as is. Otherwise, outputs obj using
+display semantics. Specifically, strings are output as if by
+write-string and characters are written as if by write-char. Other
+objects are output as with written (including nested strings and chars
+inside obj). This is the default behavior for top-level formats in
+show, each and most other high-level formatters.</p>
+<h2><code>(written obj)</code></h2>
+<p>Outputs obj using write semantics. Uses the current numeric formatting
+settings to the extent that the written result can still be passed to
+read, possibly with loss of precision. Specifically, the current radix
+is used if set to any of 2, 8, 10 or 16, and the fixed point precision
+is used if specified and the radix is 10.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">written</span> <span class="p">(</span><span class="nb">cons </span><span class="mi">0</span> <span class="mi">1</span><span class="p">)))</span>
+<span class="k">=&gt; </span><span class="s">&quot;(0 . 1)&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="mf">1.5</span> <span class="s">&quot; &quot;</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">precision</span> <span class="mi">0</span><span class="p">))</span> <span class="mf">1.5</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;1.5 2&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="mi">1</span><span class="nv">/7</span> <span class="s">&quot; &quot;</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">precision</span> <span class="mi">3</span><span class="p">))</span> <span class="mi">1</span><span class="nv">/7</span><span class="p">)</span>
+      <span class="s">&quot; &quot;</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">precision</span> <span class="mi">20</span><span class="p">))</span> <span class="mi">1</span><span class="nv">/7</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;1/7 0.143 0.14285714285714285714&quot;</span>
+</pre></div>
+<p>Implementations should allow arbitrary precision for exact rational
+numbers, for example, using string-segment from SRFI 152, the
+following code returns the first 100 Fibonacci numbers:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">map </span><span class="nv">string-&gt;number</span>
+         <span class="p">(</span><span class="nf">string-segment</span>
+          <span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">precision</span> <span class="mi">2500</span><span class="p">))</span>
+                     <span class="p">(</span><span class="nb">/ </span><span class="mi">1000</span> <span class="p">(</span><span class="nb">- </span><span class="o">#</span><span class="nv">e1e50</span> <span class="o">#</span><span class="nv">e1e25</span> <span class="mi">1</span><span class="p">))))</span>
+          <span class="mi">25</span><span class="p">))</span>
+</pre></div>
+<h2><code>(written-simply obj)</code></h2>
+<p>As above, but doesn't handle shared structures. Infinite loops can
+still be avoided if used inside a formatter that truncates data (see
+trimmed and fitted below).</p>
+<h2><code>(pretty obj)</code></h2>
+<p>Pretty-prints obj. The result should be identical to written except
+possibly for differences in whitespace to make the output resemble
+formatted source code. Implementations should print vectors and data
+lists (lists that don't begin with a (nested) symbol) in a tabular
+format when possible to reduce vertical space.</p>
+<h2><code>(pretty-simply obj)</code></h2>
+<p>As above but without sharing.</p>
+<h2><code>(escaped str [quote-ch esc-ch renamer])</code></h2>
+<p>Outputs the string str, escaping any quote or escape characters. If
+esc-ch, which defaults to #\, is #f, escapes only the quote-ch, which
+defaults to #\", by doubling it, as in SQL strings and CSV values. If
+renamer is provided, it should be a procedure of one character which
+maps that character to its escape value, e.g. #\newline =&gt; #\n, or #f
+if there is no escape value.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">escaped</span> <span class="s">&quot;hi, bob!&quot;</span><span class="p">))</span>
+    <span class="k">=&gt; </span><span class="s">&quot;hi, bob!&quot;</span>
+
+    <span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">escaped</span> <span class="s">&quot;hi, \&quot;bob!\&quot;&quot;</span><span class="p">))</span>
+    <span class="k">=&gt; </span><span class="s">&quot;hi, \&quot;bob!\&quot;&quot;</span>
+</pre></div>
+<h2><code>(maybe-escaped str pred [quote-ch esc-ch renamer])</code></h2>
+<p>Like escaped, but first checks if any quoting is required (by the
+existence of either any quote or escape characters, or any character
+matching pred), and if so outputs the string in quotes and with
+escapes. Otherwise outputs the string as is. This is useful for
+quoting symbols and CSV output, etc.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">maybe-escaped</span> <span class="s">&quot;foo&quot;</span> <span class="nv">char-whitespace?</span> <span class="sc">#\&quot;</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;foo&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">maybe-escaped</span> <span class="s">&quot;foo bar&quot;</span> <span class="nv">char-whitespace?</span> <span class="sc">#\&quot;</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;\&quot;foo bar\&quot;&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">maybe-escaped</span> <span class="s">&quot;foo\&quot;bar\&quot;baz&quot;</span> <span class="nv">char-whitespace?</span> <span class="sc">#\&quot;</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;\&quot;foo\&quot;bar\&quot;baz\&quot;&quot;</span>
+</pre></div>
+<h2><code>(numeric num [radix precision sign comma comma-sep decimal-sep])</code></h2>
+<p>Formats a single number num. You can optionally specify any radix from
+2 to 36 (even if num isn't an integer). precision forces a fixed-point
+format.</p>
+<p>A sign of #t indicates to output a plus sign (+) for positive
+integers. However, if sign is a pair of two strings, it means to wrap
+negative numbers with the two strings. For example, ("(" . ")") prints
+negative numbers in parentheses, financial style: -1.99 =&gt; (1.99).</p>
+<ul>
+<li><p>comma is an integer specifying the number of digits between commas.</p>
+</li>
+<li><p>comma-sep is the character to use for commas, defaulting to #\,.</p>
+</li>
+<li><p>decimal-sep is the character to use for decimals, defaulting to #.,
+or to #\, (European style) if comma-sep is already #..</p>
+</li>
+</ul>
+<p>These parameters may seem unwieldy, but they can also take their
+defaults from state variables, described below.</p>
+<h2><code>(numeric/comma num [base precision sign])</code></h2>
+<p>Shortcut for numeric to print with commas.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">numeric/comma</span> <span class="mi">1234567</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;1,234,567&quot;</span>
+</pre></div>
+<h2><code>(numeric/si num [base separator])</code></h2>
+<p>Abbreviates num with an SI suffix as in the -h or --si option to many
+GNU commands. The base defaults to 1024, using suffix names like Ki,
+Mi, Gi, etc. Other bases (e.g. the standard 1000) have the suffixes k,
+M, G, etc. If separator is provided, it is inserted after the number,
+before any suffix.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">numeric/si</span> <span class="mi">608</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;608&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">numeric/si</span> <span class="mi">608</span><span class="p">)</span> <span class="s">&quot;B&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;608B&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">numeric/si</span> <span class="mi">608</span> <span class="mi">1000</span> <span class="s">&quot; &quot;</span><span class="p">)</span> <span class="s">&quot;B&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;608 B&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">numeric/si</span> <span class="mi">3986</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;3.9Ki&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">numeric/si</span> <span class="mi">3986</span> <span class="mi">1000</span><span class="p">)</span> <span class="s">&quot;B&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;4kB&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">numeric/si</span> <span class="mf">1.23</span><span class="nv">e-6</span> <span class="mi">1000</span><span class="p">)</span> <span class="s">&quot;m&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;1.2µm&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">numeric/si</span> <span class="mf">1.23</span><span class="nv">e-6</span> <span class="mi">1000</span> <span class="s">&quot; &quot;</span><span class="p">)</span> <span class="s">&quot;m&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;1.2 µm&quot;</span>
+
+<span class="nv">See</span> <span class="nv">https://en</span><span class="o">.</span><span class="nv">wikipedia</span><span class="o">.</span><span class="nv">org/wiki/Metric_prefix</span> <span class="nv">for</span> <span class="nv">the</span> <span class="nv">complete</span> <span class="nv">list</span> <span class="nv">of</span> <span class="nv">abbreviations</span><span class="o">.</span>
+
+    <span class="p">(</span><span class="nf">numeric/fitted</span> <span class="nv">width</span> <span class="nv">n</span> <span class="o">.</span> <span class="nv">args</span><span class="p">)</span>
+
+<span class="nv">Like</span> <span class="nv">numeric,</span> <span class="nv">but</span> <span class="k">if </span><span class="nv">the</span> <span class="nv">result</span> <span class="nv">doesn</span><span class="ss">&#39;t</span> <span class="nv">fit</span> <span class="nv">in</span> <span class="nv">width</span> <span class="nv">using</span> <span class="nv">the</span> <span class="nv">current</span> <span class="nv">precision,</span> <span class="nv">output</span> <span class="nv">instead</span> <span class="nv">a</span> <span class="nv">string</span> <span class="nv">of</span> <span class="nv">hashes</span> <span class="nv">rather</span> <span class="nv">than</span> <span class="nv">showing</span> <span class="nv">an</span> <span class="nv">incorrectly</span> <span class="nv">truncated</span> <span class="nv">number</span><span class="o">.</span> <span class="nv">For</span> <span class="nv">example</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">precision</span> <span class="mi">2</span><span class="p">))</span> <span class="p">(</span><span class="nf">numeric/fitted</span> <span class="mi">4</span> <span class="mf">1.25</span><span class="p">)))</span>
+<span class="k">=&gt; </span><span class="s">&quot;1.25&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">precision</span> <span class="mi">2</span><span class="p">))</span> <span class="p">(</span><span class="nf">numeric/fitted</span> <span class="mi">4</span> <span class="mf">12.345</span><span class="p">)))</span>
+<span class="k">=&gt; </span><span class="s">&quot;#.##&quot;</span>
+</pre></div>
+<h2><code>nl</code></h2>
+<p>Outputs a newline.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="nv">nl</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;\n&quot;</span>
+</pre></div>
+<h2><code>fl</code></h2>
+<p>Short for "fresh line," outputs a newline only if we're not already at
+the start of a line.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="nv">fl</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="s">&quot;hi&quot;</span> <span class="nv">fl</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;hi\n&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="s">&quot;hi&quot;</span> <span class="nv">nl</span> <span class="nv">fl</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;hi\n&quot;</span>
+</pre></div>
+<h2><code>(space-to column)</code></h2>
+<p>Outputs spaces up to the given column. If the current column is
+already &gt;= column, does nothing. The character used for spacing is the
+current value of pad-char, described below, which defaults to
+space. Columns are zero-based.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="s">&quot;a&quot;</span> <span class="p">(</span><span class="nf">space-to</span> <span class="mi">5</span><span class="p">)</span> <span class="s">&quot;b&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;a    b&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="s">&quot;a&quot;</span> <span class="p">(</span><span class="nf">space-to</span> <span class="mi">0</span><span class="p">)</span> <span class="s">&quot;b&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;ab&quot;</span>
+</pre></div>
+<h2><code>(tab-to [tab-width])</code></h2>
+<p>Outputs spaces up to the next tab stop, using tab stops of width
+tab-width, which defaults to 8. If already on a tab stop, does
+nothing. If you want to ensure you always tab at least one space, you
+can use (each " " (tab-to width)). Columns are zero-based.</p>
+
+<div><pre>(show #f (tab-to 5) "b")
+=&gt; "b"
+
+(show #f "a" (tab-to 5) "b")
+=&gt; "a    b"
+
+(show #f "abcdefghi" (tab-to 5) "b")
+=&gt; "abcdefghi b"</pre></div>
+<h2><code>nothing</code></h2>
+<p>Outputs nothing (useful in combinators and as a default noop in
+conditionals).</p>
+
+<div><pre>(show #f "a" nothing "b")
+=&gt; "ab"</pre></div>
+<h2><code>(each fmt ...)</code></h2>
+<p>Applies each fmt in sequence, as in the top-level of show.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">each</span> <span class="s">&quot;a&quot;</span> <span class="s">&quot;b&quot;</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;ab&quot;</span>
+</pre></div>
+<h2><code>(each-in-list list-of-fmts)</code></h2>
+<p>Equivalent to (apply each list-of-fmts) but may be more efficient.</p>
+<h2><code>(joined mapper list [sep])</code></h2>
+<p>Formats each element elt of list with (mapper elt), inserting sep in
+between. sep defaults to the empty string, but can be any format or
+string.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">joined</span> <span class="nv">displayed</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">)</span> <span class="s">&quot;, &quot;</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;a, b, c&quot;</span>
+</pre></div>
+<h2><code>(joined/prefix mapper list [sep])</code></h2>
+<h2><code>(joined/suffix mapper list [sep])</code></h2>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">joined/prefix</span> <span class="nv">displayed</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">usr</span> <span class="nv">local</span> <span class="nv">bin</span><span class="p">)</span> <span class="s">&quot;/&quot;</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;/usr/local/bin&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">joined/suffix</span> <span class="nv">displayed</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)</span> <span class="nv">nl</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;1\n2\n3\n&quot;</span>
+</pre></div>
+<p>As joined, but inserts sep before/after every element.</p>
+<h2><code>(joined/last mapper last-mapper list [sep])</code></h2>
+<p>As joined, but the last element of the list is formatted with
+last-mapper instead.</p>
+
+<div><pre>(show #f (joined/last displayed
+                          (lambda (last) (each "and " last))
+                          '(lions tigers bears)
+                          ", "))
+    =&gt; "lions, tigers, and bears"</pre></div>
+<h2><code>(joined/dot mapper dot-mapper list [sep])</code></h2>
+<p>As joined, but if the list is a dotted list, then formats the dotted
+value with dot-mapper instead.</p>
+
+<div><pre>(show #f
+          "("
+          (joined/dot displayed
+              (lambda (dot) (each ". " dot))
+              '(1 2 . 3)
+              " ")
+          ")")
+    =&gt; "(1 2 . 3)"</pre></div>
+<h2><code>(joined/range mapper start [end sep])</code></h2>
+<p>As joined, but counts from start (inclusive) to end (exclusive),
+formatting each integer in the range with mapper. If end is #f or
+unspecified, produces an infinite stream of output.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">joined/range</span> <span class="nv">displayed</span> <span class="mi">0</span> <span class="mi">5</span> <span class="s">&quot; &quot;</span><span class="p">))</span>
+    <span class="k">=&gt; </span><span class="s">&quot;0 1 2 3 4&quot;</span>
+</pre></div>
+<h2><code>(padded width fmt ...)</code></h2>
+<h2><code>(padded/right width fmt ...)</code></h2>
+<h2><code>(padded/both width fmt ...)</code></h2>
+<p>Analogs of SRFI 13 string-pad, these add extra space to the left,
+right or both sides of the output generated by the fmts to pad it to
+width. If width is exceeded, has no effect. padded/both will include
+one more extra space on the right side of the output if the difference
+is odd.</p>
+<p>padded/right is guaranteed not to accumulate any intermediate data.</p>
+<p>Note these are column-oriented padders, so won't necessarily work with
+multi-line output (padding doesn't seem a likely operation for
+multi-line output).</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">padded</span> <span class="mi">5</span> <span class="s">&quot;abc&quot;</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;  abc&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">padded/right</span> <span class="mi">5</span> <span class="s">&quot;abc&quot;</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot;abc  &quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">padded/both</span> <span class="mi">5</span> <span class="s">&quot;abc&quot;</span><span class="p">))</span>
+<span class="k">=&gt; </span><span class="s">&quot; abc &quot;</span>
+</pre></div>
+<h2><code>(trimmed width fmt ...)</code></h2>
+<h2><code>(trimmed/right width fmt ...)</code></h2>
+<h2><code>(trimmed/both width fmt ...)</code></h2>
+<p>Analogs of SRFI 13 string-trim, these truncate the output of the fmts
+to force it in under width columns. As soon as any of the fmts exceeds
+width, stop formatting and truncate the result, returning control to
+whoever called trimmed. If width is not exceeded, is equivalent to
+each.</p>
+<p>If a truncation ellipsis is set, then when any truncation occurs
+trimmed and trimmed/right will prepend and append the ellipsis,
+respectively. trimmed/both will both prepend and append. The length of
+the ellipsis will be considered when truncating the original string,
+so that the total width will never be longer than width. It is an
+error if width is less than the length of ellipsis, or double the
+length for /both.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">ellipsis</span> <span class="s">&quot;...&quot;</span><span class="p">))</span> <span class="p">(</span><span class="nf">trimmed</span> <span class="mi">5</span> <span class="s">&quot;abcde&quot;</span><span class="p">)))</span>
+<span class="k">=&gt; </span> <span class="s">&quot;abcde&quot;</span>
+
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">ellipses</span> <span class="s">&quot;...&quot;</span><span class="p">))</span> <span class="p">(</span><span class="nf">trimmed</span> <span class="mi">5</span> <span class="s">&quot;abcdef&quot;</span><span class="p">)))</span>
+<span class="k">=&gt; </span> <span class="s">&quot;ab...&quot;</span>
+</pre></div>
+<p>It is an error if width is shorter than the width of the ellipsis.</p>
+<h2><code>(trimmed/lazy width fmt ...)</code></h2>
+<p>A variant of trimmed which generates each fmt in left to right order,
+and truncates and terminates immediately if more than width characters
+are generated. Thus this is safe to use with an infinite amount of
+output, e.g. from written-simply on an infinite list.</p>
+<h2><code>(fitted width fmt ...)</code></h2>
+<h2><code>(fitted/right width fmt ...)</code></h2>
+<h2><code>(fitted/both width fmt ...)</code></h2>
+<p>A combination of padded and trimmed that ensures that the output width
+is exactly width, truncating if it goes over and padding if it goes
+under.</p>
+<h2><code>(columnar column ...)</code></h2>
+<p>Formats each column side-by-side, i.e. as though each were formatted
+separately and then the individual lines concatenated together. The
+current line width (from the width state variable) is divided evenly
+among the columns, and all but the last column are right-padded. For
+example</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#t</span> <span class="p">(</span><span class="nf">columnar</span> <span class="p">(</span><span class="nf">displayed</span> <span class="s">&quot;abc\ndef\n&quot;</span><span class="p">)</span>
+                       <span class="p">(</span><span class="nf">displayed</span> <span class="s">&quot;123\n456\n&quot;</span><span class="p">)))</span>
+</pre></div>
+<p>outputs</p>
+<div class="highlight"><pre><span></span><span class="nv">abc</span>     <span class="mi">123</span>
+    <span class="nv">def</span>     <span class="mi">456</span>
+</pre></div>
+<p>assuming a 16-char width (the left side gets half the width, or 8
+ spaces, and is left aligned). Note that we explicitly use displayed
+ instead of the strings directly. This is because columnar treats raw
+ strings as literals inserted into the given location on every line,
+ to be used as borders, for example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#t</span> <span class="p">(</span><span class="nf">columnar</span> <span class="s">&quot;/* &quot;</span> <span class="p">(</span><span class="nf">displayed</span> <span class="s">&quot;abc\ndef\n&quot;</span><span class="p">)</span>
+                       <span class="s">&quot; | &quot;</span> <span class="p">(</span><span class="nf">displayed</span> <span class="s">&quot;123\n456\n&quot;</span><span class="p">)</span>
+                       <span class="s">&quot; */&quot;</span><span class="p">))</span>
+</pre></div>
+<p>would output</p>
+
+<div><pre>/* abc | 123 */
+    /* def | 456 */</pre></div>
+<p>You may also prefix any column with any of the symbols 'left, 'right
+or 'center to control the justification. The symbol 'infinite can be
+used to indicate the column generates an infinite stream of output.</p>
+<p>You can further prefix any column with a width modifier. Any positive
+integer is treated as a fixed width, ignoring the available width. Any
+real number between 0 and 1 indicates a fraction of the available
+width (after subtracting out any fixed widths). Columns with
+unspecified width divide up the remaining width evenly. If the extra
+space does not divide evenly, it is allocated column-wise left to
+right, e.g. if the width of 78 is divided among 5 columns, the column
+widths become 16, 16, 16, 15, 15 in order.</p>
+<p>Note that columnar builds its output incrementally, interleaving calls
+to the generators until each has produced a line, then concatenating
+that line together and outputting it. This is important because as
+noted above, some columns may produce an infinite stream of output,
+and in general you may want to format data larger than can fit into
+memory. Thus columnar would be suitable for line numbering a file of
+arbitrary size, or implementing the Unix yes(1) command, etc.</p>
+<h2><code>(tabular column ...)</code></h2>
+<p>Equivalent to columnar except that each column is padded at least to
+the minimum width required on any of its lines. Thus</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#t</span> <span class="p">(</span><span class="nf">tabular</span> <span class="s">&quot;|&quot;</span> <span class="p">(</span><span class="nf">each</span> <span class="s">&quot;a\nbc\ndef\n&quot;</span><span class="p">)</span> <span class="s">&quot;|&quot;</span>
+                          <span class="p">(</span><span class="nf">each</span> <span class="s">&quot;123\n45\n6\n&quot;</span><span class="p">)</span> <span class="s">&quot;|&quot;</span><span class="p">))</span>
+</pre></div>
+<p>outputs</p>
+
+<div><pre>|a  |123|
+    |bc |45 |
+    |def|6  |</pre></div>
+<p>This makes it easier to generate tables without knowing widths in
+advance. However, because it requires generating the entire output in
+advance to determine the correct column widths, tabular cannot format
+a table larger than would fit in memory.  (wrapped fmt ...)</p>
+<p>Behaves like each, except text is accumulated and lines are wrapped to
+fit in the current width as in the Unix fmt(1) command. Specifically,
+words are tokenized by splitting on all characters which satisfy the
+predicate in the parameter word-separator?, which defaults to
+char-whitespace?. Words are grouped into lines separating them by
+space, and line breaks are introduced to minimize the sum of the cube
+of trailing whitespace on every line.</p>
+<h2><code>(wrapped/list list-of-strings)</code></h2>
+<p>Like wrapped, but taking a pre-tokenized list of strings.</p>
+<h2><code>(wrapped/char fmt ...)</code></h2>
+<p>As wrapped, but splits simply on individual characters exactly as the
+current width is reached on each line. Thus there is nothing to
+optimize and this formatter doesn't buffer output.</p>
+<h2><code>(justified &lt;format&gt; ...)</code></h2>
+<p>Like wrapped except the lines are full-justified.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">func</span>
+      <span class="o">&#39;</span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">fold</span> <span class="nv">kons</span> <span class="nv">knil</span> <span class="nv">ls</span><span class="p">)</span>
+         <span class="p">(</span><span class="k">let </span><span class="nv">lp</span> <span class="p">((</span><span class="nf">ls</span> <span class="nv">ls</span><span class="p">)</span> <span class="p">(</span><span class="nf">acc</span> <span class="nv">knil</span><span class="p">))</span>
+           <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">null? </span><span class="nv">ls</span><span class="p">)</span> <span class="nv">acc</span> <span class="p">(</span><span class="nf">lp</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">ls</span><span class="p">)</span> <span class="p">(</span><span class="nf">kons</span> <span class="p">(</span><span class="nb">car </span><span class="nv">ls</span><span class="p">)</span> <span class="nv">acc</span><span class="p">))))))</span>
+
+    <span class="p">(</span><span class="k">define </span><span class="nv">doc</span>
+      <span class="p">(</span><span class="nf">string-append</span>
+        <span class="s">&quot;The fundamental list iterator.  Applies KONS to each &quot;</span>
+        <span class="s">&quot;element of LS and the result of the previous application, &quot;</span>
+        <span class="s">&quot;beginning with KNIL.  With KONS as CONS and KNIL as &#39;(), &quot;</span>
+        <span class="s">&quot;equivalent to REVERSE.&quot;</span><span class="p">))</span>
+
+    <span class="p">(</span><span class="nf">show</span> <span class="no">#t</span> <span class="p">(</span><span class="nf">columnar</span> <span class="p">(</span><span class="nf">pretty</span> <span class="nv">func</span><span class="p">)</span> <span class="s">&quot; ; &quot;</span> <span class="p">(</span><span class="nf">justified</span> <span class="nv">doc</span><span class="p">)))</span>
+</pre></div>
+<p>outputs</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">fold</span> <span class="nv">kons</span> <span class="nv">knil</span> <span class="nv">ls</span><span class="p">)</span>          <span class="c1">; The   fundamental   list   iterator.</span>
+      <span class="p">(</span><span class="k">let </span><span class="nv">lp</span> <span class="p">((</span><span class="nf">ls</span> <span class="nv">ls</span><span class="p">)</span> <span class="p">(</span><span class="nf">acc</span> <span class="nv">knil</span><span class="p">))</span>       <span class="c1">; Applies  KONS  to  each  element  of</span>
+        <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">null? </span><span class="nv">ls</span><span class="p">)</span>                   <span class="c1">; LS  and  the  result of the previous</span>
+            <span class="nv">acc</span>                          <span class="c1">; application,  beginning  with  KNIL.</span>
+            <span class="p">(</span><span class="nf">lp</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">ls</span><span class="p">)</span>                 <span class="c1">; With  KONS  as CONS and KNIL as &#39;(),</span>
+                <span class="p">(</span><span class="nf">kons</span> <span class="p">(</span><span class="nb">car </span><span class="nv">ls</span><span class="p">)</span> <span class="nv">acc</span><span class="p">)))))</span>  <span class="c1">; equivalent to REVERSE.</span>
+</pre></div>
+<h2><code>(from-file pathname)</code></h2>
+<p>Displays the contents of the file pathname one line at a time, so that
+in typical formatters such as columnar only constant memory is
+consumed, making this suitable for formatting files of arbitrary size.</p>
+<h2><code>(line-numbers [start])</code></h2>
+<p>A convenience utility, just formats an infinite stream of numbers (in
+the current radix) beginning with start, which defaults to 1.</p>
+<p>The Unix nl(1) utility could be implemented as:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#t</span> <span class="p">(</span><span class="nf">columnar</span> <span class="mi">4</span> <span class="ss">&#39;right</span> <span class="ss">&#39;infinite</span> <span class="p">(</span><span class="nf">line-numbers</span><span class="p">)</span>
+                       <span class="s">&quot; &quot;</span> <span class="p">(</span><span class="nf">from-file</span> <span class="s">&quot;read-line.scm&quot;</span><span class="p">)))</span>
+</pre></div>
+<p>which might output:</p>
+<div class="highlight"><pre><span></span><span class="mi">1</span>
+       <span class="mi">2</span> <span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">read-line</span> <span class="o">.</span> <span class="nv">o</span><span class="p">)</span>
+       <span class="mi">3</span>   <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">port</span> <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">pair? </span><span class="nv">o</span><span class="p">)</span> <span class="p">(</span><span class="nb">car </span><span class="nv">o</span><span class="p">)</span> <span class="p">(</span><span class="nf">current-input-port</span><span class="p">))))</span>
+       <span class="mi">4</span>     <span class="p">(</span><span class="k">let </span><span class="nv">lp</span> <span class="p">((</span><span class="nf">res</span> <span class="o">&#39;</span><span class="p">()))</span>
+       <span class="mi">5</span>       <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">c</span> <span class="p">(</span><span class="nb">read-char </span><span class="nv">port</span><span class="p">)))</span>
+       <span class="mi">6</span>         <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="k">or </span><span class="p">(</span><span class="nb">eof-object? </span><span class="nv">c</span><span class="p">)</span> <span class="p">(</span><span class="nb">eqv? </span><span class="nv">c</span> <span class="sc">#\newline</span><span class="p">))</span>
+       <span class="mi">7</span>             <span class="p">(</span><span class="nb">list-&gt;string </span><span class="p">(</span><span class="nb">reverse </span><span class="nv">res</span><span class="p">))</span>
+       <span class="mi">8</span>             <span class="p">(</span><span class="nf">lp</span> <span class="p">(</span><span class="nb">cons </span><span class="nv">c</span> <span class="nv">res</span><span class="p">)))))))</span>
+</pre></div>
+<h2><code>(as-red fmt ...)</code></h2>
+<h2><code>(as-blue fmt ...)</code></h2>
+<h2><code>(as-green fmt ...)</code></h2>
+<h2><code>(as-cyan fmt ...)</code></h2>
+<h2><code>(as-yellow fmt ...)</code></h2>
+<h2><code>(as-magenta fmt ...)</code></h2>
+<h2><code>(as-white fmt ...)</code></h2>
+<h2><code>(as-black fmt ...)</code></h2>
+<h2><code>(as-bold fmt ...)</code></h2>
+<h2><code>(as-underline fmt ...)</code></h2>
+<p>Outputs the formatters colored or (boldened or underline) with ANSI
+escapes, for use when formatting to a terminal.</p>
+<h2><code>(as-unicode fmt ...)</code></h2>
+<p>Equivalent to</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">string-width</span> <span class="nv">unicode-terminal-width</span><span class="p">))</span> <span class="nv">fmt</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+<p>Padding, trimming and tabbing, etc. will generally not do the right
+thing in the presence of zero-width and double-width Unicode
+characters. This formatter overrides the string-width state var used
+in column tracking to do the right thing in such cases, considering
+Unicode double or full width characters as 2 characters wide (as they
+typically are in fixed-width terminals), while treating combining and
+non-spacing characters as 0 characters wide.</p>
+<div class="highlight"><pre><span></span><span class="c1">;; 3 characters padded to 5</span>
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">pad-char</span> <span class="o">#</span><span class="err">\〜</span><span class="p">))</span> <span class="p">(</span><span class="nf">padded/both</span> <span class="mi">5</span> <span class="s">&quot;日本語&quot;</span><span class="p">)))</span>
+<span class="k">=&gt; </span><span class="s">&quot;〜日本語〜&quot;</span>
+
+<span class="c1">;; the 3 characters have a terminal width of 6 so are not padded</span>
+<span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">as-unicode</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">pad-char</span> <span class="o">#</span><span class="err">\〜</span><span class="p">))</span> <span class="p">(</span><span class="nf">padded/both</span> <span class="mi">5</span> <span class="s">&quot;日本語&quot;</span><span class="p">))))</span>
+<span class="k">=&gt; </span><span class="s">&quot;日本語&quot;</span>
+</pre></div>
+<h2><code>(unicode-terminal-width str)</code></h2>
+<p>A utility function which returns the integer number of columns str
+would require in a terminal, according to the following rules:</p>
+<ul>
+<li><p>non-spacing characters (format control characters with the property
+Cf, or non-spacing marks with the property Mn) count as 0 columns</p>
+</li>
+<li><p>characters with the East Asian Wide (W) or East Asian Fullwidth (F)
+properties, according to Unicode TR #11, count as 2 columns</p>
+</li>
+<li><p>characters with the Halfwidth (H) or Narrow (Na) should count as 1
+column</p>
+</li>
+<li><p>characters with the Neutral (N) non-East Asian also count as 1
+column</p>
+</li>
+<li><p>characters with the Ambiguous (A) property are implementation
+defined</p>
+</li>
+<li><p>ANSI terminal escapes, as output by the color formatters above,
+count as 0 columns</p>
+</li>
+<li><p>the tab character is implementation defined</p>
+</li>
+<li><p>Implementations should support the properties from at least the
+current Unicode specification at time of writing this SRFI, 10.0.0.
+Higher Order Formatters and State</p>
+</li>
+</ul>
+<p>Formatters up to this point have been simple accumulators of output,
+with no control flow or handling of state. Both of these are provided
+by fn and with for getting and setting state, respectively.</p>
+<p>A formatter is essentially an environment monad, although the
+underlying implementation is unspecified.</p>
+<h2><code>(fn ((id state-var) ...) expr ... fmt)</code></h2>
+<p>Short for "function," this is the analog to lambda. Returns a
+formatter which on application evaluates each expr and fmt in
+left-to-right order, in a lexical environment extended with each
+identifier id bound to the current value of the state variable named
+by the symbol state-var. The result of the fmt is then applied as a
+formatter.</p>
+<p>As a convenience, any (id state-var) list may be abbreviated as simply
+id, indicating id is bound to the state variable of the same (symbol)
+name.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="s">&quot;column: &quot;</span> <span class="p">(</span><span class="nf">fn</span> <span class="p">(</span><span class="nf">col</span><span class="p">)</span> <span class="nv">col</span><span class="p">))</span>
+    <span class="k">=&gt; </span><span class="s">&quot;column: 8&quot;</span>
+
+    <span class="p">(</span><span class="nf">show</span> <span class="no">#f</span> <span class="s">&quot;column: &quot;</span> <span class="p">(</span><span class="nf">fn</span> <span class="p">((</span><span class="nf">col1</span> <span class="nv">col</span><span class="p">))</span>
+                         <span class="p">(</span><span class="nf">each</span> <span class="nv">col1</span> <span class="s">&quot;, &quot;</span> <span class="p">(</span><span class="nf">fn</span> <span class="p">((</span><span class="nf">col2</span> <span class="nv">col</span><span class="p">))</span> <span class="nv">col2</span><span class="p">))))</span>
+    <span class="k">=&gt; </span><span class="s">&quot;column: 8, 11&quot;</span>
+</pre></div>
+<p>The trivial case of no state variables is often useful to allow for
+lazy applications of formatters, needed for conditional formatting and
+loops. For example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#t</span> <span class="p">(</span><span class="k">let </span><span class="nv">lp</span> <span class="p">((</span><span class="nf">ls</span> <span class="nv">ls</span><span class="p">))</span>
+               <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">pair? </span><span class="nv">ls</span><span class="p">)</span>
+                   <span class="p">(</span><span class="nf">each</span> <span class="p">(</span><span class="nb">car </span><span class="nv">ls</span><span class="p">)</span> <span class="p">(</span><span class="nf">lp</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">ls</span><span class="p">)))</span>
+                   <span class="nv">nothing</span><span class="p">)))</span>
+</pre></div>
+<p>would eagerly create a formatter concatenating every element of ls
+before starting to accumulate any output, whereas</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">show</span> <span class="no">#t</span> <span class="p">(</span><span class="k">let </span><span class="nv">lp</span> <span class="p">((</span><span class="nf">ls</span> <span class="nv">ls</span><span class="p">))</span>
+               <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">pair? </span><span class="nv">ls</span><span class="p">)</span>
+                   <span class="p">(</span><span class="nf">each</span> <span class="p">(</span><span class="nb">car </span><span class="nv">ls</span><span class="p">)</span> <span class="p">(</span><span class="nf">fn</span> <span class="p">()</span> <span class="p">(</span><span class="nf">lp</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">ls</span><span class="p">))))</span>
+                   <span class="nv">nothing</span><span class="p">)))</span>
+</pre></div>
+<p>would lazily apply the formatters one at a time.</p>
+<h2><code>(with ((state-var value) ...) fmt ...)</code></h2>
+<p>Conceptually the formatting equivalent of parameterize, temporarily
+altering state variables. Applies each of the formatters fmt with each
+state-var bound to the corresponding value. The resulting state is
+then updated to restore each state-var to its original value.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">with!</span> <span class="p">(</span><span class="nf">state-var</span> <span class="nv">value</span><span class="p">)</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+<p>Similar to with but does not restore the original values, changing the
+value of each state-var for any remaining formatters in a sequence.</p>
+<h2><code>(forked fmt1 fmt2)</code></h2>
+<p>Calls fmt1 on (a conceptual copy of) the current state, then fmt2 on
+the same original state as though fmt1 had not been called.</p>
+<h2><code>(call-with-output formatter mapper)</code></h2>
+<p>A utility, calls formatter on a copy of the current state (as with
+forked), accumulating the results into a string. Then calls the
+formatter resulting from (mapper result-string) on the original state.</p>
+<h2><code>port</code></h2>
+<p>The textual port output is written to, this can be overridden to
+capture intermediate output.</p>
+<h2><code>row</code></h2>
+<p>The current row of output.</p>
+<h2><code>col</code></h2>
+<p>The current column of output, used for padding and spacing, etc.</p>
+<h2><code>width</code></h2>
+<p>The current line width, used for wrapping, pretty-printing, and
+columnar formatting. The default is implementation-defined.</p>
+<h2><code>output</code></h2>
+<p>The underlying standard formatter for writing a single string. The
+default value outputs the string while tracking the current row and
+col. This can be overridden both to capture intermediate output and
+perform transformations on strings before outputting, but should
+generally wrap the existing output to preserve expected behavior.</p>
+<h2><code>writer</code></h2>
+<p>The mapper for automatic formatting of non-string/char values in
+top-level show, each and other formatters. Default value is
+implementation-defined.</p>
+<h2><code>string-width</code></h2>
+<p>A function of a single string, it returns the length in columns of
+that string, used by the default output.</p>
+<h2><code>pad-char</code></h2>
+<p>The character used by space-to, tab-to and other padding formatters.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">print-table-of-contents</span> <span class="nv">alist</span><span class="p">)</span>
+      <span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">print-line</span> <span class="nv">x</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">each</span> <span class="p">(</span><span class="nb">car </span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nf">space-to</span> <span class="mi">72</span><span class="p">)</span> <span class="p">(</span><span class="nf">padded</span> <span class="mi">3</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">x</span><span class="p">))))</span>
+      <span class="p">(</span><span class="nf">show</span> <span class="no">#t</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">pad-char</span> <span class="sc">#\.</span><span class="p">))</span>
+                 <span class="p">(</span><span class="nf">joined/suffix</span> <span class="nv">print-line</span> <span class="nv">alist</span> <span class="nv">nl</span><span class="p">))))</span>
+
+    <span class="p">(</span><span class="nf">print-table-of-contents</span>
+     <span class="o">&#39;</span><span class="p">((</span><span class="s">&quot;An Unexpected Party&quot;</span> <span class="o">.</span> <span class="mi">29</span><span class="p">)</span>
+       <span class="p">(</span><span class="s">&quot;Roast Mutton&quot;</span> <span class="o">.</span> <span class="mi">60</span><span class="p">)</span>
+       <span class="p">(</span><span class="s">&quot;A Short Rest&quot;</span> <span class="o">.</span> <span class="mi">87</span><span class="p">)</span>
+       <span class="p">(</span><span class="s">&quot;Over Hill and Under Hill&quot;</span> <span class="o">.</span> <span class="mi">100</span><span class="p">)</span>
+       <span class="p">(</span><span class="s">&quot;Riddles in the Dark&quot;</span> <span class="o">.</span> <span class="mi">115</span><span class="p">)))</span>
+</pre></div>
+<p>would output</p>
+
+<div><pre>An Unexpected Party.....................................................29
+    Roast Mutton............................................................60
+    A Short Rest............................................................87
+    Over Hill and Under Hill...............................................100
+    Riddles in the Dark....................................................115</pre></div>
+<h2><code>eellipsis</code></h2>
+<p>The string used when truncating as described in trimmed.</p>
+<h2><code>radix</code></h2>
+<p>The radix for numeric output, defaulting to 10, as used in numeric and
+written.</p>
+<h2><code>precision</code></h2>
+<p>The precision for numeric output, as described in numeric and
+written. The precision specifies the number of digits written after
+the decimal point. If the numeric value to be written out requires
+more digits to represent it than precision, the written representation
+is chosen which is closest to the numeric value and representable with
+the specified precision. If the numeric value falls on the midpoint of
+two such representations, it is implementation dependent which
+representation is chosen.</p>
+<p>When the numeric value is an inexact floating-point number, there is
+more than one interpretation of this "rounding". One is to take the
+effective value the floating-point number represents (e.g. if we use
+binary floating-point numbers, we take the value of (* sign mantissa
+(expt 2 exponent))), and compare it to the two closest numeric
+representations of the given precision. Another way is to obtain the
+default notation of the floating-point number and apply rounding to
+it. The former (we call it effective rounding) is consistent with most
+floating-point number operations, but may lead to a more non-intuitive
+result than the latter (we call it notational rounding). For example,
+5.015 can't be represented exactly in binary floating-point
+numbers. With IEEE754 floating-point numbers, the floating point
+number closest to 5.015 is smaller than exact 5.015, i.e. (&lt; 5.015
+5015/1000) =&gt; #t. With effective rounding with precision 2, it should
+result in "5.01". However, users who look at the notation may be
+confused by "5.015" not being rounded up as they usually expect. With
+notational rounding the implementation chooses "5.02" (if it also
+adopts round-half-to-infinity or round-half-up rule). It is up to the
+implementation to choose which interpretation to adopt.</p>
+<h2><code>decimal-sep</code></h2>
+<p>The decimal separator for floating point output, default ".".</p>
+<h2><code>decimal-align</code></h2>
+<p>Specifies an alignment for the decimal place when formatting numbers,
+and is useful for outputting tables of numbers.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">print-angles</span> <span class="nv">x</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">joined</span> <span class="nv">numeric</span> <span class="p">(</span><span class="nb">list </span><span class="nv">x</span> <span class="p">(</span><span class="nb">sin </span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">cos </span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">tan </span><span class="nv">x</span><span class="p">))</span> <span class="s">&quot; &quot;</span><span class="p">))</span>
+
+    <span class="p">(</span><span class="nf">show</span> <span class="no">#t</span> <span class="p">(</span><span class="nf">with</span> <span class="p">((</span><span class="nf">decimal-align</span> <span class="mi">5</span><span class="p">)</span> <span class="p">(</span><span class="nf">precision</span> <span class="mi">3</span><span class="p">))</span>
+               <span class="p">(</span><span class="nf">joined/suffix</span> <span class="nv">print-angles</span> <span class="p">(</span><span class="nf">iota</span> <span class="mi">5</span><span class="p">)</span> <span class="nv">nl</span><span class="p">)))</span>
+</pre></div>
+<p>would output</p>
+<div class="highlight"><pre><span></span><span class="mf">0.000</span>    <span class="mf">0.000</span>    <span class="mf">1.000</span>    <span class="mf">0.000</span>
+     <span class="mf">1.000</span>    <span class="mf">0.842</span>    <span class="mf">0.540</span>    <span class="mf">1.557</span>
+     <span class="mf">2.000</span>    <span class="mf">0.909</span>   <span class="mf">-0.416</span>   <span class="mf">-2.185</span>
+     <span class="mf">3.000</span>    <span class="mf">0.141</span>   <span class="mf">-0.990</span>   <span class="mf">-0.142</span>
+     <span class="mf">4.000</span>   <span class="mf">-0.757</span>   <span class="mf">-0.654</span>    <span class="mf">1.158</span>
+</pre></div>
+<h2><code>word-separator?</code></h2>
+<p>A character predicate used to tokenize words for wrapped and
+justify. Defaults to char-whitespace?. More flexibility is available
+with wrapped/list.</p>
+</div>
+    </div>
+  </body>
+</html>

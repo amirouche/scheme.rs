@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme box)</code></h1>
+<p>This library is based on <a href="https://srfi.schemers.org/srfi-111/">SRFI-111</a>.</p>
+<p>Boxes are objects with a single mutable state. Several Schemes have
+them, sometimes called cells. A constructor, predicate, accessor, and
+mutator are provided.</p>
+<h2><code>(box value)</code></h2>
+<p>Constructor. Returns a newly allocated box initialized to value.</p>
+<h2><code>(box? object)</code></h2>
+<p>Predicate. Returns <code>#t</code> if object is a box, and <code>#f</code> otherwise.</p>
+<h2><code>(unbox box)</code></h2>
+<p>Accessor. Returns the current value of box.</p>
+<h2><code>(set-box! box value)</code></h2>
+<p>Mutator. Changes box to hold value.</p>
+</div>
+    </div>
+  </body>
+</html>

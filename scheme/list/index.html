@@ -1,0 +1,930 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme list)</code></h1>
+<p>This is based on <a href="https://srfi.schemers.org/srfi-1/">SRFI-1</a>.</p>
+<h2><code>(cons a d)</code></h2>
+<p>The primitive constructor. Returns a newly allocated pair whose <code>car</code>
+is <code>a</code> and whose <code>cdr</code> is <code>d</code>. The pair is guaranteed to be different
+(in the sense of <code>eqv?</code>) from every existing object.</p>
+<h2><code>(list object ...)</code></h2>
+<p>Returns a newly allocated list of its arguments.</p>
+<h2><code>(xcons d a)</code></h2>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">d</span> <span class="nv">a</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="nv">a</span> <span class="nv">d</span><span class="p">))</span>
+</pre></div>
+<p>Of utility only as a value to be conveniently passed to higher-order
+procedures.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">xcons</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">b</span> <span class="nv">c</span><span class="p">)</span> <span class="ss">&#39;a</span><span class="p">)</span> <span class="c1">;; =&gt; (a b c)</span>
+</pre></div>
+<p>The name stands for "eXchanged CONS."</p>
+<h2><code>(cons* obj ... tail)</code></h2>
+<p>Like list, but the last argument provides the tail of the constructed
+list.</p>
+<h2><code>(make-list n [fill])</code></h2>
+<p>Returns an n-element list, whose elements are all the value fill. If
+the fill argument is not given, the elements of the list may be
+arbitrary values.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">make-list</span> <span class="mi">4</span> <span class="ss">&#39;c</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">c</span> <span class="nv">c</span> <span class="nv">c</span> <span class="nv">c</span><span class="p">)</span>
+</pre></div>
+<h2><code>(list-tabulate n init-proc)</code></h2>
+<p>Returns an n-element list. Element i of the list, where 0 &lt;= i &lt; n, is
+produced by (init-proc i). No guarantee is made about the dynamic
+order in which init-proc is applied to these indices.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">list-tabulate</span> <span class="mi">4</span> <span class="nv">values</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+<h2><code>(list-copy flist)</code></h2>
+<p>Copies the spine of the argument.</p>
+<h2><code>(circular-list elt1 elt2 ...)</code></h2>
+<p>Constructs a circular list of the elements.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">circular-list</span> <span class="ss">&#39;z</span> <span class="ss">&#39;q</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">z</span> <span class="nv">q</span> <span class="nv">z</span> <span class="nv">q</span> <span class="nv">z</span> <span class="nv">q</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+<h2><code>(iota count [start step])</code></h2>
+<p>Returns a list containing the elements:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">start</span> <span class="nv">start+step</span> <span class="o">...</span> <span class="nv">start+</span><span class="p">(</span><span class="nf">count-1</span><span class="p">)</span><span class="nv">*step</span><span class="p">)</span>
+</pre></div>
+<p>The start and step parameters default to 0 and 1, respectively.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">iota</span> <span class="mi">5</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">iota</span> <span class="mi">5</span> <span class="mi">0</span> <span class="mf">-0.1</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">0</span> <span class="mf">-0.1</span> <span class="mf">-0.2</span> <span class="mf">-0.3</span> <span class="mf">-0.4</span><span class="p">)</span>
+</pre></div>
+<h2><code>(proper-list? x)</code></h2>
+<p>Returns true iff x is a proper list -- a finite, nil-terminated list.</p>
+<p>More carefully: The empty list is a proper list. A pair whose cdr is a
+proper list is also a proper list. The opposite of proper is improper.</p>
+<h2><code>(circular-list? x)</code></h2>
+<p>True if x is a circular list. A circular list is a value such that for
+every n &gt;= 0, cdrn(x) is a pair.</p>
+<p>Terminology: The opposite of circular is finite.</p>
+<h2><code>(dotted-list? x)</code></h2>
+<p>True if x is a finite, non-nil-terminated list. That is, there exists
+an n &gt;= 0 such that cdrn(x) is neither a pair nor (). This includes
+non-pair, non-() values (e.g. symbols, numbers), which are considered
+to be dotted lists of length 0.</p>
+<h2><code>(pair? obj)</code></h2>
+<p>Returns #t if object is a pair; otherwise, #f.</p>
+<h2><code>(null? obj)</code></h2>
+<p>Returns #t if object is the empty list; otherwise, #f.</p>
+<h2><code>(null-list? list)</code></h2>
+<p>List is a proper or circular list. This procedure returns true if the
+argument is the empty list (), and false otherwise. It is an error to
+pass this procedure a value which is not a proper or circular
+list. This procedure is recommended as the termination condition for
+list-processing procedures that are not defined on dotted lists.</p>
+<h2><code>(not-pair? x)</code></h2>
+<p>Provided as a procedure as it can be useful as the termination
+condition for list-processing procedures that wish to handle all
+finite lists, both proper and dotted.</p>
+<h2><code>(list= elt= list1 ...)</code></h2>
+<p>Determines list equality, given an element-equality procedure.</p>
+<h2><code>(car pair)</code></h2>
+<h2><code>(cdr pair)</code></h2>
+<p>These functions return the contents of the car and cdr field of their
+argument, respectively. Note that it is an error to apply them to the
+empty list.</p>
+<p>Also the following selectors are defined:</p>
+<ul>
+<li><code>caar</code></li>
+<li><code>cadr</code></li>
+<li><code>cdar</code></li>
+<li><code>cddr</code></li>
+<li><code>caaar</code></li>
+<li><code>caadr</code></li>
+<li><code>cadar</code></li>
+<li><code>caddr</code></li>
+<li><code>cdaar</code></li>
+<li><code>cdadr</code></li>
+<li><code>cddar</code></li>
+<li><code>cdddr</code></li>
+<li><code>caaaar</code></li>
+<li><code>caaadr</code></li>
+<li><code>caadar</code></li>
+<li><code>caaddr</code></li>
+<li><code>cadaar</code></li>
+<li><code>cadadr</code></li>
+<li><code>caddar</code></li>
+<li><code>cadddr</code></li>
+<li><code>cdaaar</code></li>
+<li><code>cdaadr</code></li>
+<li><code>cdadar</code></li>
+<li><code>cdaddr</code></li>
+<li><code>cddaar</code></li>
+<li><code>cddadr</code></li>
+<li><code>cdddar</code></li>
+<li><code>cddddr</code></li>
+</ul>
+<h2><code>(list-ref clist i)</code></h2>
+<p>Returns the ith element of clist. (This is the same as the car of
+(drop clist i).) It is an error if i &gt;= n, where n is the length of
+clist.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">list-ref </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">)</span> <span class="mi">2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="nv">c</span>
+</pre></div>
+<h2><code>(first pair)</code></h2>
+<h2><code>(second pair)</code></h2>
+<h2><code>(third pair)</code></h2>
+<h2><code>(fourth pair)</code></h2>
+<h2><code>(fifth pair)</code></h2>
+<h2><code>(sixth pair)</code></h2>
+<h2><code>(seventh pair)</code></h2>
+<h2><code>(eighth pair)</code></h2>
+<h2><code>(ninth pair)</code></h2>
+<h2><code>(tenth pair)</code></h2>
+<p>Synonyms for <code>car</code>, <code>cadr</code>, <code>caddr</code>, ...</p>
+<h2><code>(car+cdr pair)</code></h2>
+<p>The fundamental pair deconstructor:</p>
+
+<div><pre>(lambda (p) (values (car p) (cdr p)))</pre></div>
+<p>This can, of course, be implemented more efficiently by a compiler.</p>
+<h2><code>(take lst i)</code></h2>
+<h2><code>(drop lst i)</code></h2>
+<p><code>take</code> returns the first <code>I</code> elements of list <code>LST</code>.  <code>drop</code> returns
+all but the first i elements of list <code>LST</code>.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">take</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">;; =&gt; (a b)</span>
+<span class="p">(</span><span class="nf">drop</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">;; =&gt; (c d e)</span>
+</pre></div>
+<p><code>LST</code> may be any value -- a proper, circular, or dotted list:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">take</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="o">.</span> <span class="nv">d</span><span class="p">)</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">;; =&gt; (1 2)</span>
+<span class="p">(</span><span class="nf">drop</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="o">.</span> <span class="nv">d</span><span class="p">)</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">;; =&gt; (3 . d)</span>
+<span class="p">(</span><span class="nf">take</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="o">.</span> <span class="nv">d</span><span class="p">)</span> <span class="mi">3</span><span class="p">)</span> <span class="c1">;; =&gt; (1 2 3)</span>
+<span class="p">(</span><span class="nf">drop</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="o">.</span> <span class="nv">d</span><span class="p">)</span> <span class="mi">3</span><span class="p">)</span> <span class="c1">;; =&gt; d</span>
+</pre></div>
+<p>For a legal <code>I</code>, <code>take</code> and <code>drop</code> partition the list in a manner
+which can be inverted with append:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">equal? </span><span class="p">(</span><span class="nb">append </span><span class="p">(</span><span class="nf">take</span> <span class="nv">lst</span> <span class="nv">i</span><span class="p">)</span> <span class="p">(</span><span class="nf">drop</span> <span class="nv">x</span> <span class="nv">i</span><span class="p">))</span> <span class="nv">lst</span><span class="p">)</span>
+</pre></div>
+<p><code>drop</code> is exactly equivalent to performing <code>i</code> <code>cdr</code> operations on
+<code>LST</code>; the returned value shares a common tail with <code>LST</code>. If the
+argument is a list of non-zero length, <code>take</code> is guaranteed to return
+a freshly-allocated list, even in the case where the entire list is
+taken, e.g. <code>(take lst (length lst))</code>.</p>
+<h2><code>(take-right flist i)</code></h2>
+<h2><code>(drop-right flist i)</code></h2>
+<p><code>take-right</code> returns the last <code>I</code> elements of <code>FLIST</code>.  <code>drop-right</code>
+returns all but the last <code>I</code> elements of <code>FLIST</code>.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">take-right</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="mi">2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">d</span> <span class="nv">e</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">drop-right</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="mi">2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">)</span>
+</pre></div>
+<p>The returned list may share a common tail with the argument list.</p>
+<p><code>FLIST</code> may be any finite list, either proper or dotted:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">take-right</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="o">.</span> <span class="nv">d</span><span class="p">)</span> <span class="mi">2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">2</span> <span class="mi">3</span> <span class="o">.</span> <span class="nv">d</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">drop-right</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="o">.</span> <span class="nv">d</span><span class="p">)</span> <span class="mi">2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">take-right</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="o">.</span> <span class="nv">d</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span> <span class="k">=&gt; </span><span class="nv">d</span>
+<span class="p">(</span><span class="nf">drop-right</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="o">.</span> <span class="nv">d</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+<p>For a legal <code>I</code>, <code>take-right</code> and <code>drop-right</code> partition the list in a
+manner which can be inverted with <code>append</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">equal? </span><span class="p">(</span><span class="nb">append </span><span class="p">(</span><span class="nf">take</span> <span class="nv">flist</span> <span class="nv">i</span><span class="p">)</span> <span class="p">(</span><span class="nf">drop</span> <span class="nv">flist</span> <span class="nv">i</span><span class="p">))</span> <span class="nv">flist</span><span class="p">)</span>
+</pre></div>
+<p><code>take-right</code>'s return value is guaranteed to share a common tail with
+<code>FLIST</code>. If the argument is a list of non-zero length, <code>drop-right</code> is
+guaranteed to return a freshly-allocated list, even in the case where
+nothing is dropped, e.g. <code>(drop-right flist 0)</code>.</p>
+<h2><code>(take! x i)</code></h2>
+<h2><code>(drop-right! flist i)</code></h2>
+<p><code>take!</code> and <code>drop-right!</code> are "linear-update" variants of <code>take</code> and
+<code>drop-right</code>: the procedure is allowed, but not required, to alter the
+argument list to produce the result.</p>
+<p>If <code>x</code> is circular, <code>take!</code> may return a shorter-than-expected list:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">take!</span> <span class="p">(</span><span class="nf">circular-list</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">5</span><span class="p">)</span> <span class="mi">8</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">1</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">take!</span> <span class="p">(</span><span class="nf">circular-list</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">5</span><span class="p">)</span> <span class="mi">8</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">1</span> <span class="mi">3</span> <span class="mi">5</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">5</span> <span class="mi">1</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+<h2><code>(split-at  x i)</code></h2>
+<h2><code>(split-at! x i)</code></h2>
+<p><code>split-at</code> splits the list <code>x</code> at index <code>i</code>, returning a list of the
+first <code>i</code> elements, and the remaining tail. It is equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">values </span><span class="p">(</span><span class="nf">take</span> <span class="nv">x</span> <span class="nv">i</span><span class="p">)</span> <span class="p">(</span><span class="nf">drop</span> <span class="nv">x</span> <span class="nv">i</span><span class="p">))</span>
+</pre></div>
+<p><code>split-at!</code> is the linear-update variant. It is allowed, but not
+required, to alter the argument list to produce the result.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">split-at</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span><span class="p">)</span> <span class="mi">3</span><span class="p">)</span> <span class="c1">;; =&gt; (a b c) and (d e f g h)</span>
+</pre></div>
+<h2><code>(last pair)</code></h2>
+<h2><code>(last-pair pair)</code></h2>
+<p><code>last</code> returns the last element of the non-empty, finite list
+<code>pair</code>. <code>last-pair</code> returns the last pair in the non-empty, finite
+list <code>pair</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">last</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span> <span class="c1">;; =&gt; c</span>
+<span class="p">(</span><span class="nf">last-pair</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span> <span class="c1">;; =&gt; (c)</span>
+</pre></div>
+<h2><code>(length list)</code></h2>
+<h2><code>(length+ clist)</code></h2>
+<p>Both <code>length</code> and <code>length+</code> return the length of the argument. It is
+an error to pass a value to length which is not a proper list (finite
+and nil-terminated). In particular, this means an implementation may
+diverge or signal an error when length is applied to a circular list.</p>
+<p><code>length+</code>, on the other hand, returns <code>#f</code> when applied to a circular
+list.</p>
+<p>The length of a proper list is a non-negative integer <code>n</code> such that
+<code>cdr</code> applied <code>n</code> times to the list produces the empty list.</p>
+<h2><code>(append  list1 ...)</code></h2>
+<h2><code>(append! list1 ...)</code></h2>
+<p><code>append</code> returns a list consisting of the elements of <code>list1</code> followed
+by the elements of the other list parameters.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">append </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">y</span><span class="p">))</span>        <span class="k">=&gt; </span> <span class="p">(</span><span class="nf">x</span> <span class="nv">y</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">append </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">))</span>    <span class="k">=&gt; </span> <span class="p">(</span><span class="nf">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">append </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="p">(</span><span class="nf">b</span><span class="p">))</span> <span class="o">&#39;</span><span class="p">((</span><span class="nf">c</span><span class="p">)))</span>  <span class="k">=&gt; </span> <span class="p">(</span><span class="nf">a</span> <span class="p">(</span><span class="nf">b</span><span class="p">)</span> <span class="p">(</span><span class="nf">c</span><span class="p">))</span>
+</pre></div>
+<p>The resulting list is always newly allocated, except that it shares
+structure with the final list argument. This last argument may be any
+value at all; an improper list results if it is not a proper list. All
+other arguments must be proper lists.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">append </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">c</span> <span class="o">.</span> <span class="nv">d</span><span class="p">))</span>  <span class="k">=&gt; </span> <span class="p">(</span><span class="nf">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="o">.</span> <span class="nv">d</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">append </span><span class="o">&#39;</span><span class="p">()</span> <span class="ss">&#39;a</span><span class="p">)</span>           <span class="k">=&gt; </span> <span class="nv">a</span>
+<span class="p">(</span><span class="nb">append </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">x</span> <span class="nv">y</span><span class="p">))</span>           <span class="k">=&gt; </span> <span class="p">(</span><span class="nf">x</span> <span class="nv">y</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">append</span><span class="p">)</span>                  <span class="k">=&gt; </span> <span class="p">()</span>
+</pre></div>
+<p><code>append!</code> is the "linear-update" variant of append -- it is allowed,
+but not required, to alter <code>cons</code> cells in the argument lists to
+construct the result list. The last argument is never altered; the
+result list shares structure with this parameter.</p>
+<h2><code>(concatenate  list-of-lists)</code></h2>
+<h2><code>(concatenate! list-of-lists)</code></h2>
+<p>These functions append the elements of their argument together. That
+is, <code>concatenate</code> returns:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">apply </span><span class="nv">append</span> <span class="nv">list-of-lists</span><span class="p">)</span>
+</pre></div>
+<p>Or, equivalently,</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">reduce-right</span> <span class="nv">append</span> <span class="o">&#39;</span><span class="p">()</span> <span class="nv">list-of-lists</span><span class="p">)</span>
+</pre></div>
+<p><code>concatenate!</code> is the linear-update variant, defined in terms of
+<code>append!</code> instead of <code>append</code>.</p>
+<p>As with <code>append</code> and <code>append!</code>, the last element of the input list may
+be any value at all.</p>
+<h2><code>(reverse list)</code></h2>
+<h2><code>(reverse! list)</code></h2>
+<p><code>reverse</code> returns a newly allocated list consisting of the elements of
+list in reverse order.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">reverse </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span> <span class="c1">;; =&gt;  (c b a)</span>
+<span class="p">(</span><span class="nb">reverse </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="p">(</span><span class="nf">b</span> <span class="nv">c</span><span class="p">)</span> <span class="nv">d</span> <span class="p">(</span><span class="nf">e</span> <span class="p">(</span><span class="nf">f</span><span class="p">))))</span> <span class="c1">;; =&gt;  ((e (f)) d (b c) a)</span>
+</pre></div>
+<p><code>reverse!</code> is the linear-update variant of reverse. It is permitted,
+but not required, to alter the argument's <code>cons</code> cells to produce the
+reversed list.</p>
+<h2><code>(append-reverse rev-head tail)</code></h2>
+<h2><code>(append-reverse! rev-head tail)</code></h2>
+<p><code>append-reverse</code> returns <code>(append (reverse rev-head) tail)</code>. It is
+provided because it is a common operation -- a common list-processing
+style calls for this exact operation to transfer values accumulated in
+reverse order onto the front of another list, and because the
+implementation is significantly more efficient than the simple
+composition it replaces. (But note that this pattern of iterative
+computation followed by a <code>reverse</code> can frequently be rewritten as a
+recursion, dispensing with the <code>reverse</code> and <code>append-reverse</code> steps,
+and shifting temporary, intermediate storage from the heap to the
+stack, which is typically a win for reasons of cache locality and
+eager storage reclamation.)</p>
+<p><code>append-reverse!</code> is just the linear-update variant -- it is allowed,
+but not required, to alter rev-head's <code>cons</code> cells to construct the
+result.</p>
+<h2><code>(zip clist1 clist2 ...)</code></h2>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">lambda </span><span class="nv">lists</span> <span class="p">(</span><span class="nb">apply </span><span class="nv">map</span> <span class="nv">list</span> <span class="nv">lists</span><span class="p">))</span>
+</pre></div>
+<p>If <code>zip</code> is passed n lists, it returns a list as long as the shortest
+of these lists, each element of which is an n-element list comprised
+of the corresponding elements from the parameter lists.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">zip</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">one</span> <span class="nv">two</span> <span class="nv">three</span><span class="p">)</span>
+     <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)</span>
+     <span class="o">&#39;</span><span class="p">(</span><span class="nv">odd</span> <span class="nv">even</span> <span class="nv">odd</span> <span class="nv">even</span> <span class="nv">odd</span> <span class="nv">even</span> <span class="nv">odd</span> <span class="nv">even</span><span class="p">))</span>
+     <span class="c1">;; =&gt; ((one 1 odd) (two 2 even) (three 3 odd))</span>
+
+<span class="p">(</span><span class="nf">zip</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">((</span><span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</pre></div>
+<h2><code>(unzip1 list)</code></h2>
+<h2><code>(unzip2 list)</code></h2>
+<h2><code>(unzip3 list)</code></h2>
+<h2><code>(unzip4 list)</code></h2>
+<h2><code>(unzip5 list)</code></h2>
+<p><code>unzip1</code> takes a list of lists, where every list must contain at least
+one element, and returns a list containing the initial element of each
+such list. That is, it returns <code>(map car lists)</code>. <code>unzip2</code> takes a
+list of lists, where every list must contain at least two elements,
+and returns two values: a list of the first elements, and a list of
+the second elements. <code>unzip3</code> does the same for the first three
+elements of the lists, and so forth.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">unzip2</span> <span class="o">&#39;</span><span class="p">((</span><span class="mi">1</span> <span class="nv">one</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span> <span class="nv">two</span><span class="p">)</span> <span class="p">(</span><span class="mi">3</span> <span class="nv">three</span><span class="p">)))</span> <span class="c1">;; =&gt; &#39;((1 2 3) (one two three))</span>
+</pre></div>
+<h2><code>(count pred clist1 ...)</code></h2>
+<p><code>pred</code> is a procedure taking as many arguments as there are lists and
+returning a single value. It is applied element-wise to the elements
+of the lists, and a count is tallied of the number of elements that
+produce a true value. This count is returned. <code>count</code> is "iterative"
+in that it is guaranteed to apply <code>pred</code> to the list elements in a
+left-to-right order. The counting stops when the shortest list
+expires.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">count</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span> <span class="mi">2</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">3</span>
+<span class="p">(</span><span class="nf">count</span> <span class="nv">&lt;</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">4</span> <span class="mi">8</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">2</span> <span class="mi">4</span> <span class="mi">6</span> <span class="mi">8</span> <span class="mi">10</span> <span class="mi">12</span> <span class="mi">14</span> <span class="mi">16</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">3</span>
+</pre></div>
+<p>At least one of the argument lists must be finite:</p>
+
+<div><pre>(count &lt; '(3 1 4 1) (circular-list 1 10)) =&gt; 2</pre></div>
+<h2><code>(fold kons knil list1 ...)</code></h2>
+<p>TODO</p>
+<h2><code>(fold-right kons knil list1 ...)</code></h2>
+<p>TODO</p>
+<h2><code>(pair-fold kons knil list1 ...)</code></h2>
+<p>TODO</p>
+<h2><code>(pair-fold-right kons knil list1 ...)</code></h2>
+<p>TODO</p>
+<h2><code>(reduce f ridentity list)</code></h2>
+<p><code>reduce</code> is a variant of <code>fold</code>.</p>
+<p><code>ridentity</code> should be a "right identity" of the procedure <code>f</code> -- that
+is, for any value <code>x</code> acceptable to <code>f</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">f</span> <span class="nv">x</span> <span class="nv">ridentity</span><span class="p">)</span> <span class="c1">;; =&gt; x</span>
+</pre></div>
+<p>Note: that <code>ridentity</code> is used only in the empty-list case. You
+typically use reduce when applying <code>f</code> is expensive and you'd like to
+avoid the extra application incurred when fold applies <code>f</code> to the head
+of list and the identity value, redundantly producing the same value
+passed in to <code>f</code>. For example, if <code>f</code> involves searching a file
+directory or performing a database query, this can be significant. In
+general, however, <code>fold</code> is useful in many contexts where <code>reduce</code> is
+not (consider the examples given in the <code>fold</code> definition -- only one
+of the five folds uses a function with a right identity. The other
+four may not be performed with reduce).</p>
+<h2><code>(reducse-right f ridentity list)</code></h2>
+<p><code>reduce-right</code> is the <code>fold-right</code> variant of reduce. It obeys the
+following definition:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">reduce-right</span> <span class="nv">f</span> <span class="nv">ridentity</span> <span class="o">&#39;</span><span class="p">())</span> <span class="nv">=</span> <span class="nv">ridentity</span>
+<span class="p">(</span><span class="nf">reduce-right</span> <span class="nv">f</span> <span class="nv">ridentity</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">e1</span><span class="p">))</span> <span class="nv">=</span> <span class="p">(</span><span class="nf">f</span> <span class="nv">e1</span> <span class="nv">ridentity</span><span class="p">)</span> <span class="nv">=</span> <span class="nv">e1</span>
+<span class="p">(</span><span class="nf">reduce-right</span> <span class="nv">f</span> <span class="nv">ridentity</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">e1</span> <span class="nv">e2</span> <span class="o">...</span><span class="p">))</span> <span class="nv">=</span>
+    <span class="p">(</span><span class="nf">f</span> <span class="nv">e1</span> <span class="p">(</span><span class="nf">reduce</span> <span class="nv">f</span> <span class="nv">ridentity</span> <span class="p">(</span><span class="nf">e2</span> <span class="o">...</span><span class="p">)))</span>
+</pre></div>
+<p>... in other words, we compute <code>(fold-right f ridentity list)</code>.</p>
+<div class="highlight"><pre><span></span><span class="c1">;; Append a bunch of lists together.</span>
+<span class="c1">;; I.e., (apply append list-of-lists)</span>
+<span class="p">(</span><span class="nf">reduce-right</span> <span class="nv">append</span> <span class="o">&#39;</span><span class="p">()</span> <span class="nv">list-of-lists</span><span class="p">)</span>
+</pre></div>
+<h2><code>(unfold p f g seed [tail-gen])</code></h2>
+<p>TODO</p>
+<h2><code>(unfold-right p f g seed [tail-gen])</code></h2>
+<p>TODO</p>
+<h2><code>(map proc list1 ...)</code></h2>
+<p><code>proc</code> is a procedure taking as many arguments as there are list
+arguments and returning a single value. map applies <code>proc</code>
+element-wise to the elements of the lists and returns a list of the
+results, in order. The dynamic order in which proc is applied to the
+elements of the lists is unspecified.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">map </span><span class="nv">cadr</span> <span class="o">&#39;</span><span class="p">((</span><span class="nf">a</span> <span class="nv">b</span><span class="p">)</span> <span class="p">(</span><span class="nf">d</span> <span class="nv">e</span><span class="p">)</span> <span class="p">(</span><span class="nf">g</span> <span class="nv">h</span><span class="p">)))</span> <span class="k">=&gt; </span> <span class="p">(</span><span class="nf">b</span> <span class="nv">e</span> <span class="nv">h</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">n</span><span class="p">)</span> <span class="p">(</span><span class="nb">expt </span><span class="nv">n</span> <span class="nv">n</span><span class="p">))</span>
+     <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="k">=&gt; </span> <span class="p">(</span><span class="mi">1</span> <span class="mi">4</span> <span class="mi">27</span> <span class="mi">256</span> <span class="mi">3125</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nb">map </span><span class="nv">+</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">4</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">))</span> <span class="k">=&gt; </span> <span class="p">(</span><span class="mi">5</span> <span class="mi">7</span> <span class="mi">9</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">count</span> <span class="mi">0</span><span class="p">))</span>
+  <span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">ignored</span><span class="p">)</span>
+         <span class="p">(</span><span class="k">set! </span><span class="nv">count</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">count</span> <span class="mi">1</span><span class="p">))</span>
+         <span class="nv">count</span><span class="p">)</span>
+       <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span><span class="p">)))</span> <span class="k">=&gt; </span> <span class="p">(</span><span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="k">or </span><span class="p">(</span><span class="mi">2</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+<p>At least one of the argument lists must be finite:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">map </span><span class="nv">+</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nf">circular-list</span> <span class="mi">1</span> <span class="mi">0</span><span class="p">))</span> <span class="c1">;; =&gt; (4 1 5 1)</span>
+</pre></div>
+<h2><code>(for-each proc clist1 ...)</code></h2>
+<p>The arguments to <code>for-each</code> are like the arguments to <code>map</code>, but
+<code>for-each</code> calls <code>proc</code> for its side effects rather than for its
+values. Unlike <code>map</code>, <code>for-each</code> is guaranteed to call <code>proc</code> on the
+elements of the lists in order from the first element(s) to the last,
+and the value returned by for-each is unspecified.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">v</span> <span class="p">(</span><span class="nb">make-vector </span><span class="mi">5</span><span class="p">)))</span>
+  <span class="p">(</span><span class="nb">for-each </span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">i</span><span class="p">)</span>
+              <span class="p">(</span><span class="nb">vector-set! </span><span class="nv">v</span> <span class="nv">i</span> <span class="p">(</span><span class="nb">* </span><span class="nv">i</span> <span class="nv">i</span><span class="p">)))</span>
+            <span class="o">&#39;</span><span class="p">(</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">))</span>
+  <span class="nv">v</span><span class="p">)</span>  <span class="k">=&gt; </span> <span class="o">#</span><span class="p">(</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">9</span> <span class="mi">16</span><span class="p">)</span>
+</pre></div>
+<p>At least one of the argument lists must be finite.</p>
+<h2><code>(append-map f list ...)</code></h2>
+<h2><code>(append-map! f list ...)</code></h2>
+<p>Equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">apply </span><span class="nv">append</span> <span class="p">(</span><span class="nb">map </span><span class="nv">f</span> <span class="nv">clist1</span> <span class="nv">clist2</span> <span class="o">...</span><span class="p">))</span>
+</pre></div>
+<p>And:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">apply </span><span class="nv">append!</span> <span class="p">(</span><span class="nb">map </span><span class="nv">f</span> <span class="nv">clist1</span> <span class="nv">clist2</span> <span class="o">...</span><span class="p">))</span>
+</pre></div>
+<p>Map <code>f</code> over the elements of the lists, just as in the <code>map</code>
+function. However, the results of the applications are appended
+together to make the final result. <code>append-map</code> uses <code>append</code> to
+append the results together; <code>append-map!</code> uses <code>append!</code>.</p>
+<p>The dynamic order in which the various applications of <code>f</code> are made is
+not specified.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">append-map!</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">list </span><span class="nv">x</span> <span class="p">(</span><span class="nb">- </span><span class="nv">x</span><span class="p">)))</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">3</span> <span class="mi">8</span><span class="p">))</span> <span class="c1">;; =&gt; (1 -1 3 -3 8 -8)</span>
+</pre></div>
+<p>At least one of the list arguments must be finite.</p>
+<h2><code>(map! f list1 ...)</code></h2>
+<p>Linear-update variant of <code>map</code> -- <code>map!</code> is allowed, but not required,
+to alter the cons cells of <code>list1</code> to construct the result list.</p>
+<p>The dynamic order in which the various applications of <code>f</code> are made is
+not specified. In the n-ary case, <code>clist2</code>, <code>clist3</code>, ... must have at
+least as many elements as <code>list1</code>.</p>
+<h2><code>(map-in-order f clist1 ...)</code></h2>
+<p>A variant of the map procedure that guarantees to apply <code>f</code> across the
+elements of the <code>clisti</code> arguments in a left-to-right order. This is
+useful for mapping procedures that both have side effects and return
+useful values.</p>
+<p>At least one of the list arguments must be finite.</p>
+<h2><code>(pair-for-each f clist1 ...)</code></h2>
+<p>Like for-each, but <code>f</code> is applied to successive sublists of the
+argument lists. That is, <code>f</code> is applied to the <code>cons</code> cells of the
+lists, rather than the lists' elements. These applications occur in
+left-to-right order.</p>
+<p>The f procedure may reliably apply <code>set-cdr!</code> to the pairs it is given
+without altering the sequence of execution.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">pair-for-each</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">pair</span><span class="p">)</span> <span class="p">(</span><span class="nb">display </span><span class="nv">pair</span><span class="p">)</span> <span class="p">(</span><span class="nf">newline</span><span class="p">))</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span>
+ <span class="c1">;; =&gt; (a b c)</span>
+ <span class="c1">;; =&gt; (b c)</span>
+ <span class="c1">;; =&gt; (c)</span>
+</pre></div>
+<p>At least one of the list arguments must be finite.</p>
+<h2><code>(filter-map f clist1 ...)</code></h2>
+<p>Like <code>map</code>, but only true values are saved.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">filter-map</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="k">and </span><span class="p">(</span><span class="nb">number? </span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="nv">x</span> <span class="nv">x</span><span class="p">)))</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="mi">1</span> <span class="nv">b</span> <span class="mi">3</span> <span class="nv">c</span> <span class="mi">7</span><span class="p">))</span>
+    <span class="c1">;; =&gt; (1 9 49)</span>
+</pre></div>
+<p>The dynamic order in which the various applications of <code>f</code> are made is
+not specified.</p>
+<p>At least one of the list arguments must be finite.</p>
+<h2><code>(filter pred list)</code></h2>
+<p>Return all the elements of list that satisfy predicate <code>pred</code>. The
+list is not disordered -- elements that appear in the result list
+occur in the same order as they occur in the argument list. The
+returned list may share a common tail with the argument list. The
+dynamic order in which the various applications of <code>pred</code> are made is
+not specified.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">filter</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">0</span> <span class="mi">7</span> <span class="mi">8</span> <span class="mi">8</span> <span class="mi">43</span> <span class="mi">-4</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">0</span> <span class="mi">8</span> <span class="mi">8</span> <span class="mi">-4</span><span class="p">)</span>
+</pre></div>
+<h2><code>(partition pred list)</code></h2>
+<p>Partitions the elements of list with predicate <code>pred</code>, and returns two
+values: the list of in-elements and the list of out-elements. The list
+is not disordered -- elements occur in the result lists in the same
+order as they occur in the argument list. The dynamic order in which
+the various applications of pred are made is not specified. One of the
+returned lists may share a common tail with the argument list.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">partition</span> <span class="nv">symbol?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">one</span> <span class="mi">2</span> <span class="mi">3</span> <span class="nv">four</span> <span class="nv">five</span> <span class="mi">6</span><span class="p">))</span> <span class="nv">=&gt;</span>
+    <span class="p">(</span><span class="nf">one</span> <span class="nv">four</span> <span class="nv">five</span><span class="p">)</span>
+    <span class="p">(</span><span class="mi">2</span> <span class="mi">3</span> <span class="mi">6</span><span class="p">)</span>
+</pre></div>
+<h2><code>(remove pred list)</code></h2>
+<p>Returns <code>list</code> without the elements that satisfy predicate <code>pred</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">pred</span> <span class="nv">list</span><span class="p">)</span> <span class="p">(</span><span class="nf">filter</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">not </span><span class="p">(</span><span class="nf">pred</span> <span class="nv">x</span><span class="p">)))</span> <span class="nv">list</span><span class="p">))</span>
+</pre></div>
+<p>The <code>list</code> is not disordered -- elements that appear in the result
+list occur in the same order as they occur in the argument list. The
+returned list may share a common tail with the argument list. The
+dynamic order in which the various applications of <code>pred</code> are made is
+not specified.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">remove</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">0</span> <span class="mi">7</span> <span class="mi">8</span> <span class="mi">8</span> <span class="mi">43</span> <span class="mi">-4</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">7</span> <span class="mi">43</span><span class="p">)</span>
+</pre></div>
+<h2><code>(filter! pred list)</code></h2>
+<h2><code>(partition! pred list)</code></h2>
+<h2><code>(remove! pred list)</code></h2>
+<p>Linear-update variants of <code>filter</code>, <code>partition</code> and <code>remove</code>. These
+procedures are allowed, but not required, to alter the cons cells in
+the argument list to construct the result lists.</p>
+<h2><code>(find pred clist)</code></h2>
+<p>Return the first element of clist that satisfies predicate <code>pred</code>;
+false if no element does.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">find</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">4</span>
+</pre></div>
+<p>Note that <code>find</code> has an ambiguity in its lookup semantics -- if <code>find</code>
+returns <code>#f</code>, you cannot tell (in general) if it found a #f element
+that satisfied <code>pred</code>, or if it did not find any element at all. In
+many situations, this ambiguity cannot arise -- either the list being
+searched is known not to contain any <code>#f</code> elements, or the list is
+guaranteed to have an element satisfying <code>pred</code>. However, in cases
+where this ambiguity can arise, you should use <code>find-tail</code> instead of
+find -- <code>find-tail</code> has no such ambiguity.</p>
+<h2><code>(find-tail pred clist)</code></h2>
+<p>Return the first pair of <code>clist</code> whose <code>car</code> satisfies <code>pred</code>. If no
+pair does, return false.</p>
+<p><code>find-tail</code> can be viewed as a general-predicate variant of the member
+function.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">find-tail</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">37</span> <span class="mi">-8</span> <span class="mi">-5</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">-8</span> <span class="mi">-5</span> <span class="mi">0</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">find-tail</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">37</span> <span class="mi">-5</span><span class="p">))</span> <span class="k">=&gt; </span><span class="no">#f</span>
+
+<span class="c1">;; MEMBER X LIS:</span>
+<span class="p">(</span><span class="nf">find-tail</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">elt</span><span class="p">)</span> <span class="p">(</span><span class="nb">equal? </span><span class="nv">x</span> <span class="nv">elt</span><span class="p">))</span> <span class="nv">lis</span><span class="p">)</span>
+</pre></div>
+<p>In the circular-list case, this procedure "rotates" the list.</p>
+<p><code>find-tail</code> is essentially drop-while, where the sense of the
+predicate is inverted: <code>find-tail</code> searches until it finds an element
+satisfying the predicate; drop-while searches until it finds an
+element that doesn't satisfy the predicate.</p>
+<h2><code>(take-while  pred clist)</code></h2>
+<h2><code>(take-while! pred clist)</code></h2>
+<p>Returns the longest initial prefix of <code>clist</code> whose elements all
+satisfy the predicate <code>pred</code>.</p>
+<p><code>take-while!</code> is the linear-update variant. It is allowed, but not
+required, to alter the argument list to produce the result.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">take-while</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">2</span> <span class="mi">18</span> <span class="mi">3</span> <span class="mi">10</span> <span class="mi">22</span> <span class="mi">9</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">2</span> <span class="mi">18</span><span class="p">)</span>
+</pre></div>
+<h2><code>(drop-while pred clist)</code></h2>
+<p>Drops the longest initial prefix of <code>clist</code> whose elements all satisfy
+the predicate <code>pred</code>, and returns the rest of the list.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">drop-while</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">2</span> <span class="mi">18</span> <span class="mi">3</span> <span class="mi">10</span> <span class="mi">22</span> <span class="mi">9</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="mi">3</span> <span class="mi">10</span> <span class="mi">22</span> <span class="mi">9</span><span class="p">)</span>
+</pre></div>
+<p>The circular-list case may be viewed as "rotating" the list.</p>
+<h2><code>(span pred clist)</code></h2>
+<h2><code>(span!  pred list)</code></h2>
+<h2><code>(break  pred clist)</code></h2>
+<h2>`(break! pred list)</h2>
+<p>Span splits the list into the longest initial prefix whose elements
+all satisfy <code>pred</code>, and the remaining tail. Break inverts the sense of
+the predicate: the tail commences with the first element of the input
+list that satisfies the predicate.</p>
+<p>In other words: <code>span</code> finds the intial span of elements satisfying
+<code>pred</code>, and break breaks the list at the first element satisfying
+<code>pred</code>.</p>
+<p>Span is equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">values </span><span class="p">(</span><span class="nf">take-while</span> <span class="nv">pred</span> <span class="nv">clist</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">drop-while</span> <span class="nv">pred</span> <span class="nv">clist</span><span class="p">))</span>
+</pre></div>
+<p><code>span!</code> and <code>break!</code> are the linear-update variants. They are allowed,
+but not required, to alter the argument list to produce the result.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">span</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">2</span> <span class="mi">18</span> <span class="mi">3</span> <span class="mi">10</span> <span class="mi">22</span> <span class="mi">9</span><span class="p">))</span> <span class="nv">=&gt;</span>
+      <span class="p">(</span><span class="mi">2</span> <span class="mi">18</span><span class="p">)</span>
+      <span class="p">(</span><span class="mi">3</span> <span class="mi">10</span> <span class="mi">22</span> <span class="mi">9</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">break</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span><span class="p">))</span> <span class="nv">=&gt;</span>
+      <span class="p">(</span><span class="mi">3</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="p">(</span><span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span><span class="p">)</span>
+</pre></div>
+<h2><code>(any pred clist1 ...)</code></h2>
+<p>Applies the predicate across the lists, returning true if the
+predicate returns true on any application.</p>
+<p>If there are n list arguments <code>clist1 ... clistn</code>, then <code>pred</code> must be
+a procedure taking n arguments and returning a single value,
+interpreted as a boolean (that is, <code>#f</code> means false, and any other
+value means true).</p>
+<p><code>any</code> applies <code>pred</code> to the first elements of the <code>clisti</code>
+parameters. If this application returns a true value, any immediately
+returns that value. Otherwise, it iterates, applying <code>pred</code> to the
+second elements of the <code>clisti</code> parameters, then the third, and so
+forth. The iteration stops when a true value is produced or one of the
+lists runs out of values; in the latter case, any returns <code>#f</code>. The
+application of pred to the last element of the lists is a tail call.</p>
+<p>Note the difference between <code>find</code> and <code>any</code> -- <code>find</code> returns the
+element that satisfied the predicate; <code>any</code> returns the true value
+that the predicate produced.</p>
+<p>Like <code>every</code>, <code>any</code>'s name does not end with a question mark -- this
+is to indicate that it does not return a simple boolean (#t or #f),
+but a general value.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">any</span> <span class="nv">integer?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="mi">3</span> <span class="nv">b</span> <span class="mf">2.7</span><span class="p">))</span>   <span class="k">=&gt; </span><span class="no">#t</span>
+<span class="p">(</span><span class="nf">any</span> <span class="nv">integer?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="mf">3.1</span> <span class="nv">b</span> <span class="mf">2.7</span><span class="p">))</span> <span class="k">=&gt; </span><span class="no">#f</span>
+<span class="p">(</span><span class="nf">any</span> <span class="nv">&lt;</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span><span class="p">)</span>
+           <span class="o">&#39;</span><span class="p">(</span><span class="mi">2</span> <span class="mi">7</span> <span class="mi">1</span> <span class="mi">8</span> <span class="mi">2</span><span class="p">))</span> <span class="k">=&gt; </span><span class="no">#t</span>
+</pre></div>
+<h2><code>(every pred clist1 ...)</code></h2>
+<p>Applies the predicate across the lists, returning true if the
+predicate returns true on every application.</p>
+<p>If there are n list arguments <code>clist1 ... clistn</code>, then <code>pred</code> must be
+a procedure taking n arguments and returning a single value,
+interpreted as a boolean (that is, #f means false, and any other value
+means true).</p>
+<p><code>every</code> applies <code>pred</code> to the first elements of the <code>clisti</code>
+parameters. If this application returns false, every immediately
+returns false. Otherwise, it iterates, applying <code>pred</code> to the second
+elements of the <code>clisti</code> parameters, then the third, and so forth. The
+iteration stops when a false value is produced or one of the lists
+runs out of values. In the latter case, <code>every</code> returns the true value
+produced by its final application of pred. The application of <code>pred</code>
+to the last element of the lists is a tail call.</p>
+<p>If one of the <code>clisti</code> has no elements, <code>every</code> simply returns #t.</p>
+<p>Like <code>any</code>, <code>every</code>'s name does not end with a question mark -- this
+is to indicate that it does not return a simple boolean (<code>#t</code> or
+<code>#f</code>), but a general value.</p>
+<h2><code>(list-index pred clist1 ...)</code></h2>
+<p>Return the index of the leftmost element that satisfies <code>pred</code>.</p>
+<p>If there are n list arguments <code>clist1 ... clistn</code>, then <code>pred</code> must be
+a function taking n arguments and returning a single value,
+interpreted as a boolean (that is, <code>#f</code> means false, and any other
+value means true).</p>
+<p><code>list-index</code> applies <code>pred</code> to the first elements of the <code>clisti</code>
+parameters. If this application returns true, <code>list-index</code> immediately
+returns zero. Otherwise, it iterates, applying <code>pred</code> to the second
+elements of the <code>clisti</code> parameters, then the third, and so
+forth. When it finds a tuple of list elements that cause <code>pred</code> to
+return true, it stops and returns the zero-based index of that
+position in the lists.</p>
+<p>The iteration stops when one of the lists runs out of values; in this
+case, <code>list-index</code> returns <code>#f</code>.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">list-index</span> <span class="nv">even?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">2</span>
+<span class="p">(</span><span class="nf">list-index</span> <span class="nv">&lt;</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span> <span class="mi">2</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">2</span> <span class="mi">7</span> <span class="mi">1</span> <span class="mi">8</span> <span class="mi">2</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">1</span>
+<span class="p">(</span><span class="nf">list-index</span> <span class="nv">=</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span> <span class="mi">2</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">2</span> <span class="mi">7</span> <span class="mi">1</span> <span class="mi">8</span> <span class="mi">2</span><span class="p">))</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(member x list [=])</code></h2>
+<h2><code>(memq x list)</code></h2>
+<h2><code>(memv x list)</code></h2>
+<p>These procedures return the first sublist of <code>list</code> whose <code>car</code> is
+<code>x</code>, where the sublists of <code>list</code> are the non-empty lists returned by
+<code>(drop list i)</code> for <code>i</code> less than the length of list. If <code>x</code> does not
+occur in list, then <code>#f</code> is returned. <code>memq</code> uses <code>eq?</code> to compare <code>x</code>
+with the elements of list, while <code>memv</code> uses <code>eqv?</code>, and <code>member</code> uses
+<code>equal?</code>.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">memq </span><span class="ss">&#39;a</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span>          <span class="k">=&gt; </span> <span class="p">(</span><span class="nf">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">memq </span><span class="ss">&#39;b</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span>          <span class="k">=&gt; </span> <span class="p">(</span><span class="nf">b</span> <span class="nv">c</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">memq </span><span class="ss">&#39;a</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">))</span>          <span class="k">=&gt; </span> <span class="no">#f</span>
+<span class="p">(</span><span class="nb">memq </span><span class="p">(</span><span class="nb">list </span><span class="ss">&#39;a</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">b</span> <span class="p">(</span><span class="nf">a</span><span class="p">)</span> <span class="nv">c</span><span class="p">))</span> <span class="k">=&gt; </span> <span class="no">#f</span>
+<span class="p">(</span><span class="nb">member </span><span class="p">(</span><span class="nb">list </span><span class="ss">&#39;a</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">b</span> <span class="p">(</span><span class="nf">a</span><span class="p">)</span> <span class="nv">c</span><span class="p">))</span>         <span class="k">=&gt; </span> <span class="p">((</span><span class="nf">a</span><span class="p">)</span> <span class="nv">c</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">memq </span><span class="mi">101</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">100</span> <span class="mi">101</span> <span class="mi">102</span><span class="p">))</span>   <span class="k">=&gt; </span> <span class="nv">*unspecified*</span>
+<span class="p">(</span><span class="nb">memv </span><span class="mi">101</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">100</span> <span class="mi">101</span> <span class="mi">102</span><span class="p">))</span>   <span class="k">=&gt; </span> <span class="p">(</span><span class="mi">101</span> <span class="mi">102</span><span class="p">)</span>
+</pre></div>
+<p>The comparison procedure is used to compare the elements <code>ei</code> of list
+to the key <code>x</code> in this way:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">= </span><span class="nv">x</span> <span class="nv">ei</span><span class="p">)</span> <span class="c1">; list is (e1 ... en)</span>
+</pre></div>
+<p>That is, the first argument is always <code>x</code>, and the second argument is
+one of the list elements. Thus one can reliably find the first element
+of list that is greater than five with <code>(member 5 list &lt;)</code></p>
+<p>Note that fully general list searching may be performed with the
+<code>find-tail</code> and <code>find</code> procedures, e.g.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">find-tail</span> <span class="nv">even?</span> <span class="nv">list</span><span class="p">)</span> <span class="c1">; Find the first elt with an even key.</span>
+</pre></div>
+<h2><code>(delete x list)</code></h2>
+<h2><code>(delete! x list)</code></h2>
+<p><code>delete</code> uses the comparison procedure <code>=</code>, which defaults to
+<code>equal?</code>, to find all elements of list that are equal to <code>x</code>, and
+deletes them from list. The dynamic order in which the various
+applications of <code>=</code> are made is not specified.</p>
+<p>The list is not disordered -- elements that appear in the result list
+occur in the same order as they occur in the argument list. The result
+may share a common tail with the argument list.</p>
+<p>Note that fully general element deletion can be performed with the
+<code>remove</code> and <code>remove!</code> procedures, e.g.:</p>
+<div class="highlight"><pre><span></span><span class="c1">;; Delete all the even elements from LIS:</span>
+<span class="p">(</span><span class="nf">remove</span> <span class="nv">even?</span> <span class="nv">lis</span><span class="p">)</span>
+</pre></div>
+<p>The comparison procedure is used in this way: <code>(= x ei)</code>. That is, <code>x</code>
+is always the first argument, and a list element is always the second
+argument. The comparison procedure will be used to compare each
+element of list exactly once; the order in which it is applied to the
+various <code>ei</code> is not specified. Thus, one can reliably remove all the
+numbers greater than five from a list with <code>(delete 5 list &lt;)</code>.</p>
+<p><code>delete!</code> is the linear-update variant of <code>delete</code>. It is allowed, but
+not required, to alter the cons cells in its argument list to
+construct the result.</p>
+<h2><code>(delete-duplicates  list [=])</code></h2>
+<h2><code>(delete-duplicates! list [=])</code></h2>
+<p><code>delete-duplicates</code> removes duplicate elements from the list
+argument. If there are multiple equal elements in the argument list,
+the result list only contains the first or leftmost of these elements
+in the result. The order of these surviving elements is the same as in
+the original list -- delete-duplicates does not disorder the list
+(hence it is useful for "cleaning up" association lists).</p>
+<p>The <code>=</code> parameter is used to compare the elements of the list; it
+defaults to equal?. If x comes before y in list, then the comparison
+is performed (= x y). The comparison procedure will be used to compare
+each pair of elements in list no more than once; the order in which it
+is applied to the various pairs is not specified.</p>
+<p>Implementations of <code>delete-duplicates</code> are allowed to share common
+tails between argument and result lists -- for example, if the list
+argument contains only unique elements, it may simply return exactly
+this list.</p>
+<p>Be aware that, in general, delete-duplicates runs in time O(n2) for
+n-element lists. Uniquifying long lists can be accomplished in O(n lg
+n) time by sorting the list to bring equal elements together, then
+using a linear-time algorithm to remove equal elements. Alternatively,
+one can use algorithms based on element-marking, with linear-time
+results.</p>
+<p><code>delete-duplicates!</code> is the linear-update variant of
+<code>delete-duplicates</code>; it is allowed, but not required, to alter the
+cons cells in its argument list to construct the result.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">delete-duplicates</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">a</span> <span class="nv">c</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">z</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">z</span><span class="p">)</span>
+
+<span class="c1">;; Clean up an alist:</span>
+<span class="p">(</span><span class="nf">delete-duplicates</span> <span class="o">&#39;</span><span class="p">((</span><span class="nf">a</span> <span class="o">.</span> <span class="mi">3</span><span class="p">)</span> <span class="p">(</span><span class="nf">b</span> <span class="o">.</span> <span class="mi">7</span><span class="p">)</span> <span class="p">(</span><span class="nf">a</span> <span class="o">.</span> <span class="mi">9</span><span class="p">)</span> <span class="p">(</span><span class="nf">c</span> <span class="o">.</span> <span class="mi">1</span><span class="p">))</span>
+                   <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span> <span class="nv">y</span><span class="p">)</span> <span class="p">(</span><span class="nb">eq? </span><span class="p">(</span><span class="nb">car </span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">car </span><span class="nv">y</span><span class="p">))))</span>
+<span class="c1">;;  =&gt; ((a . 3) (b . 7) (c . 1))</span>
+</pre></div>
+<h2><code>(assoc key alist [=])</code></h2>
+<h2><code>(assq key alist)</code></h2>
+<h2><code>(assv key alist)</code></h2>
+<p><code>alist</code> must be an association list -- a list of pairs. These
+procedures find the first pair in <code>alist</code> whose <code>car</code> field is <code>key</code>,
+and returns that pair. If no pair in <code>alist</code> has <code>key</code> as its <code>car</code>,
+then <code>#f</code> is returned. <code>assq</code> uses <code>eq?</code> to compare <code>key</code> with the
+<code>car</code> fields of the pairs in <code>alist</code>, while <code>assv</code> uses <code>eqv?</code> and
+<code>assoc</code> uses <code>equal?</code>.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">e</span> <span class="o">&#39;</span><span class="p">((</span><span class="nf">a</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nf">b</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="nf">c</span> <span class="mi">3</span><span class="p">)))</span>
+<span class="p">(</span><span class="nb">assq </span><span class="ss">&#39;a</span> <span class="nv">e</span><span class="p">)</span>                            <span class="k">=&gt; </span> <span class="p">(</span><span class="nf">a</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">assq </span><span class="ss">&#39;b</span> <span class="nv">e</span><span class="p">)</span>                            <span class="k">=&gt; </span> <span class="p">(</span><span class="nf">b</span> <span class="mi">2</span><span class="p">)</span>
+<span class="p">(</span><span class="nb">assq </span><span class="ss">&#39;d</span> <span class="nv">e</span><span class="p">)</span>                            <span class="k">=&gt; </span> <span class="no">#f</span>
+<span class="p">(</span><span class="nb">assq </span><span class="p">(</span><span class="nb">list </span><span class="ss">&#39;a</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(((</span><span class="nf">a</span><span class="p">))</span> <span class="p">((</span><span class="nf">b</span><span class="p">))</span> <span class="p">((</span><span class="nf">c</span><span class="p">))))</span>  <span class="k">=&gt; </span> <span class="no">#f</span>
+<span class="p">(</span><span class="nb">assoc </span><span class="p">(</span><span class="nb">list </span><span class="ss">&#39;a</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(((</span><span class="nf">a</span><span class="p">))</span> <span class="p">((</span><span class="nf">b</span><span class="p">))</span> <span class="p">((</span><span class="nf">c</span><span class="p">))))</span> <span class="k">=&gt; </span> <span class="p">((</span><span class="nf">a</span><span class="p">))</span>
+<span class="p">(</span><span class="nb">assq </span><span class="mi">5</span> <span class="o">&#39;</span><span class="p">((</span><span class="mi">2</span> <span class="mi">3</span><span class="p">)</span> <span class="p">(</span><span class="mi">5</span> <span class="mi">7</span><span class="p">)</span> <span class="p">(</span><span class="mi">11</span> <span class="mi">13</span><span class="p">)))</span>    <span class="k">=&gt; </span> <span class="nv">*unspecified*</span>
+<span class="p">(</span><span class="nb">assv </span><span class="mi">5</span> <span class="o">&#39;</span><span class="p">((</span><span class="mi">2</span> <span class="mi">3</span><span class="p">)</span> <span class="p">(</span><span class="mi">5</span> <span class="mi">7</span><span class="p">)</span> <span class="p">(</span><span class="mi">11</span> <span class="mi">13</span><span class="p">)))</span>    <span class="k">=&gt; </span> <span class="p">(</span><span class="mi">5</span> <span class="mi">7</span><span class="p">)</span>
+</pre></div>
+<p>The comparison procedure is used to compare the elements <code>ei</code> of list
+to the <code>key</code> parameter in this way:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">= </span><span class="nv">key</span> <span class="p">(</span><span class="nb">car </span><span class="nv">ei</span><span class="p">))</span> <span class="c1">; list is (E1 ... En)</span>
+</pre></div>
+<p>That is, the first argument is always <code>key</code>, and the second argument
+is one of the list elements. Thus one can reliably find the first
+entry of alist whose key is greater than five with <code>(assoc 5 alist &lt;)</code></p>
+<p>Note that fully general <code>alist</code> searching may be performed with the
+<code>find-tail</code> and <code>find</code> procedures, e.g.</p>
+<div class="highlight"><pre><span></span><span class="c1">;; Look up the first association in alist with an even key:</span>
+<span class="p">(</span><span class="nf">find</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">a</span><span class="p">)</span> <span class="p">(</span><span class="nb">even? </span><span class="p">(</span><span class="nb">car </span><span class="nv">a</span><span class="p">)))</span> <span class="nv">alist</span><span class="p">)</span>
+</pre></div>
+<h2><code>(alist-cons key datum alist)</code></h2>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">key</span> <span class="nv">datum</span> <span class="nv">alist</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">cons </span><span class="nv">key</span> <span class="nv">datum</span><span class="p">)</span> <span class="nv">alist</span><span class="p">))</span>
+</pre></div>
+<p><code>cons</code> a new entry mapping <code>key</code> to <code>datum</code> onto <code>alist</code>.</p>
+<h2><code>(alist-copy alist)</code></h2>
+<p>Make a fresh copy of <code>alist</code>. This means copying each pair that forms
+an association as well as the spine of the list, i.e.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">a</span><span class="p">)</span> <span class="p">(</span><span class="nb">map </span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">elt</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">car </span><span class="nv">elt</span><span class="p">)</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">elt</span><span class="p">)))</span> <span class="nv">a</span><span class="p">))</span>
+</pre></div>
+<h2><code>(alist-delete  key alist [=])</code></h2>
+<h2><code>(alist-delete! key alist [=])</code></h2>
+<p><code>alist-delete</code> deletes all associations from alist with the given key,
+using key-comparison procedure <code>=</code>, which defaults to equal?. The
+dynamic order in which the various applications of = are made is not
+specified.</p>
+<p>Return values may share common tails with the alist argument. The
+alist is not disordered -- elements that appear in the result alist
+occur in the same order as they occur in the argument alist.</p>
+<p>The comparison procedure is used to compare the element keys ki of
+alist's entries to the key parameter in this way: (= key ki). Thus,
+one can reliably remove all entries of alist whose key is greater than
+five with (alist-delete 5 alist &lt;)</p>
+<p>alist-delete! is the linear-update variant of alist-delete. It is
+allowed, but not required, to alter cons cells from the alist
+parameter to construct the result.</p>
+<h2><code>(lset&lt;= = list1 ...)</code></h2>
+<p>Returns true iff every listi is a subset of listi+1, using = for the
+element-equality procedure. List A is a subset of list B if every
+element in A is equal to some element of B. When performing an element
+comparison, the = procedure's first argument is an element of A; its
+second, an element of B.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">lset&lt;=</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">a</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">c</span><span class="p">))</span> <span class="k">=&gt; </span><span class="no">#t</span>
+
+<span class="p">(</span><span class="nf">lset&lt;=</span> <span class="nv">eq?</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#t</span>             <span class="c1">; Trivial cases</span>
+<span class="p">(</span><span class="nf">lset&lt;=</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span><span class="p">))</span> <span class="k">=&gt; </span><span class="no">#t</span>
+</pre></div>
+<h2><code>(lset= = list1 ...)</code></h2>
+<p>Returns true iff every listi is set-equal to listi+1, using = for the
+element-equality procedure. "Set-equal" simply means that listi is a
+subset of listi+1, and listi+1 is a subset of listi. The = procedure's
+first argument is an element of listi; its second is an element of
+listi+1.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">lset=</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">b</span> <span class="nv">e</span> <span class="nv">a</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">e</span> <span class="nv">b</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">e</span> <span class="nv">e</span> <span class="nv">b</span> <span class="nv">a</span><span class="p">))</span> <span class="k">=&gt; </span><span class="no">#t</span>
+
+<span class="p">(</span><span class="nf">lset=</span> <span class="nv">eq?</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#t</span>               <span class="c1">; Trivial cases</span>
+<span class="p">(</span><span class="nf">lset=</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span><span class="p">))</span> <span class="k">=&gt; </span><span class="no">#t</span>
+</pre></div>
+<h2><code>(lset-adjoin = list elt1 ...)</code></h2>
+<p>Adds the elti elements not already in the list parameter to the result
+list. The result shares a common tail with the list parameter. The new
+elements are added to the front of the list, but no guarantees are
+made about their order. The = parameter is an equality procedure used
+to determine if an elti is already a member of list. Its first
+argument is an element of list; its second is one of the elti.</p>
+<p>The list parameter is always a suffix of the result -- even if the
+list parameter contains repeated elements, these are not reduced.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">lset-adjoin</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">c</span> <span class="nv">e</span><span class="p">)</span> <span class="ss">&#39;a</span> <span class="ss">&#39;e</span> <span class="ss">&#39;i</span> <span class="ss">&#39;o</span> <span class="ss">&#39;u</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">u</span> <span class="nv">o</span> <span class="nv">i</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">c</span> <span class="nv">e</span><span class="p">)</span>
+</pre></div>
+<h2><code>(lset-union = list1 ...)</code></h2>
+<p>Returns the union of the lists, using = for the element-equality
+procedure.</p>
+<p>The union of lists A and B is constructed as follows:</p>
+<ul>
+<li>If A is the empty list, the answer is B (or a copy of B).</li>
+<li>Otherwise, the result is initialised to be list A (or a copy of A).</li>
+<li>Proceed through the elements of list B in a left-to-right order. If
+b is such an element of B, compare every element r of the current
+result list to b: (= r b). If all comparisons fail, b is consed onto
+the front of the result.</li>
+</ul>
+<p>However, there is no guarantee that = will be applied to every pair of
+arguments from A and B. In particular, if A is eq? to B, the operation
+may immediately terminate.</p>
+<p>In the n-ary case, the two-argument list-union operation is simply
+folded across the argument lists.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">lset-union</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">e</span> <span class="nv">i</span> <span class="nv">o</span> <span class="nv">u</span><span class="p">))</span> <span class="nv">=&gt;</span>
+        <span class="p">(</span><span class="nf">u</span> <span class="nv">o</span> <span class="nv">i</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span>
+
+<span class="c1">;; Repeated elements in LIST1 are preserved.</span>
+<span class="p">(</span><span class="nf">lset-union</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">a</span> <span class="nv">c</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">x</span> <span class="nv">a</span> <span class="nv">x</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">x</span> <span class="nv">a</span> <span class="nv">a</span> <span class="nv">c</span><span class="p">)</span>
+
+<span class="c1">;; Trivial cases</span>
+<span class="p">(</span><span class="nf">lset-union</span> <span class="nv">eq?</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">()</span>
+<span class="p">(</span><span class="nf">lset-union</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">)</span>
+</pre></div>
+<h2><code>(lset-intersection = list1 list2 ...)</code></h2>
+<p>Returns the intersection of the lists, using = for the
+element-equality procedure.</p>
+<p>The intersection of lists A and B is comprised of every element of A
+that is = to some element of B: (= a b), for a in A, and b in B. Note
+this implies that an element which appears in B and multiple times in
+list A will also appear multiple times in the result.</p>
+<p>The order in which elements appear in the result is the same as they
+appear in list1 -- that is, lset-intersection essentially filters
+list1, without disarranging element order. The result may share a
+common tail with list1.</p>
+<p>In the n-ary case, the two-argument list-intersection operation is
+simply folded across the argument lists. However, the dynamic order in
+which the applications of = are made is not specified. The procedure
+may check an element of list1 for membership in every other list
+before proceeding to consider the next element of list1, or it may
+completely intersect list1 and list2 before proceeding to list3, or it
+may go about its work in some third order.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">lset-intersection</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">e</span> <span class="nv">i</span> <span class="nv">o</span> <span class="nv">u</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">a</span> <span class="nv">e</span><span class="p">)</span>
+
+<span class="c1">;; Repeated elements in LIST1 are preserved.</span>
+<span class="p">(</span><span class="nf">lset-intersection</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">a</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">x</span> <span class="nv">a</span> <span class="nv">x</span> <span class="nv">z</span><span class="p">))</span> <span class="k">=&gt; </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">x</span> <span class="nv">a</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">lset-intersection</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">)</span>     <span class="c1">; Trivial case</span>
+</pre></div>
+<h2><code>(lset-difference = list1 list2 ...)</code></h2>
+<p>Returns the difference of the lists, using = for the element-equality
+procedure -- all the elements of list1 that are not = to any element
+from one of the other listi parameters.</p>
+<p>The = procedure's first argument is always an element of list1; its
+second is an element of one of the other listi. Elements that are
+repeated multiple times in the list1 parameter will occur multiple
+times in the result. The order in which elements appear in the result
+is the same as they appear in list1 -- that is, lset-difference
+essentially filters list1, without disarranging element order. The
+result may share a common tail with list1. The dynamic order in which
+the applications of = are made is not specified. The procedure may
+check an element of list1 for membership in every other list before
+proceeding to consider the next element of list1, or it may completely
+compute the difference of list1 and list2 before proceeding to list3,
+or it may go about its work in some third order.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">lset-difference</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">e</span> <span class="nv">i</span> <span class="nv">o</span> <span class="nv">u</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">lset-difference</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">)</span> <span class="c1">; Trivial case</span>
+</pre></div>
+<h2>`(lset-xor = list1 ...)</h2>
+<p>Returns the exclusive-or of the sets, using = for the element-equality
+procedure. If there are exactly two lists, this is all the elements
+that appear in exactly one of the two lists. The operation is
+associative, and thus extends to the n-ary case -- the elements that
+appear in an odd number of the lists. The result may share a common
+tail with any of the listi parameters.</p>
+<p>More precisely, for two lists A and B, A xor B is a list of:</p>
+<ul>
+<li>every element a of A such that there is no element b of B such that
+(= a b), and</li>
+<li>every element b of B such that there is no element a of A such that
+(= b a).</li>
+</ul>
+<p>However, an implementation is allowed to assume that = is symmetric --
+that is, that</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">= </span><span class="nv">a</span> <span class="nv">b</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nb">= </span><span class="nv">b</span> <span class="nv">a</span><span class="p">)</span><span class="o">.</span>
+</pre></div>
+<p>This means, for example, that if a comparison (= a b) produces true
+for some a in A and b in B, both a and b may be removed from inclusion
+in the result.</p>
+<p>In the n-ary case, the binary-xor operation is simply folded across
+the lists.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">lset-xor</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">e</span> <span class="nv">i</span> <span class="nv">o</span> <span class="nv">u</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">d</span> <span class="nv">c</span> <span class="nv">b</span> <span class="nv">i</span> <span class="nv">o</span> <span class="nv">u</span><span class="p">)</span>
+
+<span class="c1">;; Trivial cases.</span>
+<span class="p">(</span><span class="nf">lset-xor</span> <span class="nv">eq?</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">()</span>
+<span class="p">(</span><span class="nf">lset-xor</span> <span class="nv">eq?</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nf">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span>
+</pre></div>
+<h2><code>(lset-diff+intersection = list1 list2 ...)</code></h2>
+<p>Returns two values -- the difference and the intersection of the
+lists. Is equivalent to:</p>
+
+<div><pre>(values (lset-difference = list1 list2 ...)
+        (lset-intersection = list1
+                             (lset-union = list2 ...)))</pre></div>
+<p>But can be implemented more efficiently.</p>
+<p>The = procedure's first argument is an element of list1; its second is
+an element of one of the other listi.</p>
+<p>Either of the answer lists may share a common tail with list1. This
+operation essentially partitions list1.</p>
+<h2><code>(lset-union! list1 ...)</code></h2>
+<h2><code>(lset-intersection! list1 ...)</code></h2>
+<h2><code>(lset-difference! list1 ...)</code></h2>
+<h2><code>(lset-xor! list1 ...)</code></h2>
+<h2><code>(lset-diff+intersection! list1 ...)</code></h2>
+<p>These are linear-update variants. They are allowed, but not required,
+to use the cons cells in their first list parameter to construct their
+answer. lset-union! is permitted to recycle cons cells from any of its
+list arguments.</p>
+<h2><code>(set-car! pair object)</code></h2>
+<h2><code>(set-cdr! pair object)</code></h2>
+<p>These procedures store object in the car and cdr field of pair,
+respectively. The value returned is unspecified.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">f</span><span class="p">)</span> <span class="p">(</span><span class="nb">list </span><span class="ss">&#39;not-a-constant-list</span><span class="p">))</span>
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">g</span><span class="p">)</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">constant-list</span><span class="p">))</span>
+<span class="p">(</span><span class="nb">set-car! </span><span class="p">(</span><span class="nf">f</span><span class="p">)</span> <span class="mi">3</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="nv">*unspecified*</span>
+<span class="p">(</span><span class="nb">set-car! </span><span class="p">(</span><span class="nf">g</span><span class="p">)</span> <span class="mi">3</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="nv">*error*</span>
+</pre></div>
+</div>
+    </div>
+  </body>
+</html>

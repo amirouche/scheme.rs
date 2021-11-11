@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme bitwise)</code></h1>
+<p>This library is based on <a href="https://srfi.schemers.org/srfi-151/">SRFI-151</a>.</p>
+<p>This library offers a coherent and comprehensive set of procedures for
+performing bitwise logical operations on integers.</p>
+<h2><code>(bitwise-not i)</code></h2>
+<p>Returns the bitwise complement of i; that is, all 1 bits are changed
+to 0 bits and all 0 bits to 1 bits.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bitwise-not</span> <span class="mi">10</span><span class="p">)</span> <span class="c1">;; =&gt; -11</span>
+<span class="p">(</span><span class="nf">bitwise-not</span> <span class="mi">-37</span><span class="p">)</span> <span class="c1">;; =&gt; 36</span>
+</pre></div>
+<p>The following ten procedures correspond to the useful set of
+non-trivial two-argument boolean functions. For each such function,
+the corresponding bitwise operator maps that function across a pair of
+bitstrings in a bit-wise fashion. The core idea of this group of
+functions is this bitwise "lifting" of the set of dyadic boolean
+functions to bitstring parameters.</p>
+<h2><code>(bitwise-and i ...)</code></h2>
+<h2><code>(bitwise-ior i ...)</code></h2>
+<h2><code>(bitwise-xor i ...)</code></h2>
+<h2><code>(bitwise-eqv i ...)</code></h2>
+<p>These operations are associative. When passed no arguments, the
+procedures return the identity values -1, 0, 0, and -1 respectively.</p>
+<p>The bitwise-eqv procedure produces the complement of the bitwise-xor
+procedure. When applied to three arguments, it does not produce a 1
+bit everywhere that a, b and c all agree. That is, it does not produce</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bitwise-ior</span> <span class="p">(</span><span class="nf">bitwise-and</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">)</span>
+                  <span class="p">(</span><span class="nf">bitwise-and</span> <span class="p">(</span><span class="nf">bitwise-not</span> <span class="nv">a</span><span class="p">)</span>
+                               <span class="p">(</span><span class="nf">bitwise-not</span> <span class="nv">b</span><span class="p">)</span>
+                               <span class="p">(</span><span class="nf">bitwise-not</span> <span class="nv">c</span><span class="p">)))</span>
+</pre></div>
+<p>Rather, it produces (bitwise-eqv a (bitwise-eqv b c)) or the
+equivalent (bitwise-eqv (bitwise-eqv a b) c).</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bitwise-ior</span> <span class="mi">3</span>  <span class="mi">10</span><span class="p">)</span>     <span class="k">=&gt; </span> <span class="mi">11</span>
+<span class="p">(</span><span class="nf">bitwise-and</span> <span class="mi">11</span> <span class="mi">26</span><span class="p">)</span>     <span class="k">=&gt; </span> <span class="mi">10</span>
+<span class="p">(</span><span class="nf">bitwise-xor</span> <span class="mi">3</span> <span class="mi">10</span><span class="p">)</span>      <span class="k">=&gt; </span>  <span class="mi">9</span>
+<span class="p">(</span><span class="nf">bitwise-eqv</span> <span class="mi">37</span> <span class="mi">12</span><span class="p">)</span>     <span class="k">=&gt; </span><span class="mi">-42</span>
+<span class="p">(</span><span class="nf">bitwise-and</span> <span class="mi">37</span> <span class="mi">12</span><span class="p">)</span>     <span class="k">=&gt; </span>  <span class="mi">4</span>
+</pre></div>
+<h2><code>(bitwise-nand i j)</code></h2>
+<h2><code>(bitwise-nor i j)</code></h2>
+<h2><code>(bitwise-andc1 i j)</code></h2>
+<h2><code>(bitwise-andc2 i j)</code></h2>
+<h2><code>(bitwise-orc1 i j)</code></h2>
+<h2><code>(bitwise-orc2 i j)</code></h2>
+<p>These operations are not associative.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bitwise-nand</span> <span class="mi">11</span> <span class="mi">26</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="mi">-11</span>
+<span class="p">(</span><span class="nf">bitwise-nor</span>  <span class="mi">11</span> <span class="mi">26</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">-28</span>
+<span class="p">(</span><span class="nf">bitwise-andc1</span> <span class="mi">11</span> <span class="mi">26</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">16</span>
+<span class="p">(</span><span class="nf">bitwise-andc2</span> <span class="mi">11</span> <span class="mi">26</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">1</span>
+<span class="p">(</span><span class="nf">bitwise-orc1</span> <span class="mi">11</span> <span class="mi">26</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">-2</span>
+<span class="p">(</span><span class="nf">bitwise-orc2</span> <span class="mi">11</span> <span class="mi">26</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">-17</span>
+</pre></div>
+<h2><code>(arithmetic-shift i count)</code></h2>
+<p>Returns the arithmetic left shift when count&gt;0; right shift when count
+&lt; 0.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">arithmetic-shift</span> <span class="mi">8</span> <span class="mi">2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">32</span>
+<span class="p">(</span><span class="nf">arithmetic-shift</span> <span class="mi">4</span> <span class="mi">0</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">4</span>
+<span class="p">(</span><span class="nf">arithmetic-shift</span> <span class="mi">8</span> <span class="mi">-1</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">4</span>
+<span class="p">(</span><span class="nf">arithmetic-shift</span> <span class="mi">-100000000000000000000000000000000</span> <span class="mi">-100</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">-79</span>
+</pre></div>
+<h2><code>(bit-count i)</code></h2>
+<p>Returns the population count of 1's (i &gt;= 0) or 0's (i &lt; 0). The
+result is always non-negative.</p>
+<p>Compatibility note: The R6RS analogue bitwise-bit-count applies
+bitwise-not to the population count before returning it if i is
+negative.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-count</span> <span class="mi">0</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="mi">0</span>
+<span class="p">(</span><span class="nf">bit-count</span> <span class="mi">-1</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="mi">0</span>
+<span class="p">(</span><span class="nf">bit-count</span> <span class="mi">7</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="mi">3</span>
+<span class="p">(</span><span class="nf">bit-count</span>  <span class="mi">13</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="mi">3</span> <span class="c1">;Two&#39;s-complement binary: ...0001101</span>
+<span class="p">(</span><span class="nf">bit-count</span> <span class="mi">-13</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="mi">2</span> <span class="c1">;Two&#39;s-complement binary: ...1110011</span>
+<span class="p">(</span><span class="nf">bit-count</span>  <span class="mi">30</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="mi">4</span> <span class="c1">;Two&#39;s-complement binary: ...0011110</span>
+<span class="p">(</span><span class="nf">bit-count</span> <span class="mi">-30</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="mi">4</span> <span class="c1">;Two&#39;s-complement binary: ...1100010</span>
+<span class="p">(</span><span class="nf">bit-count</span> <span class="p">(</span><span class="nb">expt </span><span class="mi">2</span> <span class="mi">100</span><span class="p">))</span> <span class="k">=&gt; </span> <span class="mi">1</span>
+<span class="p">(</span><span class="nf">bit-count</span> <span class="p">(</span><span class="nb">- </span><span class="p">(</span><span class="nb">expt </span><span class="mi">2</span> <span class="mi">100</span><span class="p">)))</span> <span class="k">=&gt; </span> <span class="mi">100</span>
+<span class="p">(</span><span class="nf">bit-count</span> <span class="p">(</span><span class="nb">- </span><span class="p">(</span><span class="mi">1</span><span class="nv">+</span> <span class="p">(</span><span class="nb">expt </span><span class="mi">2</span> <span class="mi">100</span><span class="p">))))</span> <span class="k">=&gt; </span> <span class="mi">1</span>
+</pre></div>
+<h2><code>(integer-length i)</code></h2>
+<p>The number of bits needed to represent i, i.e.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">ceiling </span><span class="p">(</span><span class="nb">/ </span><span class="p">(</span><span class="nb">log </span><span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">negative? </span><span class="nv">integer</span><span class="p">)</span>
+                     <span class="p">(</span><span class="nb">- </span><span class="nv">integer</span><span class="p">)</span>
+                     <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="nv">integer</span><span class="p">)))</span>
+            <span class="p">(</span><span class="nb">log </span><span class="mi">2</span><span class="p">)))</span>
+</pre></div>
+<p>The result is always non-negative. For non-negative i, this is the
+number of bits needed to represent i in an unsigned binary
+representation. For all i, (+ 1 (integer-length i)) is the number of
+bits needed to represent i in a signed twos-complement representation.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">integer-length</span>  <span class="mi">0</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">0</span>
+<span class="p">(</span><span class="nf">integer-length</span>  <span class="mi">1</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">1</span>
+<span class="p">(</span><span class="nf">integer-length</span> <span class="mi">-1</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">0</span>
+<span class="p">(</span><span class="nf">integer-length</span>  <span class="mi">7</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">3</span>
+<span class="p">(</span><span class="nf">integer-length</span> <span class="mi">-7</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">3</span>
+<span class="p">(</span><span class="nf">integer-length</span>  <span class="mi">8</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">4</span>
+<span class="p">(</span><span class="nf">integer-length</span> <span class="mi">-8</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">3</span>
+</pre></div>
+<h2><code>(bitwise-if mask i j)</code></h2>
+<p>Merge the bitstrings i and j, with bitstring mask determining from
+which string to take each bit. That is, if the kth bit of mask is 1,
+then the kth bit of the result is the kth bit of i, otherwise the kth
+bit of j.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bitwise-if</span> <span class="mi">3</span> <span class="mi">1</span> <span class="mi">8</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">9</span>
+<span class="p">(</span><span class="nf">bitwise-if</span> <span class="mi">3</span> <span class="mi">8</span> <span class="mi">1</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">0</span>
+<span class="p">(</span><span class="nf">bitwise-if</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">3</span>
+<span class="p">(</span><span class="nf">bitwise-if</span> <span class="o">#</span><span class="nv">b00111100</span> <span class="o">#</span><span class="nv">b11110000</span> <span class="o">#</span><span class="nv">b00001111</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b00110011</span>
+</pre></div>
+<h2><code>(bit-set? index i)</code></h2>
+<p>Is bit index set in bitstring i (where index is a non-negative exact
+integer)?</p>
+<p>Compatibility note: The R6RS analogue bitwise-bit-set? accepts its
+arguments in the opposite order.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-set?</span> <span class="mi">1</span> <span class="mi">1</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="nv">false</span>
+<span class="p">(</span><span class="nf">bit-set?</span> <span class="mi">0</span> <span class="mi">1</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="nv">true</span>
+<span class="p">(</span><span class="nf">bit-set?</span> <span class="mi">3</span> <span class="mi">10</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="nv">true</span>
+<span class="p">(</span><span class="nf">bit-set?</span> <span class="mi">1000000</span> <span class="mi">-1</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="nv">true</span>
+<span class="p">(</span><span class="nf">bit-set?</span> <span class="mi">2</span> <span class="mi">6</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="nv">true</span>
+<span class="p">(</span><span class="nf">bit-set?</span> <span class="mi">0</span> <span class="mi">6</span><span class="p">)</span> <span class="k">=&gt; </span> <span class="nv">false</span>
+</pre></div>
+<h2><code>(copy-bit index i boolean)</code></h2>
+<p>Returns an integer the same as i except in the indexth bit, which is 1
+if boolean is #t and 0 if boolean is #f.</p>
+<p>Compatibility note: The R6RS analogue bitwise-copy-bit as originally
+documented has a completely different interface. (bitwise-copy-bit
+dest index source) replaces the index'th bit of dest with the index'th
+bit of source. It is equivalent to (bit-field-replace-same dest source
+index (+ index 1)). However, an erratum made a silent breaking change
+to interpret the third argument as 0 for a false bit and 1 for a true
+bit. Some R6RS implementations applied this erratum but others did
+not.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">copy-bit</span> <span class="mi">0</span> <span class="mi">0</span> <span class="no">#t</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b1</span>
+<span class="p">(</span><span class="nf">copy-bit</span> <span class="mi">2</span> <span class="mi">0</span> <span class="no">#t</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b100</span>
+<span class="p">(</span><span class="nf">copy-bit</span> <span class="mi">2</span> <span class="o">#</span><span class="nv">b1111</span> <span class="no">#f</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b1011</span>
+</pre></div>
+<h2><code>(bit-swap index1 index2 i)</code></h2>
+<p>Returns an integer the same as i except that the index1th bit and the
+index2th bit have been exchanged.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-swap</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">4</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b1</span>
+</pre></div>
+<h2><code>(any-bit-set? test-bits i)</code></h2>
+<h2><code>(every-bit-set? test-bits i)</code></h2>
+<p>Determines if any/all of the bits set in bitstring test-bits are set
+in bitstring i. I.e., returns (not (zero? (bitwise-and test-bits i)))
+and (= test-bits (bitwise-and test-bits i))) respectively.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">any-bit-set?</span> <span class="mi">3</span> <span class="mi">6</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#t</span>
+<span class="p">(</span><span class="nf">any-bit-set?</span> <span class="mi">3</span> <span class="mi">12</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+<span class="p">(</span><span class="nf">every-bit-set?</span> <span class="mi">4</span> <span class="mi">6</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#t</span>
+<span class="p">(</span><span class="nf">every-bit-set?</span> <span class="mi">7</span> <span class="mi">6</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(first-set-bit i)</code></h2>
+<p>Return the index of the first (smallest index) 1 bit in bitstring
+i. Return -1 if i contains no 1 bits (i.e., if i is zero).</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">first-set-bit</span> <span class="mi">1</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">0</span>
+<span class="p">(</span><span class="nf">first-set-bit</span> <span class="mi">2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">1</span>
+<span class="p">(</span><span class="nf">first-set-bit</span> <span class="mi">0</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">-1</span>
+<span class="p">(</span><span class="nf">first-set-bit</span> <span class="mi">40</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">3</span>
+<span class="p">(</span><span class="nf">first-set-bit</span> <span class="mi">-28</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">2</span>
+<span class="p">(</span><span class="nf">first-set-bit</span> <span class="p">(</span><span class="nb">expt </span> <span class="mi">2</span> <span class="mi">99</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">99</span>
+<span class="p">(</span><span class="nf">first-set-bit</span> <span class="p">(</span><span class="nb">expt </span><span class="mi">-2</span> <span class="mi">99</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">99</span>
+</pre></div>
+<h2><code>(bit-field i start end)</code></h2>
+<p>Returns the field from i, shifted down to the least-significant
+position in the result.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-field</span> <span class="o">#</span><span class="nv">b1101101010</span> <span class="mi">0</span> <span class="mi">4</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b1010</span>
+<span class="p">(</span><span class="nf">bit-field</span> <span class="o">#</span><span class="nv">b1101101010</span> <span class="mi">3</span> <span class="mi">9</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b101101</span>
+<span class="p">(</span><span class="nf">bit-field</span> <span class="o">#</span><span class="nv">b1101101010</span> <span class="mi">4</span> <span class="mi">9</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b10110</span>
+<span class="p">(</span><span class="nf">bit-field</span> <span class="o">#</span><span class="nv">b1101101010</span> <span class="mi">4</span> <span class="mi">10</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b110110</span>
+<span class="p">(</span><span class="nf">bit-field</span> <span class="mi">6</span> <span class="mi">0</span> <span class="mi">1</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">0</span>
+<span class="p">(</span><span class="nf">bit-field</span> <span class="mi">6</span> <span class="mi">1</span> <span class="mi">3</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">3</span>
+<span class="p">(</span><span class="nf">bit-field</span> <span class="mi">6</span> <span class="mi">2</span> <span class="mi">999</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">1</span>
+<span class="p">(</span><span class="nf">bit-field</span> <span class="o">#</span><span class="nv">x100000000000000000000000000000000</span> <span class="mi">128</span> <span class="mi">129</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">1</span>
+</pre></div>
+<h2><code>(bit-field-any? i start end)</code></h2>
+<p>Returns true if any of the field's bits are set in bitstring i, and
+false otherwise.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-field-any?</span> <span class="o">#</span><span class="nv">b1001001</span> <span class="mi">1</span> <span class="mi">6</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#t</span>
+<span class="p">(</span><span class="nf">bit-field-any?</span> <span class="o">#</span><span class="nv">b1000001</span> <span class="mi">1</span> <span class="mi">6</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(bit-field-every? i start end)</code></h2>
+<p>Returns false if any of the field's bits are not set in bitstring i,
+and true otherwise.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-field-every?</span> <span class="o">#</span><span class="nv">b1011110</span> <span class="mi">1</span> <span class="mi">5</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#t</span>
+<span class="p">(</span><span class="nf">bit-field-every?</span> <span class="o">#</span><span class="nv">b1011010</span> <span class="mi">1</span> <span class="mi">5</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(bit-field-clear i start end)</code></h2>
+<h2><code>(bit-field-set i start end)</code></h2>
+<p>Returns i with the field's bits set to all 0s/1s.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-field-clear</span> <span class="o">#</span><span class="nv">b101010</span> <span class="mi">1</span> <span class="mi">4</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b100000</span>
+<span class="p">(</span><span class="nf">bit-field-set</span> <span class="o">#</span><span class="nv">b101010</span> <span class="mi">1</span> <span class="mi">4</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b101110</span>
+</pre></div>
+<h2><code>(bit-field-replace dest source start end)</code></h2>
+<p>Returns dest with the field replaced by the least-significant
+end-start bits in source.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-field-replace</span> <span class="o">#</span><span class="nv">b101010</span> <span class="o">#</span><span class="nv">b010</span> <span class="mi">1</span> <span class="mi">4</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b100100</span>
+<span class="p">(</span><span class="nf">bit-field-replace</span> <span class="o">#</span><span class="nv">b110</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">1</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b111</span>
+<span class="p">(</span><span class="nf">bit-field-replace</span> <span class="o">#</span><span class="nv">b110</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b110</span>
+</pre></div>
+<h2><code>(bit-field-replace-same dest source start end)</code></h2>
+<p>Returns dest with its field replaced by the corresponding field in source.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-field-replace-same</span> <span class="o">#</span><span class="nv">b1111</span> <span class="o">#</span><span class="nv">b0000</span> <span class="mi">1</span> <span class="mi">3</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b1001</span>
+</pre></div>
+<h2><code>(bit-field-rotate i count start end)</code></h2>
+<p>Returns i with the field cyclically permuted by count bits towards high-order.</p>
+<p>Compatibility note: The R6RS analogue bitwise-rotate-bit-field uses
+the argument ordering i start end count.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-field-rotate</span> <span class="o">#</span><span class="nv">b110</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">10</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b110</span>
+<span class="p">(</span><span class="nf">bit-field-rotate</span> <span class="o">#</span><span class="nv">b110</span> <span class="mi">0</span> <span class="mi">0</span> <span class="mi">256</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b110</span>
+<span class="p">(</span><span class="nf">bit-field-rotate</span> <span class="o">#</span><span class="nv">x100000000000000000000000000000000</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">129</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">1</span>
+<span class="p">(</span><span class="nf">bit-field-rotate</span> <span class="o">#</span><span class="nv">b110</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b110</span>
+<span class="p">(</span><span class="nf">bit-field-rotate</span> <span class="o">#</span><span class="nv">b110</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">4</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b1010</span>
+<span class="p">(</span><span class="nf">bit-field-rotate</span> <span class="o">#</span><span class="nv">b0111</span> <span class="mi">-1</span> <span class="mi">1</span> <span class="mi">4</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b1011</span>
+</pre></div>
+<h2><code>(bit-field-reverse i start end)</code></h2>
+<p>Returns i with the order of the bits in the field reversed.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bit-field-reverse</span> <span class="mi">6</span> <span class="mi">1</span> <span class="mi">3</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">6</span>
+<span class="p">(</span><span class="nf">bit-field-reverse</span> <span class="mi">6</span> <span class="mi">1</span> <span class="mi">4</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">12</span>
+<span class="p">(</span><span class="nf">bit-field-reverse</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">32</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">x80000000</span>
+<span class="p">(</span><span class="nf">bit-field-reverse</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">31</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">x40000000</span>
+<span class="p">(</span><span class="nf">bit-field-reverse</span> <span class="mi">1</span> <span class="mi">0</span> <span class="mi">30</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">x20000000</span>
+<span class="p">(</span><span class="nf">bit-field-reverse</span> <span class="o">#</span><span class="nv">x140000000000000000000000000000000</span> <span class="mi">0</span> <span class="mi">129</span><span class="p">)</span> <span class="k">=&gt; </span><span class="mi">5</span>
+</pre></div>
+<h2><code>(bits-&gt;list i [ len ])</code></h2>
+<h2><code>(bits-&gt;vector i [ len ])</code></h2>
+<p>Returns a list/vector of len booleans corresponding to each bit of the
+non-negative integer i, returning bit #0 as the first element, bit #1
+as the second, and so on. #t is returned for each 1; #f for 0.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bits-&gt;list</span> <span class="o">#</span><span class="nv">b1110101</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">bits-&gt;list</span> <span class="mi">3</span> <span class="mi">5</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="no">#t</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#f</span> <span class="no">#f</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">bits-&gt;list</span> <span class="mi">6</span> <span class="mi">4</span><span class="p">))</span> <span class="k">=&gt; </span><span class="p">(</span><span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#f</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">bits-&gt;vector</span> <span class="o">#</span><span class="nv">b1110101</span><span class="p">))</span> <span class="k">=&gt; </span><span class="o">#</span><span class="p">(</span><span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">)</span>
+</pre></div>
+<h2><code>(list-&gt;bits list)</code></h2>
+<h2><code>(vector-&gt;bits vector)</code></h2>
+<p>Returns an integer formed from the booleans in list/vector, using the
+first element as bit #0, the second element as bit #1, and so on. It
+is an error if list/vector contains non-booleans. A 1 bit is coded for
+each #t; a 0 bit for #f. Note that the result is never a negative
+integer.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">list-&gt;bits</span> <span class="o">&#39;</span><span class="p">(</span><span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">))</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b1110101</span>
+<span class="p">(</span><span class="nf">list-&gt;bits</span> <span class="o">&#39;</span><span class="p">(</span><span class="no">#f</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">))</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b111010100</span>
+<span class="p">(</span><span class="nf">list-&gt;bits</span> <span class="o">&#39;</span><span class="p">(</span><span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">6</span>
+<span class="p">(</span><span class="nf">list-&gt;bits</span> <span class="o">&#39;</span><span class="p">(</span><span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#f</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">6</span>
+<span class="p">(</span><span class="nf">list-&gt;bits</span> <span class="o">&#39;</span><span class="p">(</span><span class="no">#f</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">12</span>
+
+<span class="p">(</span><span class="nf">vector-&gt;bits</span> <span class="o">&#39;#</span><span class="p">(</span><span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">))</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b1110101</span>
+<span class="p">(</span><span class="nf">vector-&gt;bits</span> <span class="o">&#39;#</span><span class="p">(</span><span class="no">#f</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">))</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b111010100</span>
+<span class="p">(</span><span class="nf">vector-&gt;bits</span> <span class="o">&#39;#</span><span class="p">(</span><span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">6</span>
+<span class="p">(</span><span class="nf">vector-&gt;bits</span> <span class="o">&#39;#</span><span class="p">(</span><span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#f</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">6</span>
+<span class="p">(</span><span class="nf">vector-&gt;bits</span> <span class="o">&#39;#</span><span class="p">(</span><span class="no">#f</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">))</span> <span class="k">=&gt; </span><span class="mi">12</span>
+</pre></div>
+<p>For positive integers, bits-&gt;list and list-&gt;bits are inverses in the
+sense of equal?, and so are bits-&gt;vector and vector-&gt;bits.</p>
+<h2><code>(bits bool ...)</code></h2>
+<p>Returns the integer coded by the bool arguments. The first argument is
+bit #0, the second argument is bit #1, and so on. Note that the result
+is never a negative integer.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bits</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b1110101</span>
+<span class="p">(</span><span class="nf">bits</span> <span class="no">#f</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b111010100</span>
+</pre></div>
+<h2><code>(bitwise-fold proc seed i)</code></h2>
+<p>For each bit b of i from bit #0 (inclusive) to bit (integer-length i)
+(exclusive), proc is called as (proc b r), where r is the current
+accumulated result. The initial value of r is seed, and the value
+returned by proc becomes the next accumulated result. When the last
+bit has been processed, the final accumulated result becomes the
+result of bitwise-fold.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bitwise-fold</span> <span class="nv">cons</span> <span class="o">&#39;</span><span class="p">()</span> <span class="o">#</span><span class="nv">b1010111</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#t</span><span class="p">)</span>
+</pre></div>
+<h2><code>(bitwise-for-each proc i)</code></h2>
+<p>Repeatedly applies proc to the bits of i starting with bit #0
+(inclusive) and ending with bit (integer-length i) (exclusive). The
+values returned by proc are discarded. Returns an unspecified value.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">count</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="p">(</span><span class="nf">bitwise-for-each</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">b</span><span class="p">)</span> <span class="p">(</span><span class="k">if </span><span class="nv">b</span> <span class="p">(</span><span class="k">set! </span><span class="nv">count</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">count</span> <span class="mi">1</span><span class="p">))))</span>
+                          <span class="o">#</span><span class="nv">b1010111</span><span class="p">)</span>
+       <span class="nv">count</span><span class="p">)</span>
+</pre></div>
+<h2><code>(bitwise-unfold stop? mapper successor seed)</code></h2>
+<p>Generates a non-negative integer bit by bit, starting with bit 0. If
+the result of applying stop? to the current state (whose initial value
+is seed) is true, return the currently accumulated bits as an
+integer. Otherwise, apply mapper to the current state to obtain the
+next bit of the result by interpreting a true value as a 1 bit and a
+false value as a 0 bit. Then get a new state by applying successor to
+the current state, and repeat this algorithm.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">bitwise-unfold</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">i</span><span class="p">)</span> <span class="p">(</span><span class="nb">= </span><span class="nv">i</span> <span class="mi">10</span><span class="p">))</span>
+                  <span class="nv">even?</span>
+                  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">i</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">i</span> <span class="mi">1</span><span class="p">))</span>
+                  <span class="mi">0</span><span class="p">))</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">b101010101</span>
+</pre></div>
+<h2><code>(make-bitwise-generator i)</code></h2>
+<p>Returns a SRFI 121 generator that generates all the bits of i starting
+with bit #0. Note that the generator is infinite.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">g</span> <span class="p">(</span><span class="nf">make-bitwise-generator</span> <span class="o">#</span><span class="nv">b110</span><span class="p">)))</span>
+  <span class="p">(</span><span class="nf">test</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">g</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">test</span> <span class="no">#t</span> <span class="p">(</span><span class="nf">g</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">test</span> <span class="no">#t</span> <span class="p">(</span><span class="nf">g</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">test</span> <span class="no">#f</span> <span class="p">(</span><span class="nf">g</span><span class="p">)))</span>
+</pre></div>
+</div>
+    </div>
+  </body>
+</html>

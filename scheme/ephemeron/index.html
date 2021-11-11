@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme ephemeron)</code></h1>
+<p>This library is based on
+<a href="https://srfi.schemers.org/srfi-124/">SRFI-124</a>, that is itself based
+on the MIT Scheme Reference Manual.</p>
+<p>An ephemeron is an object with two components called its key and its
+ datum. It differs from an ordinary pair as follows: if the garbage
+ collector (GC) can prove that there are no references to the key
+ except from the ephemeron itself and possibly from the datum, then it
+ is free to break the ephemeron, dropping its reference to both key
+ and datum. In other words, an ephemeron can be broken when nobody
+ else cares about its key. Ephemerons can be used to construct weak
+ vectors or lists and (possibly in combination with finalizers) weak
+ hash tables.</p>
+<h2><code>(ephemeron? obj)</code></h2>
+<p>Returns #t if object is an ephemeron; otherwise returns #f.</p>
+<h2><code>(make-ephemeron key datum)</code></h2>
+<p>Returns a newly allocated ephemeron, with components key and
+datum. Note that if key and datum are the same in the sense of eq?,
+the ephemeron is effectively a weak reference to the object.</p>
+<h2><code>(ephemeron-broken? ephemeron)</code></h2>
+<p>Returns #t if ephemeron has been broken; otherwise returns #f.</p>
+<p>This procedure must be used with care. If it returns #f, that
+guarantees only that prior evaluations of ephemeron-key or
+ephemeron-datum yielded the key or datum that was stored in
+ephemeron. However, it makes no guarantees about subsequent calls to
+ephemeron-key or ephemeron-datum, because the GC may run and break the
+ephemeron immediately after ephemeron-broken? returns. Thus, the
+correct idiom to fetch an ephemeron's key and datum and use them if
+the ephemeron is not broken is:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">key</span> <span class="p">(</span><span class="nf">ephemeron-key</span> <span class="nv">ephemeron</span><span class="p">))</span>
+           <span class="p">(</span><span class="nf">datum</span> <span class="p">(</span><span class="nf">ephemeron-datum</span> <span class="nv">ephemeron</span><span class="p">)))</span>
+       <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">ephemeron-broken?</span> <span class="nv">ephemeron</span><span class="p">)</span>
+           <span class="o">...</span> <span class="nv">broken</span> <span class="k">case </span><span class="o">...</span>
+           <span class="o">...</span> <span class="nv">code</span> <span class="nv">using</span> <span class="nv">key</span> <span class="k">and </span><span class="nv">datum</span> <span class="o">...</span><span class="p">))</span>
+</pre></div>
+<h2><code>(ephemeron-key ephemeron)</code></h2>
+<h2><code>(ephemeron-value ephemeron)</code></h2>
+<p>These return the key or datum component, respectively, of
+ephemeron. If ephemeron has been broken, these operations return #f,
+but they can also return #f if that is what was stored as the key or
+datum.</p>
+<h2><code>(reference-barrier key)</code></h2>
+<p>This procedure is optional.</p>
+<p>This procedure ensures that the garbage collector does not break an
+ephemeron containing an unreferenced key before a certain point in a
+program. The program can invoke a reference barrier on the key by
+calling this procedure, which guarantees that even if the program does
+not use the key, it will be considered strongly reachable until after
+reference-barrier returns.</p>
+</div>
+    </div>
+  </body>
+</html>

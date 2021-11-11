@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme regex)</code></h1>
+<p>This library is based on
+<a href="https://srfi.schemers.org/srfi-115/">SRFI-115</a>.</p>
+<p>This library provides a library for matching strings with regular
+expressions described using the SRE "Scheme Regular Expression"
+notation first introduced by SCSH, and extended heavily by IrRegex.</p>
+<h2><code>(regexp re)</code></h2>
+<p>Compiles a regexp if given an object whose structure matches the SRE
+syntax. This may be written as a literal or partial literal with quote
+or quasiquote, or may be generated entirely programmatically. Returns
+re unmodified if it is already a regexp. Raises an error if re is
+neither a regexp nor a valid representation of an SRE.</p>
+<p>Mutating re may invalidate the resulting regexp, causing unspecified
+results if subsequently used for matching.</p>
+<h2><code>(rx sre ...)</code></h2>
+<p>Macro shorthand for (regexp `(: sre ...)). May be able to perform some
+or all computation at compile time if sre is not unquoted. Note
+because of this equivalence with the procedural constructor regexp,
+the semantics of unquote differs from the original SCSH implementation
+in that unquoted expressions can expand into any object matching the
+SRE syntax, but not a compiled regexp object. Further, unquote and
+unquote-splicing both expand all matches.</p>
+<p>Rationale: Providing a procedural interface provides for greater
+flexibility, and without loss of potential compile-time optimizations
+by preserving the syntactic shorthand. The alternative is to rely on
+eval to dynamically generate regular expressions. However regexps in
+many cases come from untrusted sources, such as search parameters to a
+server, or from serialized sources such as config files or
+command-line arguments. Moreover many applications may want to keep
+many thousands of regexps in memory at once. Given the relatively
+heavy cost and insecurity of eval, and the frequency with which SREs
+are read and written as text, we prefer the procedural interface.</p>
+<h2><code>(regexp-&gt;sre re)</code></h2>
+<p>Returns an SRE corresponding to the given regexp re. The SRE will be
+equivalent to (will match the same strings) but not necessarily equal?
+to the SRE originally used to compile re. Mutating the result may
+invalidate re, causing unspecified results if subsequently used for
+matching.</p>
+<h2><code>(char-set-&gt;sre char-set)</code></h2>
+<p>Returns an SRE corresponding to the given SRFI 14 character set. The
+resulting SRE expands the character set into notation which does not
+make use of embedded SRFI 14 character sets, and so is suitable for
+writing portably.</p>
+<h2><code>(valid-sre? obj)</code></h2>
+<p>Returns true iff obj can be safely passed to regexp.</p>
+<h2><code>(regexp? obj)</code></h2>
+<p>Returns true iff obj is a regexp.</p>
+<h2><code>(regexp-matches re str [start [end]])</code></h2>
+<p>Returns an regexp-match object if re successfully matches the entire
+string str from start (inclusive) to end (exclusive), or #f is the
+match fails. The regexp-match object will contain information needed
+to extract any submatches.</p>
+<h2><code>(regexp-matches? re str [start [end]])</code></h2>
+<p>Returns #t if re matches str as in regexp-matches, or #f
+otherwise. May be faster than regexp-matches since it doesn't need to
+return submatch data.</p>
+<h2><code>(regexp-search re str [start [end]])</code></h2>
+<p>Returns a regexp-match object if re successfully matches a substring
+of str between start (inclusive) and end (exclusive), or #f if the
+match fails. The regexp-match object will contain information needed
+to extract any submatches.</p>
+<h2><code>(regexp-fold re kons knil str [finish [start [end]]])</code></h2>
+<p>The fundamental regexp matching iterator. Repeatedly searches str for
+the regexp re so long as a match can be found. On each successful
+match, applies (kons i regexp-match str acc) where i is the index
+since the last match (beginning with start), regexp-match is the
+resulting match, and acc is the result of the previous kons
+application, beginning with knil. When no more matches can be found,
+calls finish with the same arguments, except that regexp-match is #f.</p>
+<p>By default finish just returns acc.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-fold</span> <span class="ss">&#39;word</span>
+                <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">i</span> <span class="nv">m</span> <span class="nv">str</span> <span class="nv">acc</span><span class="p">)</span>
+                  <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">s</span> <span class="p">(</span><span class="nf">regexp-match-submatch</span> <span class="nv">m</span> <span class="mi">0</span><span class="p">)))</span>
+                   <span class="p">(</span><span class="k">cond </span><span class="p">((</span><span class="nb">assoc </span><span class="nv">s</span> <span class="nv">acc</span><span class="p">)</span>
+                          <span class="k">=&gt; </span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">set-cdr! </span><span class="nv">x</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">x</span><span class="p">)))</span> <span class="nv">acc</span><span class="p">))</span>
+                         <span class="p">(</span><span class="k">else </span><span class="o">`</span><span class="p">((</span><span class="o">,</span><span class="nv">s</span> <span class="o">.</span> <span class="mi">1</span><span class="p">)</span> <span class="o">,@</span><span class="nv">acc</span><span class="p">)))))</span>
+                <span class="o">&#39;</span><span class="p">()</span>
+                <span class="s">&quot;to be or not to be&quot;</span><span class="p">)</span>
+   <span class="k">=&gt; </span><span class="o">&#39;</span><span class="p">((</span><span class="s">&quot;not&quot;</span> <span class="o">.</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="s">&quot;or&quot;</span> <span class="o">.</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="s">&quot;be&quot;</span> <span class="o">.</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="s">&quot;to&quot;</span> <span class="o">.</span> <span class="mi">2</span><span class="p">))</span>
+</pre></div>
+<h2><code>(regexp-extract re str [start [end]])</code></h2>
+<p>Extracts all non-empty substrings of str which match re between start
+and end as a list of strings.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-extract</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">+</span> <span class="nv">numeric</span><span class="p">)</span> <span class="s">&quot;192.168.0.1&quot;</span><span class="p">)</span>
+   <span class="k">=&gt; </span><span class="p">(</span><span class="s">&quot;192&quot;</span> <span class="s">&quot;168&quot;</span> <span class="s">&quot;0&quot;</span> <span class="s">&quot;1&quot;</span><span class="p">)</span>
+</pre></div>
+<h2><code>(regexp-split re str [start [end]])</code></h2>
+<p>Splits str into a list of (possibly empty) strings separated by
+non-empty matches of re.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-split</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">+</span> <span class="nv">space</span><span class="p">)</span> <span class="s">&quot; fee fi  fo\tfum\n&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="p">(</span><span class="s">&quot;&quot;</span> <span class="s">&quot;fee&quot;</span> <span class="s">&quot;fi&quot;</span> <span class="s">&quot;fo&quot;</span> <span class="s">&quot;fum&quot;</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">regexp-split</span> <span class="o">&#39;</span><span class="p">(</span><span class="s">&quot;,;&quot;</span><span class="p">)</span> <span class="s">&quot;a,,b,&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="p">(</span><span class="s">&quot;a&quot;</span> <span class="s">&quot;&quot;</span> <span class="s">&quot;b&quot;</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">regexp-split</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="nv">digit</span><span class="p">)</span> <span class="s">&quot;abc123def456ghi789&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="p">(</span><span class="s">&quot;abc&quot;</span> <span class="s">&quot;def&quot;</span> <span class="s">&quot;ghi&quot;</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+<h2><code>(regexp-partition re str [start [end]])</code></h2>
+<p>Partitions str into a list of non-empty strings matching re,
+interspersed with the unmatched portions of the string. The first and
+every odd element is an unmatched substring, which will be the empty
+string if re matches at the beginning of the string or end of the
+previous match. The second and every even element will be a substring
+matching re. If the final match ends at the end of the string, no
+trailing empty string will be included. Thus, in the degenerate case
+where str is the empty string, the result is ("").</p>
+<p>Note that regexp-partition is equivalent to interleaving the results
+of regexp-split and regexp-extract, starting with the former.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-partition</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">+</span> <span class="p">(</span><span class="k">or </span><span class="nv">space</span> <span class="nv">punct</span><span class="p">))</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">regexp-partition</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">+</span> <span class="p">(</span><span class="k">or </span><span class="nv">space</span> <span class="nv">punct</span><span class="p">))</span> <span class="s">&quot;Hello, world!\n&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="p">(</span><span class="s">&quot;Hello&quot;</span> <span class="s">&quot;, &quot;</span> <span class="s">&quot;world&quot;</span> <span class="s">&quot;!\n&quot;</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">regexp-partition</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">+</span> <span class="p">(</span><span class="k">or </span><span class="nv">space</span> <span class="nv">punct</span><span class="p">))</span> <span class="s">&quot;¿Dónde Estás?&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="p">(</span><span class="s">&quot;&quot;</span> <span class="s">&quot;¿&quot;</span> <span class="s">&quot;Dónde&quot;</span> <span class="s">&quot; &quot;</span> <span class="s">&quot;Estás&quot;</span> <span class="s">&quot;?&quot;</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">regexp-partition</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="nv">digit</span><span class="p">)</span> <span class="s">&quot;abc123def456ghi789&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="p">(</span><span class="s">&quot;abc&quot;</span> <span class="s">&quot;123&quot;</span> <span class="s">&quot;def&quot;</span> <span class="s">&quot;456&quot;</span> <span class="s">&quot;ghi&quot;</span> <span class="s">&quot;789&quot;</span><span class="p">)</span>
+</pre></div>
+<h2><code>(regexp-replace re str subst [start [end [count]])</code></h2>
+<p>Returns a new string replacing the countth match of re in str the
+subst, where the zero-indexed count defaults to zero (i.e. the first
+match). If there are not count matches, returns the selected substring
+unmodified.</p>
+<p>subst can be a string, an integer or symbol indicating the contents of
+a numbered or named submatch of re, 'pre for the substring to the left
+of the match, or 'post for the substring to the right of the match.</p>
+<p>The optional parameters start and end restrict both the matching and
+the substitution, to the given indices, such that the result is
+equivalent to omitting these parameters and replacing on (substring
+str start end). As a convenience, a value of #f for end is equivalent
+to (string-length str).</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-replace</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">+</span> <span class="nv">space</span><span class="p">)</span> <span class="s">&quot;one two three&quot;</span> <span class="s">&quot;_&quot;</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;one_two three&quot;</span>
+<span class="p">(</span><span class="nf">regexp-replace</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">+</span> <span class="nv">space</span><span class="p">)</span> <span class="s">&quot;one two three&quot;</span> <span class="s">&quot;_&quot;</span> <span class="mi">0</span> <span class="no">#f</span> <span class="mi">0</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;one_two three&quot;</span>
+<span class="p">(</span><span class="nf">regexp-replace</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">+</span> <span class="nv">space</span><span class="p">)</span> <span class="s">&quot;one two three&quot;</span> <span class="s">&quot;_&quot;</span> <span class="mi">0</span> <span class="no">#f</span> <span class="mi">1</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;one two_three&quot;</span>
+<span class="p">(</span><span class="nf">regexp-replace</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">+</span> <span class="nv">space</span><span class="p">)</span> <span class="s">&quot;one two three&quot;</span> <span class="s">&quot;_&quot;</span> <span class="mi">0</span> <span class="no">#f</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">=&gt; </span><span class="s">&quot;one two three&quot;</span>
+</pre></div>
+<h2><code>(regexp-replace-all re str subst [start [end]])</code></h2>
+<p>Equivalent to regexp-replace, but replaces all occurrences of re in
+str.</p>
+
+<div><pre>(regexp-replace-all '(+ space) "one two three" "_")
+=&gt; "one_two_three"</pre></div>
+<h2><code>(regexp-match? obj)</code></h2>
+<p>Returns true iff obj is a successful match from regexp-matches or
+regexp-search.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-match?</span> <span class="p">(</span><span class="nf">regexp-matches</span> <span class="s">&quot;x&quot;</span> <span class="s">&quot;x&quot;</span><span class="p">))</span>  <span class="k">=&gt; </span><span class="no">#t</span>
+<span class="p">(</span><span class="nf">regexp-match?</span> <span class="p">(</span><span class="nf">regexp-matches</span> <span class="s">&quot;x&quot;</span> <span class="s">&quot;y&quot;</span><span class="p">))</span>  <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(regexp-match-count regexp-match)</code></h2>
+<p>Returns the number of submatches of regexp-match, regardless of
+whether they matched or not. Does not include the implicit zero full
+match in the count.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-match-count</span> <span class="p">(</span><span class="nf">regexp-matches</span> <span class="s">&quot;x&quot;</span> <span class="s">&quot;x&quot;</span><span class="p">))</span>  <span class="k">=&gt; </span><span class="mi">0</span>
+<span class="p">(</span><span class="nf">regexp-match-count</span> <span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">$</span> <span class="s">&quot;x&quot;</span><span class="p">)</span> <span class="s">&quot;x&quot;</span><span class="p">))</span>  <span class="k">=&gt; </span><span class="mi">1</span>
+</pre></div>
+<h2><code>(regexp-match-submatch regexp-match field)</code></h2>
+<p>Returns the substring matched in regexp-match corresponding to field,
+either an integer or a symbol for a named submatch. Index 0 refers to
+the entire match, index 1 to the first lexicographic submatch, and so
+on. If there are multiple submatches with the same name, the first
+which matched is returned. If passed an integer outside the range of
+matches, or a symbol which does not correspond to a named submatch of
+the pattern, it is an error. If the corresponding submatch did not
+match, returns false.</p>
+<p>The result of extracting a submatch after the original matched string
+has been mutated is unspecified.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-match-submatch</span> <span class="p">(</span><span class="nf">regexp-search</span> <span class="ss">&#39;word</span> <span class="s">&quot;**foo**&quot;</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span>  <span class="k">=&gt; </span><span class="s">&quot;foo&quot;</span>
+<span class="p">(</span><span class="nf">regexp-match-submatch</span>
+  <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;*&quot;</span> <span class="p">(</span><span class="nf">$</span> <span class="nv">word</span><span class="p">)</span> <span class="s">&quot;*&quot;</span><span class="p">)</span> <span class="s">&quot;**foo**&quot;</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span>  <span class="k">=&gt; </span><span class="s">&quot;*foo*&quot;</span>
+<span class="p">(</span><span class="nf">regexp-match-submatch</span>
+  <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;*&quot;</span> <span class="p">(</span><span class="nf">$</span> <span class="nv">word</span><span class="p">)</span> <span class="s">&quot;*&quot;</span><span class="p">)</span> <span class="s">&quot;**foo**&quot;</span><span class="p">)</span> <span class="mi">1</span><span class="p">)</span>  <span class="k">=&gt; </span><span class="s">&quot;foo&quot;</span>
+</pre></div>
+<h2><code>(regexp-match-submatch-start regexp-match field)</code></h2>
+<p>Returns the start index regexp-match corresponding to field, as in
+regexp-match-submatch.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-match-submatch-start</span>
+    <span class="p">(</span><span class="nf">regexp-search</span> <span class="ss">&#39;word</span> <span class="s">&quot;**foo**&quot;</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span>  <span class="k">=&gt; </span><span class="mi">2</span>
+   <span class="p">(</span><span class="nf">regexp-match-submatch-start</span>
+    <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;*&quot;</span> <span class="p">(</span><span class="nf">$</span> <span class="nv">word</span><span class="p">)</span> <span class="s">&quot;*&quot;</span><span class="p">)</span> <span class="s">&quot;**foo**&quot;</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span>  <span class="k">=&gt; </span><span class="mi">1</span>
+   <span class="p">(</span><span class="nf">regexp-match-submatch-start</span>
+    <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;*&quot;</span> <span class="p">(</span><span class="nf">$</span> <span class="nv">word</span><span class="p">)</span> <span class="s">&quot;*&quot;</span><span class="p">)</span> <span class="s">&quot;**foo**&quot;</span><span class="p">)</span> <span class="mi">1</span><span class="p">)</span>  <span class="k">=&gt; </span><span class="mi">2</span>
+</pre></div>
+<h2><code>(regexp-match-submatch-end regexp-match field)</code></h2>
+<p>Returns the end index in regexp-match corresponding to field, as in
+regexp-match-submatch.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-match-submatch-end</span>
+    <span class="p">(</span><span class="nf">regexp-search</span> <span class="ss">&#39;word</span> <span class="s">&quot;**foo**&quot;</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span>  <span class="k">=&gt; </span><span class="mi">5</span>
+   <span class="p">(</span><span class="nf">regexp-match-submatch-end</span>
+    <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;*&quot;</span> <span class="p">(</span><span class="nf">$</span> <span class="nv">word</span><span class="p">)</span> <span class="s">&quot;*&quot;</span><span class="p">)</span> <span class="s">&quot;**foo**&quot;</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span>  <span class="k">=&gt; </span><span class="mi">6</span>
+   <span class="p">(</span><span class="nf">regexp-match-submatch-end</span>
+    <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;*&quot;</span> <span class="p">(</span><span class="nf">$</span> <span class="nv">word</span><span class="p">)</span> <span class="s">&quot;*&quot;</span><span class="p">)</span> <span class="s">&quot;**foo**&quot;</span><span class="p">)</span> <span class="mi">1</span><span class="p">)</span>  <span class="k">=&gt; </span><span class="mi">5</span>
+</pre></div>
+<h2><code>(regexp-match-&gt;list regexp-match)</code></h2>
+<p>Returns a list of all submatches in regexp-match as string or false,
+beginning with the entire match 0.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-match-&gt;list</span>
+    <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="p">(</span><span class="nf">$</span> <span class="nv">word</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="k">or </span><span class="nv">space</span> <span class="nv">punct</span><span class="p">))</span> <span class="p">(</span><span class="nf">$</span> <span class="nv">word</span><span class="p">))</span> <span class="s">&quot;cats &amp; dogs&quot;</span><span class="p">))</span>
+    <span class="k">=&gt; </span><span class="o">&#39;</span><span class="p">(</span><span class="s">&quot;cats &amp; dogs&quot;</span> <span class="s">&quot;cats&quot;</span> <span class="s">&quot;dogs&quot;</span><span class="p">)</span>
+</pre></div>
+<h2>SRE Syntax</h2>
+<p>The grammar for SREs is summarized below. Note that an SRE is a
+first-class object consisting of nested lists of strings, chars,
+char-sets, symbols and numbers. Where the syntax is described as (foo
+bar), this can be constructed equivalently as '(foo bar) or (list 'foo
+'bar), etc. The following sections explain the semantics in greater
+detail.</p>
+<p>```scheme <sre> ::= | <string> ; A literal string match.  | <cset-sre>
+    ; A character set match.  | (* <sre> ...)  ; 0 or more matches.  |
+    (zero-or-more <sre> ...)  | (+ <sre> ...)  ; 1 or more matches.  |
+    (one-or-more <sre> ...)  | (? <sre> ...)  ; 0 or 1 matches.  |
+    (optional <sre> ...)  | (= <n> <sre> ...)  ; <n> matches.  |
+    (exactly <n> <sre> ...)  | (&gt;= <n> <sre> ...)  ; <n> or more
+    matches.  | (at-least <n> <sre> ...)  | (** <n> <m> <sre> ...)  ;
+    <n> to <m> matches.  | (repeated <n> <m> <sre> ...)</p>
+
+<div><pre>| (|  &lt;sre&gt; ...)              ; Alternation.
+ | (or &lt;sre&gt; ...)
+
+ | (:   &lt;sre&gt; ...)             ; Sequence.
+ | (seq &lt;sre&gt; ...)
+ | ($ &lt;sre&gt; ...)               ; Numbered submatch.
+ | (submatch &lt;sre&gt; ...)
+ | (-&gt; &lt;name&gt; &lt;sre&gt; ...)               ;  Named submatch.  &lt;name&gt; is
+ | (submatch-named &lt;name&gt; &lt;sre&gt; ...)   ;  a symbol.
+
+ | (w/case   &lt;sre&gt; ...)        ; Introduce a case-sensitive context.
+ | (w/nocase &lt;sre&gt; ...)        ; Introduce a case-insensitive context.
+
+ | (w/unicode   &lt;sre&gt; ...)     ; Introduce a unicode context.
+ | (w/ascii &lt;sre&gt; ...)         ; Introduce an ascii context.
+
+ | (w/nocapture &lt;sre&gt; ...)     ; Ignore all enclosed submatches.
+
+ | bos                         ; Beginning of string.
+ | eos                         ; End of string.
+
+ | bol                         ; Beginning of line.
+ | eol                         ; End of line.
+
+ | bog                         ; Beginning of grapheme cluster.
+ | eog                         ; End of grapheme cluster.
+ | grapheme                    ; A single grapheme cluster.
+
+ | bow                         ; Beginning of word.
+ | eow                         ; End of word.
+ | nwb                         ; A non-word boundary.
+ | (word &lt;sre&gt; ...)            ; An SRE wrapped in word boundaries.
+ | (word+ &lt;cset-sre&gt; ...)      ; A single word restricted to a cset.
+ | word                        ; A single word.
+
+ | (?? &lt;sre&gt; ...)              ; A non-greedy pattern, 0 or 1 match.
+ | (non-greedy-optional &lt;sre&gt; ...)
+ | (*? &lt;sre&gt; ...)              ; Non-greedy 0 or more matches.
+ | (non-greedy-zero-or-more &lt;sre&gt; ...)
+ | (**? &lt;m&gt; &lt;n&gt; &lt;sre&gt; ...)     ; Non-greedy &lt;m&gt; to &lt;n&gt; matches.
+ | (non-greedy-repeated &lt;sre&gt; ...)
+ | (look-ahead &lt;sre&gt; ...)      ; Zero-width look-ahead assertion.
+ | (look-behind &lt;sre&gt; ...)     ; Zero-width look-behind assertion.
+ | (neg-look-ahead &lt;sre&gt; ...)  ; Zero-width negative look-ahead assertion.
+ | (neg-look-behind &lt;sre&gt; ...) ; Zero-width negative look-behind assertion.
+
+ | (backref &lt;n-or-name&gt;)       ; Match a previous submatch.</pre></div>
+
+<div><pre>The grammar for cset-sre is as follows.
+
+```scheme
+    &lt;cset-sre&gt; ::=
+     | &lt;char&gt;                      ; literal char
+     | "&lt;char&gt;"                    ; string of one char
+     | &lt;char-set&gt;                  ; embedded SRFI 14 char set
+     | (&lt;string&gt;)                  ; literal char set
+     | (char-set &lt;string&gt;)
+     | (/ &lt;range-spec&gt; ...)        ; ranges
+     | (char-range &lt;range-spec&gt; ...)
+     | (or &lt;cset-sre&gt; ...)         ; union
+     | (|\|| &lt;cset-sre&gt; ...)
+     | (and &lt;cset-sre&gt; ...)        ; intersection
+     | (&amp; &lt;cset-sre&gt; ...)
+     | (- &lt;cset-sre&gt; ...)          ; difference
+     | (- &lt;difference&gt; ...)
+     | (~ &lt;cset-sre&gt; ...)          ; complement of union
+     | (complement &lt;cset-sre&gt; ...)
+     | (w/case &lt;cset-sre&gt; ...)     ; case and unicode toggling
+     | (w/nocase &lt;cset-sre&gt; ...)
+     | (w/ascii &lt;cset-sre&gt; ...)
+     | (w/unicode &lt;cset-sre&gt; ...)
+     | any | nonl | ascii | lower-case | lower
+     | upper-case | upper | title-case | title
+     | alphabetic | alpha | alphanumeric | alphanum | alnum
+     | numeric | num | punctuation | punct | symbol
+     | graphic | graph | whitespace | white | space
+     | printing | print | control | cntrl | hex-digit | xdigit
+
+    &lt;range-spec&gt; ::= &lt;string&gt; | &lt;char&gt;</pre></div>
+<h2><code>&lt;string&gt;</code></h2>
+<p>A literal string.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="s">&quot;needle&quot;</span> <span class="s">&quot;hayneedlehay&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+   <span class="p">(</span><span class="nf">regexp-search</span> <span class="s">&quot;needle&quot;</span> <span class="s">&quot;haynEEdlehay&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(seq sre ...)</code></h2>
+<h2><code>(: sre ...)</code></h2>
+<p>Sequencing. Matches if each of sre matches adjacently in order.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;one&quot;</span> <span class="nv">space</span> <span class="s">&quot;two&quot;</span> <span class="nv">space</span> <span class="s">&quot;three&quot;</span><span class="p">)</span> <span class="s">&quot;one two three&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+</pre></div>
+<h2><code>(or sre ...)</code></h2>
+<h2><code>(|\|| sre ...)</code></h2>
+<p>Alternation. Matches if any of sre match.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="k">or </span><span class="s">&quot;eeney&quot;</span> <span class="s">&quot;meeney&quot;</span> <span class="s">&quot;miney&quot;</span><span class="p">)</span> <span class="s">&quot;meeney&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="k">or </span><span class="s">&quot;eeney&quot;</span> <span class="s">&quot;meeney&quot;</span> <span class="s">&quot;miney&quot;</span><span class="p">)</span> <span class="s">&quot;moe&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(w/nocase sre ...)</code></h2>
+<p>Enclosed sres are case-insensitive. In a Unicode context character and
+string literals match with the default simple Unicode case-insensitive
+matching. Implementations may, but are not required to, handle
+variable length case conversions, such as #\x00DF "ß" matching the two
+characters "SS".</p>
+<p>Character sets match if any character in the set matches
+case-insensitively to the input. Conceptually each cset-sre is
+expanded to contain all case variants for all of its characters. In a
+compound cset-sre the expansion is applied at the terminals consisting
+of characters, strings, embedded SRFI 14 char-sets, and named
+character sets. For simple unions this would be equivalent to
+computing the full union first and then expanding case variants, but
+the semantics can differ when differences and intersections are
+applied. For example, (w/nocase (~ ("Aab"))) is equivalent to (~
+("AaBb")), for which "B" is clearly not a member. However if you were
+to compute (~ ("Aab")) first then you would have a char-set containing
+"B", and after expanding case variants both "B" and "b" would be
+members.</p>
+<p>In an ASCII context only the 52 ASCII letters (/ "a-zA-Z") match
+case-insensitively to each other.</p>
+<p>In a Unicode context the only named cset-sre which are affected by
+w/nocase are upper and lower. Note that the case insensitive versions
+of these are not equivalent to alpha as there are characters with the
+letter property but no case.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="s">&quot;needle&quot;</span> <span class="s">&quot;haynEEdlehay&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">w/nocase</span> <span class="s">&quot;needle&quot;</span><span class="p">)</span> <span class="s">&quot;haynEEdlehay&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">~</span> <span class="p">(</span><span class="s">&quot;Aab&quot;</span><span class="p">))</span> <span class="s">&quot;B&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">~</span> <span class="p">(</span><span class="s">&quot;Aab&quot;</span><span class="p">))</span> <span class="s">&quot;b&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">w/nocase</span> <span class="p">(</span><span class="nf">~</span> <span class="p">(</span><span class="s">&quot;Aab&quot;</span><span class="p">)))</span> <span class="s">&quot;B&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">w/nocase</span> <span class="p">(</span><span class="nf">~</span> <span class="p">(</span><span class="s">&quot;Aab&quot;</span><span class="p">)))</span> <span class="s">&quot;b&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">~</span> <span class="p">(</span><span class="nf">w/nocase</span> <span class="p">(</span><span class="s">&quot;Aab&quot;</span><span class="p">)))</span> <span class="s">&quot;B&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">~</span> <span class="p">(</span><span class="nf">w/nocase</span> <span class="p">(</span><span class="s">&quot;Aab&quot;</span><span class="p">)))</span> <span class="s">&quot;b&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(w/case sre ...)</code></h2>
+<p>Enclosed sres are case-sensitive. This is the default, and overrides
+any enclosing w/nocase setting.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">w/nocase</span> <span class="s">&quot;SMALL&quot;</span> <span class="p">(</span><span class="nf">w/case</span> <span class="s">&quot;BIG&quot;</span><span class="p">))</span> <span class="s">&quot;smallBIGsmall&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">w/nocase</span> <span class="p">(</span><span class="nf">~</span> <span class="p">(</span><span class="nf">w/case</span> <span class="p">(</span><span class="s">&quot;Aab&quot;</span><span class="p">))))</span> <span class="s">&quot;b&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(w/ascii sre ...)</code></h2>
+<p>Enclosed sres are interpreted in an ASCII context. In practice many
+regular expressions are used for simple parsing and only ASCII
+characters are relevant. Switching to ASCII mode can improve
+performance in some implementations.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">w/ascii</span> <span class="nv">bos</span> <span class="p">(</span><span class="nb">* </span><span class="nv">alpha</span><span class="p">)</span> <span class="nv">eos</span><span class="p">)</span> <span class="s">&quot;English&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">w/ascii</span> <span class="nv">bos</span> <span class="p">(</span><span class="nb">* </span><span class="nv">alpha</span><span class="p">)</span> <span class="nv">eos</span><span class="p">)</span> <span class="s">&quot;Ελληνική&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(w/unicode sre ...)</code></h2>
+<p>Enclosed sres are interpreted in a Unicode context - character sets
+with both an ASCII and Unicode definition take the latter. Has no
+effect if the regexp-unicode feature is not provided. This is the
+default.</p>
+
+<div><pre>(regexp-search '(w/unicode bos (* alpha) eos) "English") =&gt; #&lt;regexp-match&gt;
+(regexp-search '(w/unicode bos (* alpha) eos) "Ελληνική") =&gt; #&lt;regexp-match&gt;</pre></div>
+<h2><code>(w/nocapture sre ...)</code></h2>
+<p>Disables capturing for all submatches ($, submatch, -&gt; and
+submatch-named) in the enclosed sres. The resulting SRE matches
+exactly the same strings, but without any associated submatch
+info. Useful for utility SREs which you want to incorporate without
+affecting your submatch positions.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">number</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">$</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">digit</span><span class="p">))))</span>
+     <span class="p">(</span><span class="nf">cdr</span>
+      <span class="p">(</span><span class="nf">regexp-match-&gt;list</span>
+       <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">`</span><span class="p">(</span><span class="nf">:</span> <span class="o">,</span><span class="nv">number</span> <span class="s">&quot;-&quot;</span> <span class="o">,</span><span class="nv">number</span> <span class="s">&quot;-&quot;</span> <span class="o">,</span><span class="nv">number</span><span class="p">)</span>
+                      <span class="s">&quot;555-867-5309&quot;</span><span class="p">)))</span>  <span class="c1">; =&gt; &#39;(&quot;555&quot; &quot;867&quot; &quot;5309&quot;)</span>
+     <span class="p">(</span><span class="nf">cdr</span>
+      <span class="p">(</span><span class="nf">regexp-match-&gt;list</span>
+       <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">`</span><span class="p">(</span><span class="nf">:</span> <span class="o">,</span><span class="nv">number</span> <span class="s">&quot;-&quot;</span> <span class="p">(</span><span class="nf">w/nocapture</span> <span class="o">,</span><span class="nv">number</span><span class="p">)</span> <span class="s">&quot;-&quot;</span> <span class="o">,</span><span class="nv">number</span><span class="p">)</span>
+                      <span class="s">&quot;555-867-5309&quot;</span><span class="p">))))</span>   <span class="k">=&gt; </span><span class="o">&#39;</span><span class="p">(</span><span class="s">&quot;555&quot;</span> <span class="s">&quot;5309&quot;</span><span class="p">)</span>
+</pre></div>
+<h2><code>(optional sre ...)</code></h2>
+<h2><code>(? sre ...)</code></h2>
+<p>An optional pattern - matches 1 or 0 times.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;match&quot;</span> <span class="p">(</span><span class="nf">?</span> <span class="s">&quot;es&quot;</span><span class="p">)</span> <span class="s">&quot;!&quot;</span><span class="p">)</span> <span class="s">&quot;matches!&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;match&quot;</span> <span class="p">(</span><span class="nf">?</span> <span class="s">&quot;es&quot;</span><span class="p">)</span> <span class="s">&quot;!&quot;</span><span class="p">)</span> <span class="s">&quot;match!&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;match&quot;</span> <span class="p">(</span><span class="nf">?</span> <span class="s">&quot;es&quot;</span><span class="p">)</span> <span class="s">&quot;!&quot;</span><span class="p">)</span> <span class="s">&quot;matche!&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(zero-or-more sre ...)</code></h2>
+<h2><code>(* sre ...)</code></h2>
+<p>Kleene star, matches 0 or more times.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">* </span><span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;html&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">* </span><span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">* </span><span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;html&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(one-or-more sre ...)</code></h2>
+<h2><code>(+ sre ...)</code></h2>
+<p>1 or more matches. Like * but requires at least a single match.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;html&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;a&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(at-least n sre ...)</code></h2>
+<h2><code>(&gt;= n sre ...)</code></h2>
+<p>More generally, n or more matches.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">&gt;= </span><span class="mi">3</span> <span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;table&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">&gt;= </span><span class="mi">3</span> <span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;pre&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">&gt;= </span><span class="mi">3</span> <span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;tr&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(exactly n sre ...)</code></h2>
+<h2><code>(= n sre ...)</code></h2>
+<p>Exactly n matches.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">= </span><span class="mi">4</span> <span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;html&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;&lt;&quot;</span> <span class="p">(</span><span class="nb">= </span><span class="mi">4</span> <span class="p">(</span><span class="nf">~</span> <span class="o">#</span><span class="err">\</span><span class="nv">&gt;</span><span class="p">))</span> <span class="s">&quot;&gt;&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;table&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(repeated from to sre ...)</code></h2>
+<h2><code>(** from to sre ...)</code></h2>
+<p>The most general form, from n to m matches, inclusive.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="p">(</span><span class="nb">= </span><span class="mi">3</span> <span class="p">(</span><span class="nf">**</span> <span class="mi">1</span> <span class="mi">3</span> <span class="nv">numeric</span><span class="p">)</span> <span class="s">&quot;.&quot;</span><span class="p">)</span> <span class="p">(</span><span class="nf">**</span> <span class="mi">1</span> <span class="mi">3</span> <span class="nv">numeric</span><span class="p">))</span> <span class="s">&quot;192.168.1.10&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="p">(</span><span class="nb">= </span><span class="mi">3</span> <span class="p">(</span><span class="nf">**</span> <span class="mi">1</span> <span class="mi">3</span> <span class="nv">numeric</span><span class="p">)</span> <span class="s">&quot;.&quot;</span><span class="p">)</span> <span class="p">(</span><span class="nf">**</span> <span class="mi">1</span> <span class="mi">3</span> <span class="nv">numeric</span><span class="p">))</span> <span class="s">&quot;192.0168.1.10&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(submatch sre ...)</code></h2>
+<h2><code>($ sre ...)</code></h2>
+<p>A numbered submatch. The contents matching the pattern will be
+available in the resulting regexp-match.</p>
+<h2><code>(submatch-named name sre ...)</code></h2>
+<h2><code>(-&gt; name sre ...)</code></h2>
+<p>A named submatch. Behaves just like submatch, but the field may also
+be referred to by name.</p>
+<h2><code>(backref n-or-name)</code></h2>
+<p>Optional: Match a previously matched submatch. The feature
+regexp-backrefs will be provided if this pattern is
+supported. Backreferences are expensive, and can trivially be shown to
+be NP-hard, so one should avoid their use even in implementations
+which support them.</p>
+<h2><code>&lt;char&gt;</code></h2>
+<p>A singleton char set.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="sc">#\-</span><span class="p">)</span> <span class="s">&quot;---&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+   <span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="sc">#\-</span><span class="p">)</span> <span class="s">&quot;-_-&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>"&lt;char&gt;"</code></h2>
+<p>A singleton char set written as a string of length one rather than a
+character. Equivalent to its interpretation as a literal string match,
+but included to clarify it can be composed in cset-sres.</p>
+<h2><code>&lt;char-set&gt;</code></h2>
+<p>A SRFI 14 character set, which matches any character in the set. Note
+that currently there is no portable written representation of SRFI 14
+character sets, which means that this pattern is typically generated
+programmatically, such as with a quasiquoted expression.</p>
+
+<div><pre>(regexp-partition `(+ ,char-set:vowels) "vowels")
+   =&gt; ("v" "o" "w" "e" "ls")</pre></div>
+<p>Rationale: Many useful character sets are likely to be available as
+SRFI 14 char-sets, so it is desirable to reuse them in regular
+expressions. Since many Unicode character sets are extremely large,
+converting back and forth between an internal and external
+representation can be expensive, so the option of direct embedding is
+necessary. When a readable external representation is needed,
+char-set-&gt;sre can be used.</p>
+<h2><code>(char-set &lt;string&gt;)</code></h2>
+<h2><code>(&lt;string&gt;)</code></h2>
+<p>The set of chars as formed by SRFI 14 (string-&gt;char-set <string>).</p>
+<p>Note that char-sets contain code points, not grapheme clusters, so any
+combining characters in <string> will be inserted separately from any
+preceding base characters by string-&gt;char-set.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="p">(</span><span class="s">&quot;aeiou&quot;</span><span class="p">))</span> <span class="s">&quot;oui&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+   <span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="p">(</span><span class="s">&quot;aeiou&quot;</span><span class="p">))</span> <span class="s">&quot;ouais&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+   <span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="p">(</span><span class="s">&quot;e\x0301&quot;</span><span class="p">))</span> <span class="s">&quot;e\x0301&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+   <span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="s">&quot;e\x0301&quot;</span><span class="p">)</span> <span class="s">&quot;e\x0301&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+   <span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="s">&quot;e\x0301&quot;</span><span class="p">)</span> <span class="s">&quot;e&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+   <span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="s">&quot;e\x0301&quot;</span><span class="p">)</span> <span class="s">&quot;\x0301&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+   <span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="s">&quot;e\x0301&quot;</span><span class="p">)</span> <span class="s">&quot;\x00E9&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(char-range &lt;range-spec&gt; ...)</code></h2>
+<h2><code>(/ &lt;range-spec&gt; ...)</code></h2>
+<p>Ranged char set. The <range-spec> is a list of strings and
+characters. These are flattened and grouped into pairs of characters,
+and all ranges formed by the pairs are included in the char set.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="p">(</span><span class="nb">/ </span><span class="s">&quot;AZ09&quot;</span><span class="p">))</span> <span class="s">&quot;R2D2&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="p">(</span><span class="nb">/ </span><span class="s">&quot;AZ09&quot;</span><span class="p">))</span> <span class="s">&quot;C-3PO&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(or &lt;cset-sre&gt; ...)</code></h2>
+<h2><code>(|\|| &lt;cset-sre&gt; ...)</code></h2>
+<p>Char set union. The single vertical bar form is provided for
+consistency and compatibility with SCSH, although it needs to be
+escaped in R7RS.</p>
+<h2><code>(complement &lt;cset-sre&gt; ...)</code></h2>
+<h2><code>(~ &lt;cset-sre&gt; ...)</code></h2>
+<p>Char set complement (i.e. [^...] in PCRE notation). (~ x) is
+equivalent to (- any x), thus in an ASCII context the complement is
+always ASCII.</p>
+<h2><code>(difference &lt;cset-sre&gt; ...)</code></h2>
+<h2><code>(- &lt;cset-sre&gt; ...)</code></h2>
+<p>Char set difference.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="p">(</span><span class="nb">- </span><span class="p">(</span><span class="nb">/ </span><span class="s">&quot;az&quot;</span><span class="p">)</span> <span class="p">(</span><span class="s">&quot;aeiou&quot;</span><span class="p">)))</span> <span class="s">&quot;xyzzy&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">*</span> <span class="p">(</span><span class="nb">- </span><span class="p">(</span><span class="nb">/ </span><span class="s">&quot;az&quot;</span><span class="p">)</span> <span class="p">(</span><span class="s">&quot;aeiou&quot;</span><span class="p">)))</span> <span class="s">&quot;vowels&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(and &lt;cset-sre&gt; ...)</code></h2>
+<h2><code>(&amp; &lt;cset-sre&gt; ...)</code></h2>
+<p>Char set intersection.</p>
+
+<div><pre>(regexp-matches '(* (&amp; (/ "az") (~ ("aeiou")))) "xyzzy") =&gt; #&lt;regexp-match&gt;
+(regexp-matches '(* (&amp; (/ "az") (~ ("aeiou")))) "vowels") =&gt; #f</pre></div>
+<h2><code>any</code></h2>
+<p>Match any character. Equivalent to ascii in an ASCII context.</p>
+<h2><code>nonl</code></h2>
+<p>Match any character other than #\return or #\newline.</p>
+<h2><code>ascii</code></h2>
+<p>Match any ASCII character [0..127].</p>
+<h2><code>lower-case</code></h2>
+<h2><code>lower</code></h2>
+<p>Matches any character for which char-lower-case? returns true. In a
+Unicode context this corresponds to the Lowercase (Ll +
+Other_Lowercase) property. In an ASCII context corresponds to (/
+"az").</p>
+<h2><code>upper-case</code></h2>
+<h2><code>upper</code></h2>
+<p>Matches any character for which char-upper-case? returns true. In a
+Unicode context this corresponds to the Uppercase (Lu +
+Other_Uppercase) property. In an ASCII context corresponds to (/
+"AZ").</p>
+<h2><code>title-case</code></h2>
+<h2><code>title</code></h2>
+<p>Matches any character with the Unicode Titlecase (Lt) property. This
+property only exists for the sake of ligature characters, of which
+only 31 exist at time of writing. In an ASCII context this is empty.</p>
+<h2><code>alphabetic</code></h2>
+<h2><code>alpha</code></h2>
+<p>Matches any character for which char-alphabetic? returns true. In a
+Unicode context this corresponds to the Alphabetic (L + Nl +
+Other_Alphabetic) property. In an ASCII context corresponds to
+(w/nocase (/ "az")).</p>
+<h2><code>numeric</code></h2>
+<h2><code>num</code></h2>
+<p>Matches any character for which char-numeric? returns true. For In a
+Unicode context this corresponds to the Numeric_Digit (Nd)
+property. In an ASCII context corresponds to (/ "09").</p>
+<h2><code>alphanumeric</code></h2>
+<h2><code>alphanum</code></h2>
+<h2><code>alnum</code></h2>
+<p>Matches any character which is either a letter or number. Equivalent
+to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">or </span><span class="nv">alphabetic</span> <span class="nv">numeric</span><span class="p">)</span>
+</pre></div>
+<h2><code>punctuation</code></h2>
+<h2><code>punct</code></h2>
+<p>Matches any punctuation character. In a Unicode context this
+corresponds to the Punctuation property (P). In an ASCII context this
+corresponds to "!\"#%&amp;'()*,-./:;?@[]_{}".</p>
+<h2><code>symbol</code></h2>
+<p>Matches any symbol character. In a Unicode context this corresponds to
+the Symbol property (Sm, Sc, Sk, or So). In an ASCII this corresponds
+to "$+&lt;=&gt;^`|~".</p>
+<h2><code>graphic</code></h2>
+<h2><code>graph</code></h2>
+<p>Matches any graphic character. Equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">or </span><span class="nv">alphanumeric</span> <span class="nv">punctuation</span> <span class="nv">symbol</span><span class="p">)</span>
+</pre></div>
+<h2><code>whitespace</code></h2>
+<h2><code>white</code></h2>
+<h2><code>space</code></h2>
+<p>Matches any whitespace character. In a Unicode context this
+corresponds to the Separator property (Zs, Zl or Zp). In an ASCII
+context this corresponds to space, tab, line feed, form feed, and
+carriage return.</p>
+<h2><code>printing</code></h2>
+<h2><code>print</code></h2>
+<p>Matches any printing character. Equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">or </span><span class="nv">graphic</span> <span class="nv">whitespace</span><span class="p">)</span>
+</pre></div>
+<h2><code>control</code></h2>
+<h2><code>cntrl</code></h2>
+<p>Matches any control or other character. In a Unicode context this
+corresponds to the Other property (Cc, Cf, Co, Cs or Cn). In an ASCII
+context this corresponds to:</p>
+<div class="highlight"><pre><span></span><span class="o">`</span><span class="p">(</span><span class="nb">/ </span><span class="o">,</span><span class="p">(</span><span class="nb">integer-&gt;char </span><span class="mi">0</span><span class="p">)</span> <span class="o">,</span><span class="p">(</span><span class="nf">integer-char</span> <span class="mi">31</span><span class="p">))</span>
+</pre></div>
+<h2><code>hex-digit</code></h2>
+<h2><code>xdigit</code></h2>
+<p>Matches any valid digit in hexadecimal notation. Always
+ASCII-only. Equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">w/ascii</span> <span class="p">(</span><span class="nf">w/nocase</span> <span class="p">(</span><span class="k">or </span><span class="nv">numeric</span> <span class="s">&quot;abcdef&quot;</span><span class="p">)))</span>
+</pre></div>
+<h2><code>bos</code></h2>
+<h2><code>eos</code></h2>
+<p>Matches at the beginning/end of string without consuming any
+characters (a zero-width assertion). If the search was initiated with
+start/end parameters, these are considered the end points, rather than
+the full string.</p>
+<h2><code>bol</code></h2>
+<h2><code>eol</code></h2>
+<p>Matches at the beginning/end of a line without consuming any
+characters (a zero-width assertion). A line is a possibly empty
+sequence of characters followed by an end of line sequence as
+understood by the R7RS read-line procedure, specifically any of a
+linefeed character, carriage return character, or a carriage return
+followed by a linefeed character. The string is assumed to contain end
+of line sequences before the start and after the end of the string,
+even if the search was made on a substring and the actual surrounding
+characters differ.</p>
+<h2><code>bow</code></h2>
+<h2><code>eow</code></h2>
+<p>Matches at the beginning/end of a word without consuming any
+characters (a zero-width assertion). A word is a contiguous sequence
+of characters that are either alphanumeric or the underscore
+character, i.e. (or alphanumeric "_"), with the definition of
+alphanumeric depending on the Unicode or ASCII context. The string is
+assumed to contain non-word characters immediately before the start
+and after the end, even if the search was made on a substring and word
+constituent characters appear immediately before the beginning or
+after the end.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="nv">bow</span> <span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+  <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="nv">bow</span> <span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="s">&quot;&lt;foo&gt;&gt;&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+  <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="nv">bow</span> <span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="s">&quot;snafoo&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+  <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;foo&quot;</span> <span class="nv">eow</span><span class="p">)</span> <span class="s">&quot;foo&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+  <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;foo&quot;</span> <span class="nv">eow</span><span class="p">)</span> <span class="s">&quot;foo!&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+  <span class="p">(</span><span class="nf">regexp-search</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;foo&quot;</span> <span class="nv">eow</span><span class="p">)</span> <span class="s">&quot;foobar&quot;</span><span class="p">)</span> <span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>nwb</code></h2>
+<p>Matches a non-word-boundary (i.e. \B in PCRE). Equivalent to
+(neg-look-ahead (or bow eow)).</p>
+<h2><code>(word sre ...)</code></h2>
+<p>Anchors a sequence to word boundaries. Equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">:</span> <span class="nv">bow</span> <span class="nv">sre</span> <span class="o">...</span> <span class="nv">eow</span><span class="p">)</span>
+</pre></div>
+<h2><code>(word+ cset-sre ...)</code></h2>
+<p>Matches a single word composed of characters in the intersection of
+the given cset-sre and the word constituent characters. Equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">word</span> <span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="k">and </span><span class="p">(</span><span class="k">or </span><span class="nv">alphanumeric</span> <span class="s">&quot;_&quot;</span><span class="p">)</span> <span class="p">(</span><span class="k">or </span><span class="nv">cset-sre</span> <span class="o">...</span><span class="p">))))</span>
+</pre></div>
+<h2><code>word</code></h2>
+<p>A shorthand for (word+ any).</p>
+<h2><code>bog</code></h2>
+<h2><code>eog</code></h2>
+<p>Matches at the beginning/end of a single extended grapheme cluster
+without consuming any characters (a zero-width assertion). Grapheme
+cluster boundaries are defined in Unicode TR29. The string is assumed
+to contain non-combining codepoints immediately before the start and
+after the end. These always succeed in an ASCII context.</p>
+<h2><code>grapheme</code></h2>
+<p>Matches a single grapheme cluster (i.e. \X in PCRE). This is what the
+end-user typically thinks of as a single character, comprised of a
+base non-combining codepoint followed by zero or more combining
+marks. In an ASCII context this is equivalent to any.</p>
+<p>Assuming char-set:mark contains all characters with the Extend or
+SpacingMark properties defined in TR29, and char-set:control,
+char-set:regional-indicator and char-set:hangul-* are defined
+similarly, then the following SRE can be used with regexp-extract to
+define grapheme:</p>
+<div class="highlight"><pre><span></span><span class="o">`</span><span class="p">(</span><span class="k">or </span><span class="p">(</span><span class="nf">:</span> <span class="p">(</span><span class="nb">* </span><span class="o">,</span><span class="nv">char-set:hangul-l</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="o">,</span><span class="nv">char-set:hangul-v</span><span class="p">)</span>
+           <span class="p">(</span><span class="nb">* </span><span class="o">,</span><span class="nv">char-set:hangul-t</span><span class="p">))</span>
+        <span class="p">(</span><span class="nf">:</span> <span class="p">(</span><span class="nb">* </span><span class="o">,</span><span class="nv">char-set:hangul-l</span><span class="p">)</span> <span class="o">,</span><span class="nv">char-set:hangul-v</span>
+           <span class="p">(</span><span class="nb">* </span><span class="o">,</span><span class="nv">char-set:hangul-v</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="o">,</span><span class="nv">char-set:hangul-t</span><span class="p">))</span>
+        <span class="p">(</span><span class="nf">:</span> <span class="p">(</span><span class="nb">* </span><span class="o">,</span><span class="nv">char-set:hangul-l</span><span class="p">)</span> <span class="o">,</span><span class="nv">char-set:hangul-lvt</span>
+           <span class="p">(</span><span class="nb">* </span><span class="o">,</span><span class="nv">char-set:hangul-t</span><span class="p">))</span>
+        <span class="p">(</span><span class="nb">+ </span><span class="o">,</span><span class="nv">char-set:hangul-l</span><span class="p">)</span>
+        <span class="p">(</span><span class="nb">+ </span><span class="o">,</span><span class="nv">char-set:hangul-t</span><span class="p">)</span>
+        <span class="p">(</span><span class="nb">+ </span><span class="o">,</span><span class="nv">char-set:regional-indicator</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">:</span> <span class="s">&quot;\r\n&quot;</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">:</span> <span class="p">(</span><span class="nf">~</span> <span class="nv">control</span> <span class="p">(</span><span class="s">&quot;\r\n&quot;</span><span class="p">))</span>
+           <span class="p">(</span><span class="nb">* </span><span class="o">,</span><span class="nv">char-set:mark</span><span class="p">))</span>
+        <span class="nv">control</span><span class="p">)</span>
+</pre></div>
+<h2><code>(non-greedy-optional sre ...)</code></h2>
+<h2><code>(?? sre ...)</code></h2>
+<p>Non-greedy pattern, matches 0 or 1 times, preferring the shorter
+match.</p>
+<h2><code>(non-greedy-zero-or-more&lt; sre ...)</code></h2>
+<h2><code>(*? sre ...)</code></h2>
+<p>Non-greedy Kleene star, matches 0 or more times, preferring the
+shorter match.</p>
+<h2><code>(non-greedy-repeated m n sre ...)</code></h2>
+<h2><code>(**? m n sre ...)</code></h2>
+<p>Non-greedy Kleene star, matches m to n times, preferring the shorter
+match.</p>
+<h2><code>(look-ahead sre ...)</code></h2>
+<p>Zero-width look-ahead assertion. Asserts the sequence matches from the
+current position, without advancing the position.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;regular&quot;</span> <span class="p">(</span><span class="nf">look-ahead</span> <span class="s">&quot; expression&quot;</span><span class="p">)</span> <span class="s">&quot; expression&quot;</span><span class="p">)</span> <span class="s">&quot;regular expression&quot;</span><span class="p">)</span><span class="k">=&gt; </span><span class="o">#</span><span class="nv">&lt;regexp-match&gt;</span>
+<span class="p">(</span><span class="nf">regexp-matches</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">:</span> <span class="s">&quot;regular&quot;</span> <span class="p">(</span><span class="nf">look-ahead</span> <span class="s">&quot; &quot;</span><span class="p">)</span> <span class="s">&quot;expression&quot;</span><span class="p">)</span> <span class="s">&quot;regular expression&quot;</span><span class="p">)</span><span class="k">=&gt; </span><span class="no">#f</span>
+</pre></div>
+<h2><code>(look-behind sre ...)</code></h2>
+<p>Zero-width look-behind assertion. Asserts the sequence matches behind
+the current position, without advancing the position. It is an error
+if the sequence does not have a fixed length.</p>
+<h2><code>(neg-look-ahead sre ...)</code></h2>
+<p>Zero-width negative look-ahead assertion.</p>
+<h2><code>(neg-look-behind sre ...)</code></h2>
+<p>Zero-width negative look-behind assertion.</p>
+</div>
+    </div>
+  </body>
+</html>

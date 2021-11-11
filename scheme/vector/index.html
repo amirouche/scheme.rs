@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme vector)</code></h1>
+<p>This library is based on
+<a href="https://srfi.schemers.org/srfi-133/">SRFI-133</a>.</p>
+<h2><code>(make-vector size [fill])</code></h2>
+<p>[R7RS-small] Creates and returns a vector of size size. If fill is
+specified, all the elements of the vector are initialized to
+fill. Otherwise, their contents are indeterminate.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">make-vector </span><span class="mi">5</span> <span class="mi">3</span><span class="p">)</span>
+<span class="o">#</span><span class="p">(</span><span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector x ...)</code></h2>
+<p>[R7RS-small] Creates and returns a vector whose elements are x ....</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">vector </span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">)</span>
+<span class="o">#</span><span class="p">(</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector-unfold f length initial-seed ...)</code></h2>
+<p>The fundamental vector constructor. Creates a vector whose length is
+length and iterates across each index k between 0 and length, applying
+f at each iteration to the current index and current seeds, in that
+order, to receive n + 1 values: first, the element to put in the kth
+slot of the new vector and n new seeds for the next iteration. It is
+an error for the number of seeds to vary between iterations. Note that
+the termination condition is different from the unfold procedure of
+SRFI 1.</p>
+<p>Examples:</p>
+<p>``scheme
+    (vector-unfold (λ (i x) (values x (- x 1)))
+                     10 0)</p>
+
+<div><pre>#(0 -1 -2 -3 -4 -5 -6 -7 -8 -9)</pre></div>
+
+<div><pre>Construct a vector of the sequence of integers in the range [0,n).
+
+```scheme
+(vector-unfold values n)
+#(0 1 2 ... n-2 n-1)</pre></div>
+<p>Copy vector.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-unfold</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">i</span><span class="p">)</span> <span class="p">(</span><span class="nb">vector-ref </span><span class="nv">vector</span> <span class="nv">i</span><span class="p">))</span>
+                     <span class="p">(</span><span class="nb">vector-length </span><span class="nv">vector</span><span class="p">))</span>
+</pre></div>
+<h2><code>(vector-unfold-right f length initial-seed ...)</code></h2>
+<p>Like vector-unfold, but it uses f to generate elements from
+right-to-left, rather than left-to-right. The first index used is
+length - 1. Note that the termination condition is different from the
+unfold-right procedure of SRFI 1.</p>
+<p>Examples:</p>
+<p>Construct a vector of pairs of non-negative integers whose values sum
+to 4.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-unfold-right</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">i</span> <span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">values </span><span class="p">(</span><span class="nb">cons </span><span class="nv">i</span> <span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)))</span> <span class="mi">5</span> <span class="mi">0</span><span class="p">)</span>
+<span class="o">#</span><span class="p">((</span><span class="mi">0</span> <span class="o">.</span> <span class="mi">4</span><span class="p">)</span> <span class="p">(</span><span class="mi">1</span> <span class="o">.</span> <span class="mi">3</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span> <span class="o">.</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="mi">3</span> <span class="o">.</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="mi">4</span> <span class="o">.</span> <span class="mi">0</span><span class="p">))</span>
+</pre></div>
+<p>Reverse vector.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-unfold-right</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">i</span> <span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">values </span><span class="p">(</span><span class="nb">vector-ref </span><span class="nv">vector</span> <span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)))</span>
+                           <span class="p">(</span><span class="nb">vector-length </span><span class="nv">vector</span><span class="p">)</span>
+                           <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector-copy vec [start [end]])</code></h2>
+<p>[R7RS-small] Allocates a new vector whose length is end - start and
+fills it with elements from vec, taking elements from vec starting at
+index start and stopping at index end. Start defaults to 0 and end
+defaults to the value of (vector-length vec). SRFI 43 provides an
+optional fill argument to supply values if end is greater than the
+length of vec. Neither R7RS-small nor this SRFI requires support for
+this argument.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-copy</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span><span class="p">))</span>
+    <span class="o">#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span><span class="p">)</span>
+
+    <span class="p">(</span><span class="nf">vector-copy</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span><span class="p">)</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="o">#</span><span class="p">(</span><span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span><span class="p">)</span>
+
+    <span class="p">(</span><span class="nf">vector-copy</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span><span class="p">)</span> <span class="mi">3</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="o">#</span><span class="p">(</span><span class="nv">d</span> <span class="nv">e</span> <span class="nv">f</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector-reverse-copy vec [start [end]])</code></h2>
+<p>Like vector-copy, but it copies the elements in the reverse order from
+vec.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-reverse-copy</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">5</span> <span class="mi">4</span> <span class="mi">3</span> <span class="mi">2</span> <span class="mi">1</span> <span class="mi">0</span><span class="p">)</span> <span class="mi">1</span> <span class="mi">5</span><span class="p">)</span>
+<span class="o">#</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector-append vec ...)</code></h2>
+<p>[R7RS-small] Returns a newly allocated vector that contains all
+elements in order from the subsequent locations in vec ....</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-append</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">x</span><span class="p">)</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">y</span><span class="p">))</span>
+<span class="o">#</span><span class="p">(</span><span class="nv">x</span> <span class="nv">y</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">vector-append</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span><span class="p">)</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">))</span>
+<span class="o">#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">vector-append</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="o">#</span><span class="p">(</span><span class="nv">b</span><span class="p">))</span> <span class="o">&#39;#</span><span class="p">(</span><span class="o">#</span><span class="p">(</span><span class="nv">c</span><span class="p">)))</span>
+<span class="o">#</span><span class="p">(</span><span class="nv">a</span> <span class="o">#</span><span class="p">(</span><span class="nv">b</span><span class="p">)</span> <span class="o">#</span><span class="p">(</span><span class="nv">c</span><span class="p">))</span>
+</pre></div>
+<h2><code>(vector-concatenate list-of-vectors)</code></h2>
+<p>Appends each vector in list-of-vectors. This is equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">apply </span><span class="nv">vector-append</span> <span class="nv">list-of-vectors</span><span class="p">)</span>
+</pre></div>
+<p>However, it may be implemented better.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-concatenate</span> <span class="o">&#39;</span><span class="p">(</span><span class="o">#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span><span class="p">)</span> <span class="o">#</span><span class="p">(</span><span class="nv">c</span> <span class="nv">d</span><span class="p">)))</span>
+<span class="o">#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector-append-subvectors [vec start end] ...)</code></h2>
+<p>Returns a vector that contains every element of each vec from start to
+end in the specified order. This procedure is a generalization of
+vector-append.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-append-subvectors</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="mi">0</span> <span class="mi">2</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">i</span> <span class="nv">j</span><span class="p">)</span> <span class="mi">2</span> <span class="mi">4</span><span class="p">)</span>
+<span class="o">#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">h</span> <span class="nv">i</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector? x)</code></h2>
+<p>[R7RS-small] Disjoint type predicate for vectors: this returns #t if x
+is a vector, and #f if otherwise.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">vector? </span><span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span>
+<span class="no">#t</span>
+
+<span class="p">(</span><span class="nb">vector? </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span>
+<span class="no">#f</span>
+
+<span class="p">(</span><span class="nb">vector? </span><span class="no">#t</span><span class="p">)</span>
+<span class="no">#f</span>
+
+<span class="p">(</span><span class="nb">vector? </span><span class="o">&#39;#</span><span class="p">())</span>
+<span class="no">#t</span>
+
+<span class="p">(</span><span class="nb">vector? </span><span class="o">&#39;</span><span class="p">())</span>
+<span class="no">#f</span>
+</pre></div>
+<h2><code>(vector-empty? vec)</code></h2>
+<p>Returns #t if vec is empty, i.e. its length is 0, and #f if not.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-empty?</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span><span class="p">))</span>
+<span class="no">#f</span>
+
+<span class="p">(</span><span class="nf">vector-empty?</span> <span class="o">&#39;#</span><span class="p">(()))</span>
+<span class="no">#f</span>
+
+<span class="p">(</span><span class="nf">vector-empty?</span> <span class="o">&#39;#</span><span class="p">(</span><span class="o">#</span><span class="p">()))</span>
+<span class="no">#f</span>
+
+<span class="p">(</span><span class="nf">vector-empty?</span> <span class="o">&#39;#</span><span class="p">())</span>
+<span class="no">#t</span>
+</pre></div>
+<h2><code>(vector= elt=? vec ...)</code></h2>
+<p>Vector structure comparator, generalized across user-specified element
+comparators. Vectors a and b are considered equal by vector= iff their
+lengths are the same, and for each respective element Ea and Eb,
+(elt=? Ea Eb) returns a true value. Elt=? is always applied to two
+arguments.</p>
+<p>If there are only zero or one vector arguments, #t is automatically
+returned. The dynamic order in which comparisons of elements and of
+vectors are performed is left completely unspecified; do not rely on a
+particular order.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector=</span> <span class="nv">eq?</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">)</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">))</span>
+<span class="no">#t</span>
+
+<span class="p">(</span><span class="nf">vector=</span> <span class="nv">eq?</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">)</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">d</span> <span class="nv">c</span><span class="p">))</span>
+<span class="no">#f</span>
+
+<span class="p">(</span><span class="nf">vector=</span> <span class="nv">=</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">))</span>
+<span class="no">#f</span>
+
+<span class="p">(</span><span class="nf">vector=</span> <span class="nv">=</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">)</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span><span class="p">))</span>
+<span class="no">#t</span>
+
+<span class="nv">The</span> <span class="nv">two</span> <span class="nv">trivial</span> <span class="nv">cases</span><span class="o">.</span>
+
+<span class="p">(</span><span class="nf">vector=</span> <span class="nv">eq?</span><span class="p">)</span>
+<span class="no">#t</span>
+
+<span class="p">(</span><span class="nf">vector=</span> <span class="nv">eq?</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span><span class="p">))</span>
+<span class="no">#t</span>
+
+<span class="nv">Note</span> <span class="nv">the</span> <span class="nv">fact</span> <span class="nv">that</span> <span class="nv">we</span> <span class="nv">don</span><span class="ss">&#39;t</span> <span class="nv">use</span> <span class="nv">vector</span> <span class="nv">literals</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">next</span> <span class="nv">two</span> <span class="err">—</span> <span class="nv">it</span> <span class="nv">is</span> <span class="nv">unspecified</span> <span class="nv">whether</span> <span class="k">or </span><span class="nv">not</span> <span class="nv">literal</span> <span class="nv">vectors</span> <span class="nv">with</span> <span class="nv">the</span> <span class="nv">same</span> <span class="nv">external</span> <span class="nv">representation</span> <span class="nv">are</span> <span class="nv">eq?</span><span class="o">.</span>
+
+<span class="p">(</span><span class="nf">vector=</span> <span class="nv">eq?</span> <span class="p">(</span><span class="nb">vector </span><span class="p">(</span><span class="nb">vector </span><span class="ss">&#39;a</span><span class="p">))</span> <span class="p">(</span><span class="nb">vector </span><span class="p">(</span><span class="nb">vector </span><span class="ss">&#39;a</span><span class="p">)))</span>
+<span class="no">#f</span>
+
+<span class="p">(</span><span class="nf">vector=</span> <span class="nv">equal?</span> <span class="p">(</span><span class="nb">vector </span><span class="p">(</span><span class="nb">vector </span><span class="ss">&#39;a</span><span class="p">))</span> <span class="p">(</span><span class="nb">vector </span><span class="p">(</span><span class="nb">vector </span><span class="ss">&#39;a</span><span class="p">)))</span>
+<span class="no">#t</span>
+</pre></div>
+<h2><code>(vector-ref vec i)</code></h2>
+<p>[R7RS-small] Vector element dereferencing: returns the value that the
+location in vec at i is mapped to in the store. Indexing is based on
+zero. I must be within the range [0, (vector-length vec)).</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">vector-ref </span><span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">)</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nv">c</span>
+</pre></div>
+<h2><code>(vector-length vec)</code></h2>
+<p>[R7RS-small] Returns the length of vec, the number of locations
+reachable from vec. (The careful word 'reachable' is used to allow for
+'vector slices,' whereby vec refers to a larger vector that contains
+more locations that are unreachable from vec. This SRFI does not
+define vector slices, but later SRFIs may.)</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">vector-length </span><span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span>
+<span class="mi">3</span>
+</pre></div>
+<h2><code>(vector-fold kons knil vec1 vec2 ...)</code></h2>
+<p>The fundamental vector iterator. Kons is iterated over each value in
+all of the vectors, stopping at the end of the shortest; kons is
+applied as (kons state (vector-ref vec1 i) (vector-ref vec2 i) ...)
+where state is the current state value — the current state value
+begins with knil, and becomes whatever kons returned on the previous
+iteration —, and i is the current index.</p>
+<p>The iteration is strictly left-to-right.</p>
+<p>Examples:</p>
+<p>Find the longest string's length in vector-of-strings.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-fold</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">len</span> <span class="nv">str</span><span class="p">)</span> <span class="p">(</span><span class="nb">max </span><span class="p">(</span><span class="nb">string-length </span><span class="nv">str</span><span class="p">)</span> <span class="nv">len</span><span class="p">))</span>
+                   <span class="mi">0</span> <span class="nv">vector-of-strings</span><span class="p">)</span>
+</pre></div>
+<p>Produce a list of the reversed elements of vec.</p>
+
+<div><pre>(vector-fold (λ (tail elt) (cons elt tail))
+                   '() vec)</pre></div>
+<p>Count the number of even numbers in vec.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-fold</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">counter</span> <span class="nv">n</span><span class="p">)</span>
+                     <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">even? </span><span class="nv">n</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">counter</span> <span class="mi">1</span><span class="p">)</span> <span class="nv">counter</span><span class="p">))</span>
+                   <span class="mi">0</span> <span class="nv">vec</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector-fold-right kons knil vec1 vec2 ...)</code></h2>
+<p>Similar to vector-fold, but it iterates right to left instead of left
+to right.</p>
+<p>Example:</p>
+<p>Convert a vector to a list.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-fold-right</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">tail</span> <span class="nv">elt</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="nv">elt</span> <span class="nv">tail</span><span class="p">))</span>
+                         <span class="o">&#39;</span><span class="p">()</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">))</span>
+    <span class="p">(</span><span class="nf">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector-map f vec1 vec2 ...)</code></h2>
+<p>[R7RS-small] Constructs a new vector of the shortest size of the
+vector arguments. Each element at index i of the new vector is mapped
+from the old vectors by (f (vector-ref vec1 i) (vector-ref vec2 i)
+...). The dynamic order of application of f is unspecified.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-map</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="nv">x</span> <span class="nv">x</span><span class="p">))</span>
+                  <span class="p">(</span><span class="nf">vector-unfold</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">i</span> <span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">values </span><span class="nv">x</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)))</span> <span class="mi">4</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="o">#</span><span class="p">(</span><span class="mi">1</span> <span class="mi">4</span> <span class="mi">9</span> <span class="mi">16</span><span class="p">)</span>
+
+    <span class="p">(</span><span class="nf">vector-map</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">x</span> <span class="nv">y</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="nv">x</span> <span class="nv">y</span><span class="p">))</span>
+                  <span class="p">(</span><span class="nf">vector-unfold</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">values </span><span class="nv">x</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)))</span> <span class="mi">5</span> <span class="mi">1</span><span class="p">)</span>
+                  <span class="p">(</span><span class="nf">vector-unfold</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">values </span><span class="nv">x</span> <span class="p">(</span><span class="nb">- </span><span class="nv">x</span> <span class="mi">1</span><span class="p">)))</span> <span class="mi">5</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="o">#</span><span class="p">(</span><span class="mi">5</span> <span class="mi">8</span> <span class="mi">9</span> <span class="mi">8</span> <span class="mi">5</span><span class="p">)</span>
+
+    <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">count</span> <span class="mi">0</span><span class="p">))</span>
+       <span class="p">(</span><span class="nf">vector-map</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">ignored-elt</span><span class="p">)</span>
+                     <span class="p">(</span><span class="k">set! </span><span class="nv">count</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">count</span> <span class="mi">1</span><span class="p">))</span>
+                     <span class="nv">count</span><span class="p">)</span>
+                   <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span><span class="p">)))</span>
+    <span class="o">#</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="nv">OR</span> <span class="o">#</span><span class="p">(</span><span class="mi">2</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector-map! f vec1 vec2 ...)</code></h2>
+<p>Similar to vector-map, but rather than mapping the new elements into a
+new vector, the new mapped elements are destructively inserted into
+vec1. Again, the dynamic order of application of f unspecified, so it
+is dangerous for f to apply either vector-ref or vector-set! to vec1
+in f.</p>
+<h2><code>(vector-for-each f vec1 vec2 ...)</code></h2>
+<p>[R7RS-small] Simple vector iterator: applies f to the corresponding
+list of parallel elements from vec1 vec2 ... in the range [0, length),
+where length is the length of the smallest vector argument passed, In
+contrast with vector-map, f is reliably applied to each subsequent
+element, starting at index 0, in the vectors.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-for-each</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">display </span><span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nf">newline</span><span class="p">))</span>
+                     <span class="o">&#39;#</span><span class="p">(</span><span class="s">&quot;foo&quot;</span> <span class="s">&quot;bar&quot;</span> <span class="s">&quot;baz&quot;</span> <span class="s">&quot;quux&quot;</span> <span class="s">&quot;zot&quot;</span><span class="p">))</span>
+</pre></div>
+<p>Displays:</p>
+
+<div><pre>foo
+bar
+baz
+quux
+zot</pre></div>
+<h2><code>(vector-count pred? vec1 vec2 ...)</code></h2>
+<p>Counts the number of parallel elements in the vectors that satisfy
+pred?, which is applied, for each index i in the range [0, length)
+where length is the length of the smallest vector argument, to each
+parallel element in the vectors, in order.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-count</span> <span class="nv">even?</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span> <span class="mi">2</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">))</span>
+<span class="mi">3</span>
+
+<span class="p">(</span><span class="nf">vector-count</span> <span class="nv">&lt;</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">1</span> <span class="mi">3</span> <span class="mi">6</span> <span class="mi">9</span><span class="p">)</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">2</span> <span class="mi">4</span> <span class="mi">6</span> <span class="mi">8</span> <span class="mi">10</span> <span class="mi">12</span><span class="p">))</span>
+<span class="mi">2</span>
+</pre></div>
+<h2><code>(vector-cumulate f knil vec)</code></h2>
+<p>Returns a newly allocated vector new with the same length as vec. Each
+element i of new is set to the result of invoking f on newi-1 and
+veci, except that for the first call on f, the first argument is
+knil. The new vector is returned.</p>
+<p>Note that the order of arguments to vector-cumulate was changed by
+errata-3 on 2016-09-02.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-cumulate</span> <span class="nv">+</span> <span class="mi">0</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span> <span class="mi">2</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">))</span>
+<span class="o">#</span><span class="p">(</span><span class="mi">3</span> <span class="mi">4</span> <span class="mi">8</span> <span class="mi">9</span> <span class="mi">14</span> <span class="mi">23</span> <span class="mi">25</span> <span class="mi">30</span> <span class="mi">36</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector-index pred? vec1 vec2 ...)</code></h2>
+<p>Finds &amp; returns the index of the first elements in vec1 vec2 ... that
+satisfy pred?. If no matching element is found by the end of the
+shortest vector, #f is returned.</p>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-index</span> <span class="nv">even?</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span><span class="p">))</span>
+<span class="mi">2</span>
+
+<span class="p">(</span><span class="nf">vector-index</span> <span class="nv">&lt;</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span> <span class="mi">2</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">)</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">2</span> <span class="mi">7</span> <span class="mi">1</span> <span class="mi">8</span> <span class="mi">2</span><span class="p">))</span>
+<span class="mi">1</span>
+
+<span class="p">(</span><span class="nf">vector-index</span> <span class="nv">=</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">3</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">1</span> <span class="mi">5</span> <span class="mi">9</span> <span class="mi">2</span> <span class="mi">5</span> <span class="mi">6</span><span class="p">)</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">2</span> <span class="mi">7</span> <span class="mi">1</span> <span class="mi">8</span> <span class="mi">2</span><span class="p">))</span>
+<span class="no">#f</span>
+</pre></div>
+<h2><code>(vector-index-right pred? vec1 vec2 ...)</code></h2>
+<p>Like vector-index, but it searches right-to-left, rather than
+left-to-right, and all of the vectors must have the same length.</p>
+<h2><code>(vector-skip pred? vec1 vec2 ...)</code></h2>
+<p>Finds &amp; returns the index of the first elements in vec1 vec2 ... that
+do not satisfy pred?. If all the values in the vectors satisfy pred?
+until the end of the shortest vector, this returns #f. This is
+equivalent to:</p>
+<p>``scheme
+    (vector-index (λ (x1 x2 ...) (not (pred? x1 x1 ...)))
+                        vec1 vec2 ...)</p>
+
+<div><pre>Example:
+
+```scheme
+(vector-skip number? '#(1 2 a b 3 4 c d))
+2</pre></div>
+<h2><code>(vector-skip-right pred? vec1 vec2 ...)</code></h2>
+<p>Like vector-skip, but it searches for a non-matching element
+right-to-left, rather than left-to-right, and it is an error if all of
+the vectors do not have the same length. This is equivalent to:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">vector-index-right</span> <span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">x1</span> <span class="nv">x2</span> <span class="o">...</span><span class="p">)</span> <span class="p">(</span><span class="nb">not </span><span class="p">(</span><span class="nf">pred?</span> <span class="nv">x1</span> <span class="nv">x1</span> <span class="o">...</span><span class="p">)))</span>
+                              <span class="nv">vec1</span> <span class="nv">vec2</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+<h2><code>(vector-binary-search vec value cmp)</code></h2>
+<p>Similar to vector-index and vector-index-right, but instead of
+searching left to right or right to left, this performs a binary
+search. If there is more than one element of vec that matches value in
+the sense of cmp, vector-binary-search may return the index of any of
+them.</p>
+<p>cmp should be a procedure of two arguments and return a negative
+integer, which indicates that its first argument is less than its
+second, zero, which indicates that they are equal, or a positive
+integer, which indicates that the first argument is greater than the
+second argument. An example cmp might be:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">λ</span> <span class="p">(</span><span class="nf">char1</span> <span class="nv">char2</span><span class="p">)</span>
+      <span class="p">(</span><span class="k">cond </span><span class="p">((</span><span class="nb">char&lt;? </span><span class="nv">char1</span> <span class="nv">char2</span><span class="p">)</span> <span class="mi">-1</span><span class="p">)</span>
+            <span class="p">((</span><span class="nb">char=? </span><span class="nv">char1</span> <span class="nv">char2</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="p">(</span><span class="k">else </span><span class="mi">1</span><span class="p">)))</span>
+</pre></div>
+<h2><code>(vector-any pred? vec1 vec2 ...)</code></h2>
+<p>Finds the first set of elements in parallel from vec1 vec2 ... for
+which pred? returns a true value. If such a parallel set of elements
+exists, vector-any returns the value that pred? returned for that set
+of elements. The iteration is strictly left-to-right.</p>
+<h2><code>(vector-every pred? vec1 vec2 ...)</code></h2>
+<p>If, for every index i between 0 and the length of the shortest vector
+argument, the set of elements (vector-ref vec1 i) (vector-ref vec2 i)
+... satisfies pred?, vector-every returns the value that pred?
+returned for the last set of elements, at the last index of the
+shortest vector. The iteration is strictly left-to-right.</p>
+<h2><code>(vector-partition pred? vec)</code></h2>
+<p>A vector the same size as vec is newly allocated and filled with all
+the elements of vec that satisfy pred? in their original order
+followed by all the elements that do not satisfy pred?, also in their
+original order.</p>
+<p>Two values are returned, the newly allocated vector and the index of
+the leftmost element that does not satisfy pred?.</p>
+<h2><code>(vector-set! vec i value)</code></h2>
+<p>[R7RS-small] Assigns the contents of the location at i in vec to
+value.</p>
+<h2><code>(vector-swap! vec i j)</code></h2>
+<p>Swaps or exchanges the values of the locations in vec at i &amp; j.</p>
+<h2><code>(vector-fill! vec fill [start [end]])</code></h2>
+<p>[R7RS-small] Assigns the value of every location in vec between start,
+which defaults to 0 and end, which defaults to the length of vec, to
+fill.</p>
+<h2><code>(vector-reverse! vec [start [end]])</code></h2>
+<p>Destructively reverses the contents of the sequence of locations in
+vec between start and end. Start defaults to 0 and end defaults to the
+length of vec. Note that this does not deeply reverse.</p>
+<h2><code>(vector-copy! to at from [start [end]])</code></h2>
+<p>[R7RS-small] Copies the elements of vector from between start and end
+to vector to, starting at at. The order in which elements are copied
+is unspecified, except that if the source and destination overlap,
+copying takes place as if the source is first copied into a temporary
+vector and then into the destination. This can be achieved without
+allocating storage by making sure to copy in the correct direction in
+such circumstances.</p>
+<h2><code>(vector-reverse-copy! to at from [start [end]])</code></h2>
+<p>Like vector-copy!, but the elements appear in to in reverse order.</p>
+<h2><code>(vector-unfold! f vec start end initial-seed ...)</code></h2>
+<p>Like vector-unfold, but the elements are copied into the vector vec
+starting at element start rather than into a newly allocated
+vector. Terminates when end-start elements have been generated.</p>
+<h2><code>(vector-unfold-right! f vec start end initial-seed ...)</code></h2>
+<p>Like vector-unfold!, but the elements are copied in reverse order into
+the vector vec starting at the index preceding end.</p>
+<h2><code>(vector-&gt;list vec [start [end]])</code></h2>
+<p>[R7RS-small] Creates a list containing the elements in vec between
+start, which defaults to 0, and end, which defaults to the length of
+vec.</p>
+<h2><code>(reverse-vector-&gt;list vec [start [end]])</code></h2>
+<p>Like vector-&gt;list, but the resulting list contains the elements in
+reverse of vec.</p>
+<h2><code>(list-&gt;vector proper-list)</code></h2>
+<p>[R7RS-small] Creates a vector of elements from proper-list.</p>
+<h2><code>(reverse-list-&gt;vector proper-list)</code></h2>
+<p>Like list-&gt;vector, but the resulting vector contains the elements in
+reverse of proper-list.</p>
+<h2><code>(string-&gt;vector string [start [end]])</code></h2>
+<p>[R7RS-small] Creates a vector containing the elements in string
+between start, which defaults to 0, and end, which defaults to the
+length of string.</p>
+<h2><code>(vector-&gt;string vec [start [end]])</code></h2>
+<p>[R7RS-small] Creates a string containing the elements in vec between
+start, which defaults to 0, and end, which defaults to the length of
+vec. It is an error if the elements are not characters.</p>
+</div>
+    </div>
+  </body>
+</html>

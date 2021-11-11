@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'tex_gyre_cursoritalic';
+    src: url('texgyrecursor-italic-webfont.eot');
+    src: url('texgyrecursor-italic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('texgyrecursor-italic-webfont.woff2') format('woff2'),
+         url('texgyrecursor-italic-webfont.woff') format('woff'),
+         url('texgyrecursor-italic-webfont.ttf') format('truetype'),
+         url('texgyrecursor-italic-webfont.svg#tex_gyre_cursoritalic') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+

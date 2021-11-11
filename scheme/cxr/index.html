@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme cxr)</code></h1>
+<p>Exports the following procedure which are the compositions of from three to four <code>car</code> and <code>cdr</code> operations. For example <code>caddar</code> could be defined:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">caddar</span>
+  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">car </span><span class="p">(</span><span class="nb">cdr </span><span class="p">(</span><span class="nb">cdr </span><span class="p">(</span><span class="nb">car </span><span class="nv">x</span><span class="p">))))))</span>
+</pre></div>
+<p>Here is the full list:</p>
+<ul>
+<li><code>caaaar</code></li>
+<li><code>caaadr</code></li>
+<li><code>caaar</code></li>
+<li><code>caadar</code></li>
+<li><code>caaddr</code></li>
+<li><code>caadr</code></li>
+<li><code>cadaar</code></li>
+<li><code>cadadr</code></li>
+<li><code>cadar</code></li>
+<li><code>caddar</code></li>
+<li><code>cadddr</code></li>
+<li><code>caddr</code></li>
+<li><code>cdaaar</code></li>
+<li><code>cdaadr</code></li>
+<li><code>cdaar</code></li>
+<li><code>cdadar</code></li>
+<li><code>cdaddr</code></li>
+<li><code>cdadr</code></li>
+<li><code>cddaar</code></li>
+<li><code>cddadr</code></li>
+<li><code>cddar</code></li>
+<li><code>cdddar</code></li>
+<li><code>cddddr</code></li>
+<li><code>cdddr</code></li>
+</ul>
+</div>
+    </div>
+  </body>
+</html>

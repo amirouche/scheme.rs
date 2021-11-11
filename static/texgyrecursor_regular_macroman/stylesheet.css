@@ -1,0 +1,13 @@
+@font-face {
+    font-family: 'tex_gyre_cursorregular';
+    src: url('texgyrecursor-regular-webfont.eot');
+    src: url('texgyrecursor-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('texgyrecursor-regular-webfont.woff2') format('woff2'),
+         url('texgyrecursor-regular-webfont.woff') format('woff'),
+         url('texgyrecursor-regular-webfont.ttf') format('truetype'),
+         url('texgyrecursor-regular-webfont.svg#tex_gyre_cursorregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+

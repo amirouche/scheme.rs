@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme time)</code></h1>
+<h2><code>(current-jiffy)</code></h2>
+<p>Returns the number of jiffies as an exact integer that have elapsed
+since an arbitrary, implementation-defined epoch. A jiffy is an
+implementation-defined fraction of a second which is defined by the
+return value of the jiffies-per-second procedure. The starting epoch
+is guaranteed to be constant during a run of the program, but may vary
+between runs.</p>
+<h2><code>(current-second)</code></h2>
+<p>Returns an inexact number representing the current time on the
+International Atomic Time (TAI) scale. The value 0.0 represents
+midnight on January 1, 1970 TAI (equivalent to ten seconds before
+midnight Universal Time) and the value 1.0 represents one TAI second
+later. Neither high accuracy nor high precision are required; in
+particular, returning Coordinated Universal Time plus a suitable
+constant might be the best an implementation can do.</p>
+<h2><code>(jiffies-per-second)</code></h2>
+<p>Returns an exact integer representing the number of jiffies per SI
+second. This value is an implementation-specified constant.</p>
+</div>
+    </div>
+  </body>
+</html>

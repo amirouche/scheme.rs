@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme fixnum)</code></h1>
+<p>This is based on <a href="https://srfi.schemers.org/srfi-143/">SRFI-143</a>.</p>
+<p>This library describes arithmetic procedures applicable to a limited
+range of exact integers only. These procedures are semantically
+similar to the corresponding generic-arithmetic procedures, but allow
+more efficient implementations.</p>
+<h2><code>fx-width</code></h2>
+<p>Bound to the value w that specifies the implementation-defined
+range. (R6RS fixnum-width is a procedure that always returns this
+value.)</p>
+<h2><code>fx-greatest</code></h2>
+<p>Bound to the value 2w-1-1, the largest representable fixnum. (R6RS
+greatest-fixnum is a procedure that always returns this value.)</p>
+<h2><code>fx-least</code></h2>
+<p>Bound to the value -2w-1, the smallest representable fixnum. (R6RS
+least-fixnum is a procedure that always returns this value.)</p>
+<h2><code>(fixnum? obj)</code></h2>
+<p>Returns #t if obj is an exact integer within the fixnum range, and #f
+otherwise.</p>
+<h2><code>(fx=? i ...)</code></h2>
+<p>Semantically equivalent to =.</p>
+<h2><code>(fx&lt;? i ...)</code></h2>
+<p>Semantically equivalent to &lt;.</p>
+<h2><code>(fx&gt;? i ...)</code></h2>
+<p>Semantically equivalent to &gt;.</p>
+<h2><code>(fx&lt;=? i ...)</code></h2>
+<p>Semantically equivalent to &lt;=.</p>
+<h2><code>(fx&gt;=? i ...)</code></h2>
+<p>Semantically equivalent to &gt;=.</p>
+<h2><code>(fxzero? i)</code></h2>
+<p>Semantically equivalent to zero?.</p>
+<h2><code>(fxpositive? i)</code></h2>
+<p>Semantically equivalent to positive?.</p>
+<h2><code>(fxnegative? i)</code></h2>
+<p>Semantically equivalent to negative?.</p>
+<h2><code>(fxodd? i)</code></h2>
+<p>Semantically equivalent to odd?.</p>
+<h2><code>(fxeven? i)</code></h2>
+<p>Semantically equivalent to even?.</p>
+<h2><code>(fxmax i j ...)</code></h2>
+<p>Semantically equivalent to max.</p>
+<h2><code>(fxmin i j ...)</code></h2>
+<p>Semantically equivalent to min.</p>
+<h2><code>(fx+ i j)</code></h2>
+<p>Semantically equivalent to +, but accepts exactly two arguments.</p>
+<h2><code>(fx- i j)</code></h2>
+<p>Semantically equivalent to -, but accepts exactly two arguments.</p>
+<h2><code>(fxneg i)</code></h2>
+<p>Semantically equivalent to -, but accepts exactly one argument.</p>
+<h2><code>(fx* i j)</code></h2>
+<p>Semantically equivalent to *, but accepts exactly two arguments.</p>
+<h2><code>(fxquotient i j)</code></h2>
+<p>Semantically equivalent to quotient.</p>
+<h2><code>(fxremainder i j)</code></h2>
+<p>Semantically equivalent to remainder.</p>
+<h2><code>(fxabs i)</code></h2>
+<p>Semantically equivalent to abs. In accordance with the fixnum rule,
+has undefined results when applied to fx-least.</p>
+<h2><code>(fxsquare i)</code></h2>
+<p>Semantically equivalent to square.</p>
+<h2><code>(fxsqrt i)</code></h2>
+<p>Semantically equivalent to exact-integer-sqrt (not sqrt).</p>
+<h2><code>(fx+/carry i j k)</code></h2>
+<p>Returns the two fixnum results of the following computation:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">let*-values</span> <span class="p">(((</span><span class="nf">s</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">i</span> <span class="nv">j</span> <span class="nv">k</span><span class="p">))</span>
+       <span class="p">((</span><span class="nf">q</span> <span class="nv">r</span><span class="p">)</span> <span class="p">(</span><span class="nf">balanced/</span> <span class="nv">s</span> <span class="p">(</span><span class="nb">expt </span><span class="mi">2</span> <span class="nv">fx-width</span><span class="p">))))</span>
+  <span class="p">(</span><span class="nb">values </span><span class="nv">r</span> <span class="nv">q</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">fx-/carry</span> <span class="nv">i</span> <span class="nv">j</span> <span class="nv">k</span><span class="p">)</span>
+</pre></div>
+<p>Returns the two fixnum results of the following computation:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">let*-values</span> <span class="p">(((</span><span class="nf">d</span><span class="p">)</span> <span class="p">(</span><span class="nb">- </span><span class="nv">i</span> <span class="nv">j</span> <span class="nv">k</span><span class="p">))</span>
+       <span class="p">((</span><span class="nf">q</span> <span class="nv">r</span><span class="p">)</span> <span class="p">(</span><span class="nf">balanced/</span> <span class="nv">d</span> <span class="p">(</span><span class="nb">expt </span><span class="mi">2</span> <span class="nv">fx-width</span><span class="p">))))</span>
+  <span class="p">(</span><span class="nb">values </span><span class="nv">r</span> <span class="nv">q</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">fx*/carry</span> <span class="nv">i</span> <span class="nv">j</span> <span class="nv">k</span><span class="p">)</span>
+</pre></div>
+<p>Returns the two fixnum results of the following computation:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">let*-values</span> <span class="p">(((</span><span class="nf">s</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="nb">* </span><span class="nv">i</span> <span class="nv">j</span><span class="p">)</span> <span class="nv">k</span><span class="p">))</span>
+       <span class="p">((</span><span class="nf">q</span> <span class="nv">r</span><span class="p">)</span> <span class="p">(</span><span class="nf">balanced/</span> <span class="nv">s</span> <span class="p">(</span><span class="nb">expt </span><span class="mi">2</span> <span class="nv">fx-width</span><span class="p">))))</span>
+  <span class="p">(</span><span class="nb">values </span><span class="nv">r</span> <span class="nv">q</span><span class="p">))</span>
+</pre></div>
+<p>The balanced/ procedure is available in SRFI 141, and also in the R6RS
+base library under the name of div0-and-mod0.  Bitwise operations</p>
+<p>The following procedures are the fixnum counterparts of certain
+bitwise operations from SRFI 151 and the R6RS (rnrs arithmetic
+fixnums) library. In case of disagreement, SRFI 151 is preferred. The
+prefixes bitwise- and integer- are dropped for brevity and
+compatibility.</p>
+<h2><code>(fxnot i)</code></h2>
+<p>Semantically equivalent to bitwise-not.</p>
+<h2><code>(fxand i ...)</code></h2>
+<p>Semantically equivalent to bitwise-and.</p>
+<h2><code>(fxior i ...)</code></h2>
+<p>Semantically equivalent to bitwise-ior.</p>
+<h2><code>(fxxor i ...)</code></h2>
+<p>Semantically equivalent to bitwise-xor.</p>
+<h2><code>(fxarithmetic-shift i count)</code></h2>
+<p>Semantically equivalent to arithmetic-shift, except that it is an
+error for the absolute value of count to exceed w-1.</p>
+<h2><code>(fxarithmetic-shift-left i count)</code></h2>
+<p>The same as fxarithmetic-shift except that a negative value of count
+is an error. This is provided for additional efficiency.</p>
+<h2><code>(fxarithmetic-shift-right i count)</code></h2>
+<p>The same as fxarithmetic-shift except that a non-negative value of
+count specifies the number of bits to shift right, and a negative
+value is an error. This is provided for additional efficiency.</p>
+<h2><code>(fxbit-count i)</code></h2>
+<p>Semantically equivalent to SRFI 151 bit-count.</p>
+<h2><code>(fxlength i)</code></h2>
+<p>Semantically equivalent to integer-length.</p>
+<h2><code>(fxif mask i j)</code></h2>
+<p>Semantically equivalent to bitwise-if. It can be implemented as (fxior
+(fxand mask i) (fxand (fxnot mask) j))).</p>
+<h2><code>(fxbit-set? index i)</code></h2>
+<p>Semantically equivalent to SRFI 151 bit-set?, except that it is an
+error for index to be larger than or equal to fx-width.</p>
+<h2><code>(fxcopy-bit index i boolean)</code></h2>
+<p>Semantically equivalent to SRFI 151 copy-bit, except that it is an
+error for index to be larger than or equal to fx-width.</p>
+<h2><code>(fxfirst-set-bit i)</code></h2>
+<p>Semantically equivalent to first-set-bit.</p>
+<h2><code>(fxbit-field i start end)</code></h2>
+<p>Semantically equivalent to bit-field.</p>
+<h2><code>(fxbit-field-rotate i count start end)</code></h2>
+<p>Semantically equivalent to SRFI 151 bit-field-rotate.</p>
+<h2><code>(fxbit-field-reverse i start end)</code></h2>
+<p>Semantically equivalent to bit-field-reverse.</p>
+</div>
+    </div>
+  </body>
+</html>

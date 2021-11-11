@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme base)</code></h1>
+<h2><code>_</code></h2>
+<p>TODO (missing in r7rs?)</p>
+<h2><code>...</code></h2>
+<p>It is called ellipsis. It signify that a pattern must be repeated.</p>
+<h2><code>=&gt;</code></h2>
+<p>TODO</p>
+<h2><code>else</code></h2>
+<p>Used in <code>cond</code> and <code>case</code> form as in the last clause as a fallback.</p>
+<h2><code>(* number ...)</code></h2>
+<p>Multiplication procedure.</p>
+<h2><code>(+ number ...)</code></h2>
+<p>Addition procedure.</p>
+<h2><code>(- number ...)</code></h2>
+<p>Substraction procedure.</p>
+<h2><code>(/ number ...)</code></h2>
+<p>Division procedure. Raise <code>'numerical-overflow</code> condition in case
+where denominator is zero.</p>
+<h2><code>(&lt; number number ...)</code></h2>
+<p>Less than procedure. Return a boolean.</p>
+<h2><code>(&lt;= number number ...)</code></h2>
+<p>Less than or equal procedure. Return a boolean.</p>
+<h2><code>(= number number ...)</code></h2>
+<p>Return <code>#t</code> if the numbers passed as parameters are equal. And <code>#f</code> otherwise.</p>
+<h2><code>(&gt; number number ...)</code></h2>
+<p>Greater than procedure. Return a boolean.</p>
+<h2><code>(&gt;= number number ...)</code></h2>
+<p>Greater than or equal. Return a boolean.</p>
+<h2><code>(abs number)</code></h2>
+<p>Return the absolute value of <code>NUMBER</code>.</p>
+<h2><code>(and test1 ...)</code></h2>
+<p>The <code>test</code> expressions are evaluated from left to right, and if any
+expression evaluates to <code>#f</code>, then <code>#f</code> is returned. Any remaining
+expressions are not evaluated.  If all the expressions evaluate to
+true values, the values of the last expression are returned.  If there
+are no expressions, then <code>#t</code> is returned.</p>
+<h2><code>(append lst ...)</code></h2>
+<p>Return the list made of the list passed as parameters in the same
+order.</p>
+<h2><code>(apply proc arg1 ... args)</code></h2>
+<p>The apply procedure calls proc with the elements of the list <code>(append
+(list arg1 ...) args)</code> as the actual arguments.</p>
+<h2><code>(assoc obj alist)</code></h2>
+<p>Return the first pair which <code>car</code> is equal to <code>OBJ</code> according to the
+predicate <code>equal?</code>. Or it returns <code>#f</code>.</p>
+<h2><code>(assq obj alist)</code></h2>
+<p>Return the first pair which <code>car</code> is equal to <code>OBJ</code> according to the
+predicate <code>eq?</code>. Or it returns <code>#f</code>.</p>
+<h2><code>(assv obj alist)</code></h2>
+<p>Return the first pair which <code>car</code> is equal to <code>OBJ</code> according to the
+predicate <code>eqv?</code>. Or it returns <code>#f</code>.</p>
+<h2><code>begin</code> syntax</h2>
+<p>There is two uses of <code>begin</code>.</p>
+<h3><code>(begin expression-or-definition ...)</code></h3>
+<p>This form of begin can appear as part of a body, or at the outermost
+level of a program, or at the REPL, or directly nested in a begin that
+is itself of this form. It causes the contained expressions and
+definitions to be evaluated exactly as if the enclosing begin
+construct were not present.</p>
+<p>TODO: example</p>
+<h3><code>(begin expression1 expression2 ...)</code></h3>
+<p>This form of begin can be used as an ordinary expression. The
+expressions are evaluated sequentially from left to right, and the
+values of the last expression are returned. This expression type is
+used to sequence side effects such as assignments or input and output.</p>
+<p>TODO: example</p>
+<h2><code>binary-port?</code></h2>
+<p>TODO: not implemented</p>
+<h2><code>(boolean=? obj ...)</code></h2>
+<p>Return <code>#t</code> if the scheme objects passed as arguments are the same
+boolean. Otherwise it return <code>#f</code>.</p>
+<h2><code>(boolean? obj)</code></h2>
+<p>Return <code>#t</code> if <code>OBJ</code> is a boolean. Otherwise <code>#f</code>.</p>
+<h2><code>(bytevector byte ...)</code></h2>
+<p>Returns a newly allocated bytevector containing its arguments.</p>
+<h2><code>(bytevector-append bytevector ...)</code></h2>
+<p>Returns a newly allocated bytevector whose elements arethe
+concatenation of the elements in the given bytevectors.</p>
+<h2><code>(bytevector-copy bytevector [start [end]])</code></h2>
+<p>Returns a newly allocated bytevector containing the bytes in
+bytevector between start and end.</p>
+<h2><code>(bytevector-copy! to at from [start [end]])</code></h2>
+<p>Copies the bytes of bytevector <code>from</code> between <code>start</code> and <code>end</code> to
+bytevector <code>TO</code>, starting at <code>at</code>.  The order in which bytes are
+copied is unspecified, except that if the source and destination
+overlap, copying takes place as if the source is first copied into a
+temporary bytevector and then into the destination.  This can be
+achieved without allocating storage by making sure to copy in the
+correct direction in such circumstances.</p>
+<h2><code>(bytevector-length bytevector)</code></h2>
+<p>Returns the length of bytevector in bytes as an exact integer.</p>
+<h2><code>bytevector-u8-ref</code></h2>
+<p>Returns the <code>K</code>th byte of <code>BYTEVECTOR</code>.  It is an error if <code>K</code> is not a valid index of <code>BYTEVECTOR</code>.</p>
+<h2><code>bytevector-u8-set!</code></h2>
+<p>Stores <code>BYTE</code> as the <code>K</code>th byte of <code>BYTEVECTOR</code>.</p>
+<p>It is an error if <code>K</code> is not a valid index of <code>BYTEVECTOR</code>.</p>
+<h2><code>(bytevector? obj)</code></h2>
+<p>Returns <code>#t</code> if <code>OBJ</code> is a bytevector. Otherwise, <code>#f</code> is returned.</p>
+<h2><code>caar</code></h2>
+<p>TODO</p>
+<h2><code>cadr</code></h2>
+<p>TODO</p>
+<h2><code>(call-with-current-continuation proc)</code></h2>
+<p>It is an error if proc does not accept one argument.</p>
+<p>The procedure call-with-current-continuation (or its equivalent
+abbreviation call/cc) packages the current continuation (see the
+rationale below) as an “escape procedure” and passes it as an argument
+to proc. The escape procedure is a Scheme procedure that, if it is
+later called, will abandon whatever continuation is in effect at that
+later time and will instead use the continuation that was in effect
+when the escape procedure was created. Calling the escape procedure
+will cause the invocation of before and after thunks installed using
+dynamic-wind.</p>
+<p>The escape procedure accepts the same number of arguments as the
+continuation to the original call to
+call-with-current-continuation. Most continuations take only one
+value. Continuations created by the call-with-values procedure
+(including the initialization expressions of define-values,
+let-values, and let<em>-values expressions), take the number of values
+that the consumer expects. The continuations of all non-final
+expressions within a sequence of expressions, such as in lambda,
+case-lambda, begin, let, let</em>, letrec, letrec<em>, let-values,
+let</em>-values, let-syntax, letrec-syntax, parameterize, guard, case,
+cond, when, and unless expressions, take an arbitrary number of values
+because they discard the values passed to them in any event. The
+effect of passing no values or more than one value to continuations
+that were not created in one of these ways is unspecified.</p>
+<p>The escape procedure that is passed to proc has unlimited extent just
+like any other procedure in Scheme. It can be stored in variables or
+data structures and can be called as many times as desired. However,
+like the raise and error procedures, it never returns to its caller.</p>
+<p>TODO: example</p>
+<h2><code>(call-with-port port proc)</code></h2>
+<p>The <code>call-with-port</code> procedure calls <code>PROC</code> with <code>PORT</code> as an
+argument.  If <code>PROC</code> returns, then the <code>PORT</code> is closed automatically
+and the values yielded by the <code>PROC</code> are returned. If <code>PROC</code> does not
+return, then the <code>PORT</code> must not be closed automatically unless it is
+possible to prove that the port will never again be used for a read or
+write operation.</p>
+<p>It is an error if <code>PROC</code> does not accept one argument.</p>
+<h2><code>(call-with-values producer consumer)</code></h2>
+<p>Calls its producer argument with no arguments and a continuation that,
+when passed some values, calls the consumer procedure with those
+values as arguments.  The continuation for the call to consumer is the
+continuation of the call to <code>call-with-values</code>.</p>
+<h2><code>(call/cc proc)</code></h2>
+<p>Abbreviation for <code>call-with-continuation</code>.</p>
+<h2><code>(car pair)</code></h2>
+<p>Returns the contents of the car field of pair.  Note that it is an
+error to take the <code>car</code> of the empty list.</p>
+<h2><code>(case &lt;key&gt; &lt;clause1&gt; &lt;clause2&gt; ...)</code> syntax</h2>
+<p>TODO</p>
+<h2><code>cdar</code></h2>
+<p>TODO</p>
+<h2><code>cddr</code></h2>
+<p>TODO</p>
+<h2><code>cdr</code></h2>
+<p>Returns the contents of the <code>cdr</code> field of pair.  Note that it is an
+error to take the <code>cdr</code> of the empty list.</p>
+<h2><code>(ceiling x)</code></h2>
+<p>The ceiling procedure returns the smallest integer not smaller than x.</p>
+<h2><code>(char-&gt;integer char)</code></h2>
+<p>Given a Unicode character, <code>char-&gt;integer</code> returns an exact integer
+between 0 and #xD7FF or between #xE000 and #x10FFFF which is equal to
+the Unicode scalar value of that character. Given a non-Unicode
+character, it returns an exact integer greater than #x10FFFF.</p>
+<h2><code>(char-ready? [port])</code></h2>
+<p>Returns #t if a character is ready on the textual input port and
+returns #f otherwise. If char-ready returns #t then the next read-char
+operation on the given port is guaranteed not to hang. If the port is
+at end of file then char-ready? returns #t.</p>
+<h2><code>char&lt;=?</code></h2>
+<p>TODO</p>
+<h2><code>char&lt;?</code></h2>
+<p>TODO</p>
+<h2><code>char=?</code></h2>
+<p>TODO</p>
+<h2><code>char&gt;=?</code></h2>
+<p>TODO</p>
+<h2><code>char&gt;?</code></h2>
+<p>TODO</p>
+<h2><code>char?</code></h2>
+<p>Returns #t if obj is a character, otherwise returns #f.</p>
+<h2><code>(close-input-port port)</code></h2>
+<p>Closes the resource associated with port, rendering the port incapable
+of delivering or accepting data.</p>
+<h2><code>(close-output-port port)</code></h2>
+<p>Closes the resource associated with port, rendering the port incapable
+of delivering or accepting data.</p>
+<h2><code>(close-port port)</code></h2>
+<p>Closes the resource associated with port, rendering the port incapable
+of delivering or accepting data.</p>
+<h2><code>(complex? obj)</code></h2>
+<p>Returns #t if obj is a complex number, otherwise returns #f.</p>
+<h2><code>(cond &lt;clause1&gt; ...)</code></h2>
+<p>TODO</p>
+<h2><code>cond-expand</code></h2>
+<p>TODO: not implemented</p>
+<h2><code>(cons obj1 obj2)</code></h2>
+<p>Returns a newly allocated pair whose car is obj1 and whose cdr is
+obj2. The pair is guaranteed to be different (in the sense of eqv?)
+from every existing object.</p>
+<h2><code>(current-error-port [port])</code></h2>
+<p>Returns the current default error port (an output port). That
+procedure is also a parameter object, which can be overridden with
+<code>parameterize</code>.</p>
+<h2><code>(current-input-port [port])</code></h2>
+<p>Returns the current default input port. That procedure is also a
+parameter object, which can be overridden with <code>parameterize</code>.</p>
+<h2><code>current-output-port</code></h2>
+<p>Returns the current default output port. That procedure is also a
+parameter object, which can be overridden with <code>parameterize</code>.</p>
+<h2><code>(define &lt;name&gt; &lt;expr&gt;)</code></h2>
+<p>TODO</p>
+<h2><code>(define (&lt;name&gt; &lt;variable&gt; ...) &lt;expr&gt; ...)</code></h2>
+<p>TODO</p>
+<h2><code>define-record-type</code> syntax</h2>
+<p>TODO</p>
+<h2><code>define-syntax</code></h2>
+<p>TODO</p>
+<h2><code>(define-values var1 ... expr)</code> syntax</h2>
+<p>creates multiple definitions from a single expression returning
+multiple values. It is allowed wherever define is allowed.</p>
+<h2><code>(denominator q)</code></h2>
+<p>Return the denominator of their argument; the result is computed as if
+the argument was represented as a fraction in lowest terms. The
+denominator is always positive. The denominator of 0 is defined to be
+1.</p>
+<h2><code>do</code></h2>
+<p>TODO</p>
+<h2><code>(dynamic-wind before thunk after)</code></h2>
+<p>TODO</p>
+<h2><code>(eof-object)</code></h2>
+<p>Returns an end-of-file object, not necessarily unique.</p>
+<h2><code>(eof-object? obj)</code></h2>
+<p>Returns #t if obj is an end-of-file object, otherwise returns #f. A
+end-of-file object will ever be an object that can be read in using
+read.</p>
+<h2><code>(eq? obj1 obj2)</code></h2>
+<p>The eq? procedure is similar to eqv? except that in some cases it is
+capable of discerning distinctions finer than those detectable by
+eqv?. It must always return #f when eqv? also would, but may return #f
+in some cases where eqv? would return #t.</p>
+<p>On symbols, booleans, the empty list, pairs, and records, and also on
+non-empty strings, vectors, and bytevectors, eq? and eqv? are
+guaranteed to have the same behavior. On procedures, eq? must return
+true if the arguments’ location tags are equal. On numbers and
+characters, eq?’s behavior is implementation-dependent, but it will
+always return either true or false. On empty strings, empty vectors,
+and empty bytevectors, eq? may also behave differently from eqv?.</p>
+<h2><code>(equal? obj1 obj2)</code></h2>
+<p>The equal? procedure, when applied to pairs, vectors, strings and
+bytevectors, recursively compares them, returning #t when the
+unfoldings of its arguments into (possibly infinite) trees are equal
+(in the sense of equal?) as ordered trees, and #f otherwise. It
+returns the same as eqv? when applied to booleans, symbols, numbers,
+characters, ports, procedures, and the empty list. If two objects are
+eqv?, they must be equal? as well. In all other cases, equal? may
+return either #t or #f.</p>
+<p>Even if its arguments are circular data structures, equal? must always
+terminate.</p>
+<h2><code>(eqv? obj1 obj2)</code></h2>
+<p>The eqv? procedure defines a useful equivalence relation on
+objects. Briefly, it returns #t if obj1 and obj2 are normally regarded
+as the same object.</p>
+<p>TODO: complete based on r7rs small and guile.</p>
+<h2><code>(error [who] message . irritants)</code></h2>
+<p>Raises an exception as if by calling raise on a newly allocated
+implementation-defined object which encapsulates the information
+provided by message, as well as any objs, known as the irritants. The
+procedure error-object? must return #t on such objects.</p>
+<h2><code>(error-object-irritants error)</code></h2>
+<p>Returns a list of the irritants encapsulated by error.</p>
+<h2><code>(error-object-message error)</code></h2>
+<p>Returns the message encapsulated by error.</p>
+<h2><code>(error-object? obj)</code></h2>
+<p>Returns #t if obj is an object created by <code>error</code> or one of an
+implementation-defined set of objects. Otherwise, it returns #f. The
+objects used to signal errors, including those which satisfy the
+predicates <code>file-error?</code> and <code>read-error?</code>, may or may not satisfy
+<code>error-object?</code>.</p>
+<h2><code>(even? number)</code></h2>
+<p>Return <code>#t</code> if <code>NUMBER</code> is even. Otherwise <code>#f</code>.</p>
+<h2><code>(exact z)</code></h2>
+<p>TODO: FIXME</p>
+<p>The procedure exact returns an exact representation of z. The value
+returned is the exact number that is numerically closest to the
+argument. For exact arguments, the result is the same as the
+argument. For inexact non-integral real arguments, the implementation
+may return a rational approximation, or may report an implementation
+violation. For inexact complex arguments, the result is a complex
+number whose real and imaginary parts are the result of applying exact
+to the real and imaginary parts of the argument, respectively. If an
+inexact argument has no reasonably close exact equivalent, (in the
+sense of <code>=</code>), then a violation of an implementation restriction may
+be reported.</p>
+<h2><code>(exact-integer-sqrt k)</code></h2>
+<p>TODO</p>
+<h2><code>(exact-integer? z)</code></h2>
+<p>Returns #t if z is both exact and an integer; otherwise returns #f.</p>
+<h2><code>(exact? z)</code></h2>
+<p>Return <code>#t</code> if <code>Z</code> is exact. Otherwise <code>#f</code>.</p>
+<h2><code>(expt z1 z2)</code></h2>
+<p>Returns <code>z1</code> raised to the power <code>z2</code>.</p>
+<h2><code>features</code></h2>
+<p>TODO: no implemented</p>
+<h2><code>(file-error? error)</code></h2>
+<p>TODO: not implemented?</p>
+<h2><code>(floor x)</code></h2>
+<p>The floor procedure returns the largest integer not larger than x.</p>
+<h2><code>floor-quotient</code></h2>
+<p>TODO</p>
+<h2><code>floor-remainder</code></h2>
+<p>TODO</p>
+<h2><code>floor/</code></h2>
+<p>TODO</p>
+<h2><code>(flush-output-port [port])</code></h2>
+<p>Flushes any buffered output from the buffer of output-port to the
+underlying file or device and returns an unspecified value.</p>
+<h2><code>(for-each proc list1 ...)</code></h2>
+<p>It is an error if proc does not accept as many arguments as there are
+lists.</p>
+<p>The arguments to for-each are like the arguments to map, but for-each
+calls proc for its side effects rather than for its values. Unlike
+map, for-each is guaranteed to call proc on the elements of the lists
+in order from the first element(s) to the last, and the value returned
+by for-each is unspecified. If more than one list is given and not all
+lists have the same length, for-each terminates when the shortest list
+runs out. The lists can be circular, but it is an error if all of them
+are circular.</p>
+<h2><code>(gcd n1 ...)</code></h2>
+<p>Return the greatest common divisor.</p>
+<h2><code>(get-output-bytevector port)</code></h2>
+<p>It is an error if port was not created with <code>open-output-bytevector</code>.</p>
+<p>Returns a bytevector consisting of the bytes that have been output to
+the port so far in the order they were output.</p>
+<h2><code>(get-output-string port)</code></h2>
+<p>It is an error if port was not created with open-output-string.</p>
+<p>Returns a string consisting of the characters that have been output to
+the port so far in the order they were output.</p>
+<h2><code>(guard &lt;clause&gt; ...)</code> syntax</h2>
+<p>TODO</p>
+<h2><code>(if &lt;expr&gt; &lt;then&gt; [&lt;else&gt;])</code></h2>
+<p>TODO</p>
+<h2><code>include</code></h2>
+<p>TODO</p>
+<h2><code>include-ci</code></h2>
+<p>TODO: not implemented</p>
+<h2><code>(inexact z)</code></h2>
+<p>The procedure inexact returns an inexact representation of z. The
+value returned is the inexact number that is numerically closest to
+the argument. For inexact arguments, the result is the same as the
+argument. For exact complex numbers, the result is a complex number
+whose real and imaginary parts are the result of applying inexact to
+the real and imaginary parts of the argument, respectively. If an
+exact argument has no reasonably close inexact equivalent (in the
+sense of <code>=</code>), then a violation of an implementation restriction may
+be reported.</p>
+<h2><code>(inexact? z)</code></h2>
+<p>Return <code>#t</code> if <code>Z</code> is inexact. Otherwise <code>#f</code>.</p>
+<h2><code>(input-port-open? port)</code></h2>
+<p>Returns #t if port is still open and capable of performing input, and
+<code>#f</code> otherwise.</p>
+<h2><code>(input-port? obj)</code></h2>
+<p>Return <code>#t</code> if obj is an input port. Otherwise it return <code>#f</code>.</p>
+<h2><code>(integer-&gt;char integer)</code></h2>
+<p>Given an exact integer that is the value returned by a character when
+char-&gt;integer is applied to it, integer-&gt;char returns that character.</p>
+<h2><code>(integer? obj)</code></h2>
+<p>Return <code>#t</code> if <code>OBJ</code> is an integer. Otherwise <code>#f</code>.</p>
+<h2><code>(lambda &lt;formals&gt; &lt;expr&gt; ...)</code></h2>
+<p>TODO</p>
+<h2><code>(lcm n1 ...)</code></h2>
+<p>Return the least common multiple of its arguments.</p>
+<h2><code>(length list)</code></h2>
+<p>Returns the length of list.</p>
+<h2><code>let</code></h2>
+<p>TODO</p>
+<h2><code>let*</code></h2>
+<p>TODO</p>
+<h2><code>let*-values</code></h2>
+<p>TODO</p>
+<h2><code>let-syntax</code></h2>
+<p>TODO</p>
+<h2><code>let-values</code></h2>
+<p>TODO</p>
+<h2><code>letrec</code></h2>
+<p>TODO</p>
+<h2><code>letrec*</code></h2>
+<p>TODO</p>
+<h2><code>letrec-syntax</code></h2>
+<p>TODO</p>
+<h2><code>(list obj ...)</code></h2>
+<p>Returns a newly allocated list of its arguments.</p>
+<h2><code>(list-&gt;string list)</code></h2>
+<p>It is an error if any element of list is not a character.</p>
+<p>list-&gt;string returns a newly allocated string formed from the elements
+in the list list.</p>
+<h2><code>(list-&gt;vector list)</code></h2>
+<p>The list-&gt;vector procedure returns a newly created vector initialized
+to the elements of the list list.</p>
+<h2><code>(list-copy obj)</code></h2>
+<p>Returns a newly allocated copy of the given obj if it is a list. Only
+the pairs themselves are copied; the cars of the result are the same
+(in the sense of eqv?) as the cars of list. If obj is an improper
+list, so is the result, and the final cdrs are the same in the sense
+of eqv?. An obj which is not a list is returned unchanged. It is an
+error if obj is a circular list.</p>
+<h2><code>(list-ref list k)</code></h2>
+<p>The list argument can be circular, but it is an error if list has
+fewer than k elements.</p>
+<p>Returns the kth element of list. (This is the same as the car of
+(list-tail list k).)</p>
+<h2><code>(list-set! list k obj)</code></h2>
+<p>It is an error if k is not a valid index of list.</p>
+<p>The list-set! procedure stores obj in element k of list.</p>
+<h2><code>(list-tail list k)</code></h2>
+<p>It is an error if list has fewer than k elements.</p>
+<p>Returns the sublist of list obtained by omitting the first k elements.</p>
+<h2><code>(list? obj)</code></h2>
+<p>Return <code>#t</code> if <code>OBJ</code> is a list. Otherwise <code>#f</code>.</p>
+<h2><code>(make-bytevector k [byte])</code></h2>
+<p>The make-bytevector procedure returns a newly allocated bytevector of
+length k. If byte is given, then all elements of the bytevector are
+initialized to byte, otherwise the contents of each element are
+unspecified.</p>
+<h2><code>(make-list k [fill])</code></h2>
+<p>Returns a newly allocated list of k elements. If a second argument is
+given, then each element is initialized to fill. Otherwise the initial
+contents of each element is unspecified.</p>
+<h2><code>(make-parameter init [converter])</code></h2>
+<p>Returns a newly allocated parameter object, which is a procedure that
+accepts zero arguments and returns the value associated with the
+parameter object. Initially, this value is the value of (converter
+init), or of init if the conversion procedure converter is not
+specified. The associated value can be temporarily changed using
+parameterize, which is described below.</p>
+<h2><code>(make-string k [char])</code></h2>
+<p>The make-string procedure returns a newly allocated string of length
+k. If char is given, then all the characters of the string are
+initialized to char, otherwise the contents of the string are
+unspecified.</p>
+<h2><code>(make-vector k [fill])</code></h2>
+<p>Returns a newly allocated vector of k elements. If a second argument
+is given, then each element is initialized to fill. Otherwise the
+initial contents of each element is unspecified.</p>
+<h2><code>(map proc list1 ...)</code></h2>
+<p>It is an error if proc does not accept as many arguments as there are
+lists and return a single value.</p>
+<p>The map procedure applies proc element-wise to the elements of the
+lists and returns a list of the results, in order. If more than one
+list is given and not all lists have the same length, map terminates
+when the shortest list runs out. The lists can be circular, but it is
+an error if all of them are circular. It is an error for proc to
+mutate any of the lists. The dynamic order in which proc is applied to
+the elements of the lists is unspecified. If multiple returns occur
+from map, the values returned by earlier returns are not mutated.</p>
+<h2><code>(max x1 ...)</code></h2>
+<p>Return the maximum of its arguments.</p>
+<h2><code>(member obj list [compare])</code></h2>
+<p>Return the first sublist of list whose <code>car</code> is <code>obj</code>, where the
+sublists of list are the non-empty lists returned by (list-tail list
+k) for k less than the length of list. If <code>obj</code> does not occur in
+<code>list</code>, then <code>#f</code> (not the empty list) is returned.</p>
+<p>Uses <code>compare</code>, if given, and <code>equal?</code> otherwise.</p>
+<h2><code>(memq obj list)</code></h2>
+<p>Return the first sublist of list whose <code>car</code> is <code>obj</code>, where the
+sublists of list are the non-empty lists returned by (list-tail list
+k) for k less than the length of list. If <code>obj</code> does not occur in
+<code>list</code>, then <code>#f</code> (not the empty list) is returned.</p>
+<p>Use <code>eq?</code> for comparison.</p>
+<h2><code>(memv obj list)</code></h2>
+<p>Return the first sublist of list whose <code>car</code> is <code>obj</code>, where the
+sublists of list are the non-empty lists returned by (list-tail list
+k) for k less than the length of list. If <code>obj</code> does not occur in
+<code>list</code>, then <code>#f</code> (not the empty list) is returned.</p>
+<p>Uses <code>eqv?</code> for comparison.</p>
+<h2><code>(min x1 ...)</code></h2>
+<p>Return the minimum of its arguments.</p>
+<h2><code>(modulo n1 n2)</code></h2>
+<p><code>modulo</code> is equivalent to <code>floor-remainder</code>. Provided for backward compatibility.</p>
+<h2><code>(negative? x)</code></h2>
+<p>Return <code>#t</code> if <code>X</code> is negative. Otherwise <code>#f</code>.</p>
+<h2><code>(newline [port])</code></h2>
+<p>Writes an end of line to output port.</p>
+<h2><code>(not obj)</code></h2>
+<p>The not procedure returns #t if obj is false, and returns #f otherwise.</p>
+<h2><code>(null? obj)</code></h2>
+<p>Returns #t if obj is the empty list, otherwise returns #f.</p>
+<h2><code>(number-&gt;string z [radix])</code></h2>
+<p>It is an error if radix is not one of 2, 8, 10, or 16.</p>
+<h2><code>(number? obj)</code></h2>
+<p>Return <code>#t</code> if <code>OBJ</code> is a number. Otherwise <code>#f</code>.</p>
+<h2><code>(numerator q)</code></h2>
+<p>TODO</p>
+<h2><code>(odd? number)</code></h2>
+<p>Return <code>#t</code> if <code>NUMBER</code> is odd. Otherwise <code>#f</code>.</p>
+<h2><code>(open-input-bytevector bytevector)</code></h2>
+<p>Takes a bytevector and returns a binary input port that delivers bytes
+from the bytevector.</p>
+<h2><code>(open-input-string string)</code></h2>
+<p>Takes a string and returns a textual input port that delivers
+characters from the string. If the string is modified, the effect is
+unspecified.</p>
+<h2><code>(open-output-bytevector)</code></h2>
+<p>Returns a binary output port that will accumulate bytes for retrieval
+by <code>get-output-bytevector</code>.</p>
+<h2><code>(open-output-string)</code></h2>
+<p>Returns a textual output port that will accumulate characters for
+retrieval by <code>get-output-string</code>.</p>
+<h2><code>(or test1 ...)</code> syntax</h2>
+<p>The <code>test</code> expressions are evaluated from left to right, and the value
+of the first expression that evaluates to a true value is
+returned. Any remaining expressions are not evaluated. If all
+expressions evaluate to #f or if there are no expressions, then #f is
+returned.</p>
+<h2><code>(output-port-open? port)</code></h2>
+<p>Returns #t if port is still open and capable of performing output, and</p>
+<h1>f otherwise.</h1>
+<h2><code>(output-port? obj)</code></h2>
+<p>Return #t if obj is an output port. Otherwise return #f.</p>
+<h2><code>(pair? obj)</code></h2>
+<p>The pair? predicate returns #t if obj is a pair, and otherwise returns #f.</p>
+<h2><code>(parameterize ((param1 value1) ...) expr ...)</code></h2>
+<p>A parameterize expression is used to change the values returned by
+specified parameter objects during the evaluation of the body.</p>
+<p>The param and value expressions are evaluated in an unspecified
+order. The body is evaluated in a dynamic environment in which calls
+to the parameters return the results of passing the corresponding
+values to the conversion procedure specified when the parameters were
+created. Then the previous values of the parameters are restored
+without passing them to the conversion procedure. The results of the
+last expression in the body are returned as the results of the entire
+parameterize expression.</p>
+<p>Note: If the conversion procedure is not idempotent, the results of
+(parameterize ((x (x))) ...), which appears to bind the parameter x to
+its current value, might not be what the user expects.</p>
+<p>If an implementation supports multiple threads of execution, then
+parameterize must not change the associated values of any parameters
+in any thread other than the current thread and threads created inside
+body.</p>
+<p>Parameter objects can be used to specify configurable settings for a
+computation without the need to pass the value to every procedure in
+the call chain explicitly.</p>
+<h2><code>(peek-char [port])</code></h2>
+<p>Returns the next character available from the textual input port, but
+without updating the port to point to the following character. If no
+more characters are available, an end-of-file object is returned.</p>
+<p>Note: The value returned by a call to peek-char is the same as the
+value that would have been returned by a call to read-char with the
+same port. The only difference is that the very next call to read-char
+or peek-char on that port will return the value returned by the
+preceding call to peek-char. In particular, a call to peek-char on an
+interactive port will hang waiting for input whenever a call to
+read-char would have hung.</p>
+<h2><code>(peek-u8 [port])</code></h2>
+<p>Returns the next byte available from the binary input port, but
+without updating the port to point to the following byte. If no more
+bytes are available, an end-of-file object is returned.</p>
+<h2><code>(port? obj)</code></h2>
+<p>Return <code>#t</code> if <code>OBJ</code> is port. Otherwise <code>#f</code>.</p>
+<h2><code>(positive? x)</code></h2>
+<p>Return <code>#t</code> if <code>X</code> is positive. Otherwise <code>#f</code>.</p>
+<h2><code>(procedure? obj)</code></h2>
+<p>Return <code>#t</code> if <code>OBJ</code> is a procedure. Otherwise <code>#f</code>.</p>
+<h2><code>quasiquote</code></h2>
+<p>TODO</p>
+<h2><code>quote</code></h2>
+<p>TODO</p>
+<h2><code>quotient</code></h2>
+<p>TODO</p>
+<h2><code>(raise obj)</code></h2>
+<p>Raises an exception by invoking the current exception handler on
+obj. The handler is called with the same dynamic environment as that
+of the call to raise, except that the current exception handler is the
+one that was in place when the handler being called was installed. If
+the handler returns, a secondary exception is raised in the same
+dynamic environment as the handler. The relationship between obj and
+the object raised by the secondary exception is unspecified.</p>
+<h2><code>(raise-continuable obj)</code></h2>
+<p>Raises an exception by invoking the current exception handler on
+obj. The handler is called with the same dynamic environment as the
+call to raise-continuable, except that: (1) the current exception
+handler is the one that was in place when the handler being called was
+installed, and (2) if the handler being called returns, then it will
+again become the current exception handler. If the handler returns,
+the values it returns become the values returned by the call to
+raise-continuable.</p>
+<h2><code>(rational? obj)</code></h2>
+<p>Return <code>#t</code> if <code>OBJ</code> is a rational number. Otherwise <code>#f</code>.</p>
+<h2><code>(rationalize x y)</code></h2>
+<p>The rationalize procedure returns the simplest rational number
+differing from x by no more than y.</p>
+<h2><code>(read-bytevector k [port])</code></h2>
+<p>Reads the next k bytes, or as many as are available before the end of
+file, from the binary input port into a newly allocated bytevector in
+left-to-right order and returns the bytevector. If no bytes are
+available before the end of file, an end-of-file object is returned.</p>
+<h2><code>(read-bytevector! bytevector [port [start [end]]])</code></h2>
+<p>Reads the next end - start bytes, or as many as are available before
+the end of file, from the binary input port into bytevector in
+left-to-right order beginning at the start position. If end is not
+supplied, reads until the end of bytevector has been reached. If start
+is not supplied, reads beginning at position 0. Returns the number of
+bytes read. If no bytes are available, an end-of-file object is
+returned.</p>
+<h2><code>(read-char [port])</code></h2>
+<p>Returns the next character available from the textual input port,
+updating the port to point to the following character. If no more
+characters are available, an end-of-file object is returned.</p>
+<h2><code>(read-error? obj)</code></h2>
+<p>Error type predicates. Returns #t if obj is an object raised by the
+read procedure. Otherwise, it returns #f.</p>
+<h2><code>(read-line [port])</code></h2>
+<p>Returns the next line of text available from the textual input port,
+updating the port to point to the following character. If an end of
+line is read, a string containing all of the text up to (but not
+including) the end of line is returned, and the port is updated to
+point just past the end of line. If an end of file is encountered
+before any end of line is read, but some characters have been read, a
+string containing those characters is returned. If an end of file is
+encountered before any characters are read, an end-of-file object is
+returned. For the purpose of this procedure, an end of line consists
+of either a linefeed character, a carriage return character, or a
+sequence of a carriage return character followed by a linefeed
+character. Implementations may also recognize other end of line
+characters or sequences.</p>
+<h2><code>(read-string k [port])</code></h2>
+<p>Reads the next k characters, or as many as are available before the
+end of file, from the textual input port into a newly allocated string
+in left-to-right order and returns the string. If no characters are
+available before the end of file, an end-of-file object is returned.</p>
+<h2><code>(read-u8 [port])</code></h2>
+<p>Returns the next byte available from the binary input port, updating
+the port to point to the following byte. If no more bytes are
+available, an end-of-file object is returned.</p>
+<h2><code>(real? obj)</code></h2>
+<p>Return #t if <code>OBJ</code> is real number. Otherwise <code>#f</code>.</p>
+<h2><code>(remainder n1 n2)</code></h2>
+<p>TODO</p>
+<h2><code>(reverse list)</code></h2>
+<p>Returns a newly allocated list consisting of the elements of list in
+reverse order.</p>
+<h2><code>(round x)</code></h2>
+<p>TODO</p>
+<h2><code>(set! &lt;variable&gt; &lt;expression&gt;)</code> syntax</h2>
+<p>Expression is evaluated, and the resulting value is stored in the
+location to which variable is bound. It is an error if variable is not
+bound either in some region enclosing the set! expression or else
+globally. The result of the set! expression is unspecified.</p>
+<h2><code>(set-car! pair obj)</code></h2>
+<p>Stores <code>obj</code> in the car field of <code>pair</code>.</p>
+<h2><code>(set-cdr! pair obj)</code></h2>
+<p>Stores obj in the cdr field of pair.</p>
+<h2><code>(square z)</code></h2>
+<p>Returns the square of z. This is equivalent to (* z z).</p>
+<h2><code>(string char ...)</code></h2>
+<p>Returns a newly allocated string composed of the arguments. It is
+analogous to list.</p>
+<h2><code>(string-&gt;list string [start [end]])</code></h2>
+<p>The string-&gt;list procedure returns a newly allocated list of the
+characters of string between start and end.</p>
+<h2><code>(string-&gt;number string [radix])</code></h2>
+<p>Returns a number of the maximally precise representation expressed by
+the given string. It is an error if radix is not 2, 8, 10, or 16.</p>
+<p>If supplied, radix is a default radix that will be overridden if an
+explicit radix prefix is present in string (e.g. "#o177"). If radix is
+not supplied, then the default radix is 10. If string is not a
+syntactically valid notation for a number, or would result in a number
+that the implementation cannot represent, then string-&gt;number returns</p>
+<h1>f. An error is never signaled due to the content of string.</h1>
+<h2><code>(string-&gt;symbol string)</code></h2>
+<p>Returns the symbol whose name is string. This procedure can create
+symbols with names containing special characters that would require
+escaping when written, but does not interpret escapes in its input.</p>
+<h2><code>(string-&gt;utf8 string [start [end]])</code></h2>
+<p>The string-&gt;utf8 procedure encodes the characters of a string between
+start and end and returns the corresponding bytevector.</p>
+<h2><code>(string-&gt;vector string [start [end]])</code></h2>
+<p>The string-&gt;vector procedure returns a newly created vector
+initialized to the elements of the string string between start and
+end.</p>
+<h2><code>(string-append string ...)</code></h2>
+<p>Returns a newly allocated string whose characters are the
+concatenation of the characters in the given strings.</p>
+<h2><code>(string-copy string [start [end]])</code></h2>
+<p>Returns a newly allocated copy of the part of the given string between
+start and end.</p>
+<h2><code>(string-copy! to at from [start [end]])</code></h2>
+<p>It is an error if at is less than zero or greater than the length of
+to. It is also an error if (- (string-length to) at) is less than (-
+end start).</p>
+<p>Copies the characters of string from between start and end to string
+to, starting at at. The order in which characters are copied is
+unspecified, except that if the source and destination overlap,
+copying takes place as if the source is first copied into a temporary
+string and then into the destination. This can be achieved without
+allocating storage by making sure to copy in the correct direction in
+such circumstances.</p>
+<h2><code>(string-fill! string fill [start [end]])</code></h2>
+<p>It is an error if fill is not a character.</p>
+<p>The string-fill! procedure stores fill in the elements of string
+between start and end.</p>
+<h2><code>(string-for-each proc string1 ...)</code></h2>
+<p>It is an error if proc does not accept as many arguments as there are
+strings.</p>
+<p>The arguments to string-for-each are like the arguments to string-map,
+but string-for-each calls proc for its side effects rather than for
+its values. Unlike string-map, string-for-each is guaranteed to call
+proc on the elements of the lists in order from the first element(s)
+to the last, and the value returned by string-for-each is
+unspecified. If more than one string is given and not all strings have
+the same length, string-for-each terminates when the shortest string
+runs out. It is an error for proc to mutate any of the strings.</p>
+<h2><code>(string-length string)</code></h2>
+<p>Returns the number of characters in the given string.</p>
+<h2><code>(string-map proc string1 ...)</code></h2>
+<p>It is an error if proc does not accept as many arguments as there are
+strings and return a single character.</p>
+<p>The string-map procedure applies proc element-wise to the elements of
+the strings and returns a string of the results, in order. If more
+than one string is given and not all strings have the same length,
+string-map terminates when the shortest string runs out. The dynamic
+order in which proc is applied to the elements of the strings is
+unspecified. If multiple returns occur from string-map, the values
+returned by earlier returns are not mutated.</p>
+<h2><code>(string-ref string k)</code></h2>
+<p>It is an error if k is not a valid index of string.</p>
+<p>The string-ref procedure returns character k of string using
+zero-origin indexing. There is no requirement for this procedure to
+execute in constant time.</p>
+<h2><code>(string-set! string k char)</code></h2>
+<p>It is an error if k is not a valid index of string.</p>
+<p>The string-set! procedure stores char in element k of string. There is
+no requirement for this procedure to execute in constant time.</p>
+<h2><code>string&lt;=?</code></h2>
+<p>TODO</p>
+<h2><code>string&lt;?</code></h2>
+<p>TODO</p>
+<h2><code>(string=? string1 string2 ...)</code></h2>
+<p>Returns #t if all the strings are the same length and contain exactly
+the same characters in the same positions, otherwise returns #f.</p>
+<h2><code>string&gt;=?</code></h2>
+<p>TODO</p>
+<h2><code>string&gt;?</code></h2>
+<p>TODO</p>
+<h2><code>(string? obj)</code></h2>
+<p>Return <code>#t</code> if <code>OBJ</code> is string. Otherwise <code>#f</code>.</p>
+<h2><code>(substring string start end)</code></h2>
+<p>The substring procedure returns a newly allocated string formed from
+the characters of string beginning with index start and ending with
+index end. This is equivalent to calling string-copy with the same
+arguments, but is provided for backward compatibility and stylistic
+flexibility.</p>
+<h2><code>(symbol-&gt;string symbol)</code></h2>
+<p>Returns the name of symbol as a string, but without adding escapes. It
+is an error to apply mutation procedures like string-set! to strings
+returned by this procedure.</p>
+<h2><code>(symbol=? symbol1 symbol2 ...)</code></h2>
+<p>Returns #t if all the arguments are symbols and all have the same
+names in the sense of string=?.</p>
+<h2><code>(symbol? obj)</code></h2>
+<p>Returns #t if obj is a symbol, otherwise returns #f.</p>
+<h2><code>syntax-error</code></h2>
+<p>TODO</p>
+<h2><code>syntax-rules</code></h2>
+<p>TODO</p>
+<h2><code>textual-port?</code></h2>
+<p>TODO</p>
+<h2><code>(truncate x)</code></h2>
+<p>TODO</p>
+<h2><code>truncate-quotient</code></h2>
+<p>TODO</p>
+<h2><code>truncate-remainder</code></h2>
+<p>TODO</p>
+<h2><code>truncate/</code></h2>
+<p>TODO</p>
+<h2><code>(u8-ready? [port])</code></h2>
+<p>Returns #t if a byte is ready on the binary input port and returns #f
+otherwise. If u8-ready? returns #t then the next read-u8 operation on
+the given port is guaranteed not to hang. If the port is at end of
+file then u8-ready? returns #t.</p>
+<h2><code>(unless &lt;test&gt; &lt;expr&gt; ...)</code> syntax</h2>
+<p>The test is evaluated, and if it evaluates to #f, the expressions are
+evaluated in order. The result of the unless expression is
+unspecified.</p>
+<h2><code>unquote</code></h2>
+<p>TODO</p>
+<h2><code>unquote-splicing</code></h2>
+<p>TODO</p>
+<h2><code>(utf8-&gt;string bytevector [start [end]])</code></h2>
+<p>It is an error for bytevector to contain invalid UTF-8 byte sequences.</p>
+<p>The utf8-&gt;string procedure decodes the bytes of a bytevector between
+start and end and returns the corresponding string.</p>
+<h2><code>(values obj ...)</code></h2>
+<p>Delivers all of its arguments to its continuation.</p>
+<h2><code>(vector obj ...)</code></h2>
+<p>Returns a newly allocated vector whose elements contain the given arguments. It is analogous to list.</p>
+<h2><code>(vector-&gt;list vector [start [end]])</code></h2>
+<p>The vector-&gt;list procedure returns a newly allocated list of the
+objects contained in the elements of vector between start and end. The
+list-&gt;vector procedure returns a newly created vector initialized to
+the elements of the list list.</p>
+<h2><code>(vector-&gt;string vector [start [end]])</code></h2>
+<p>It is an error if any element of vector between start and end is not a
+character.</p>
+<p>The vector-&gt;string procedure returns a newly allocated string of the
+objects contained in the elements of vector between start and end. The
+string-&gt;vector procedure returns a newly created vector initialized to
+the elements of the string string between start and end.</p>
+<h2><code>(vector-append vector ...)</code></h2>
+<p>Returns a newly allocated vector whose elements are the concatenation
+of the elements of the given vectors.</p>
+<h2><code>(vector-copy vector [start [end]])</code></h2>
+<p>Returns a newly allocated copy of the elements of the given vector
+between start and end. The elements of the new vector are the same (in
+the sense of eqv?) as the elements of the old.</p>
+<h2><code>(vector-copy! to at from [start [end]])</code></h2>
+<p>It is an error if at is less than zero or greater than the length of
+to. It is also an error if (- (vector-length to) at) is less than (-
+end start).</p>
+<p>Copies the elements of vector from between start and end to vector to,
+starting at at. The order in which elements are copied is unspecified,
+except that if the source and destination overlap, copying takes place
+as if the source is first copied into a temporary vector and then into
+the destination. This can be achieved without allocating storage by
+making sure to copy in the correct direction in such circumstances.</p>
+<h2><code>(vector-fill! vector fill [start [end]])</code></h2>
+<p>The vector-fill! procedure stores fill in the elements of vector
+between start and end.</p>
+<h2><code>(vector-for-each proc vector1 ...)</code></h2>
+<p>It is an error if proc does not accept as many arguments as there are vectors.</p>
+<p>The arguments to vector-for-each are like the arguments to vector-map,
+but vector-for-each calls proc for its side effects rather than for
+its values. Unlike vector-map, vector-for-each is guaranteed to call
+proc on the elements of the vectors in order from the first element(s)
+to the last, and the value returned by vector-for-each is
+unspecified. If more than one vector is given and not all vectors have
+the same length, vector-for-each terminates when the shortest vector
+runs out. It is an error for proc to mutate any of the vectors.</p>
+<h2><code>(vector-length vector)</code></h2>
+<p>Returns the number of elements in vector as an exact integer.</p>
+<h2><code>(vector-map proc vector1 ...)</code></h2>
+<p>It is an error if proc does not accept as many arguments as there are
+vectors and return a single value.</p>
+<p>The vector-map procedure applies proc element-wise to the elements of
+the vectors and returns a vector of the results, in order. If more
+than one vector is given and not all vectors have the same length,
+vector-map terminates when the shortest vector runs out. The dynamic
+order in which proc is applied to the elements of the vectors is
+unspecified. If multiple returns occur from vector-map, the values
+returned by earlier returns are not mutated.</p>
+<h2><code>(vector-ref vector k)</code></h2>
+<p>It is an error if k is not a valid index of vector.</p>
+<p>The vector-ref procedure returns the contents of element k of vector.</p>
+<h2><code>(vector-set! vector k obj)</code></h2>
+<p>It is an error if k is not a valid index of vector.</p>
+<p>The vector-set! procedure stores obj in element k of vector.</p>
+<h2><code>vector?</code></h2>
+<p>Returns #t if obj is a bytevector. Otherwise, #f is returned.</p>
+<h2><code>(when &lt;test&gt; &lt;expr&gt; ...)</code> syntax</h2>
+<p>The test is evaluated, and if it evaluates to a true value, the
+expressions are evaluated in order. The result of the when expression
+is unspecified.</p>
+<h2><code>with-exception-handler</code></h2>
+<p>TODO</p>
+<h2><code>(write-bytevector bytevector [port [start [end]]])</code></h2>
+<p>Writes the bytes of bytevector from start to end in left-to-right
+order to the binary output port.</p>
+<h2><code>(write-char char [port])</code></h2>
+<p>Writes the character char (not an external representation of the
+character) to the given textual output port and returns an unspecified
+value.</p>
+<h2><code>(write-string string [port [start [end]]])</code></h2>
+<p>Writes the characters of string from start to end in left-to-right
+order to the textual output port.</p>
+<h2><code>(write-u8 byte [port])</code></h2>
+<p>Writes the byte to the given binary output port and returns an
+unspecified value.</p>
+<h2><code>(zero? z)</code></h2>
+<p>Return <code>#t</code> if z is zero. Otherwise <code>#f</code>.</p>
+</div>
+    </div>
+  </body>
+</html>

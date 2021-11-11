@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme generator)</code></h1>
+<p>This is based on
+<a href="https://srfi.schemers.org/srfi-158/srfi-158.html">SRFI-158</a></p>
+<p>This SRFI defines utility procedures that create, transform, and
+consume generators. A generator is simply a procedure with no
+arguments that works as a source of values. Every time it is called,
+it yields a value. Generators may be finite or infinite; a finite
+generator returns an end-of-file object to indicate that it is
+exhausted. For example, read-char, read-line, and read are generators
+that generate characters, lines, and objects from the current input
+port. Generators provide lightweight laziness.</p>
+<p>This SRFI also defines procedures that return accumulators. An
+accumulator is the inverse of a generator: it is a procedure of one
+argument that works as a sink of values.</p>
+<h2><code>(generator arg ...)</code></h2>
+<p>The simplest finite generator. Generates each of its arguments in
+turn. When no arguments are provided, it returns an empty generator
+that generates no values.</p>
+<h2><code>(circular-generator arg ...)</code></h2>
+<p>The simplest infinite generator. Generates each of its arguments in
+turn, then generates them again in turn, and so on forever.</p>
+<h2><code>(make-iota-generator count [start [step]])</code></h2>
+<p>Creates a finite generator of a sequence of count numbers. The
+sequence begins with start (which defaults to 0) and increases by step
+(which defaults to 1). If both start and step are exact, it generates
+exact numbers; otherwise it generates inexact numbers. The exactness
+of count doesn't affect the exactness of the results.</p>
+<h2><code>(make-range-generator start [end [step]])</code></h2>
+<p>Creates a generator of a sequence of numbers. The sequence begins with
+start, increases by step (default 1), and continues while the number
+is less than end, or forever if end is omitted. If both start and step
+are exact, it generates exact numbers; otherwise it generates inexact
+numbers. The exactness of end doesn't affect the exactness of the
+results.</p>
+<h2><code>(make-coroutine-generator proc)</code></h2>
+<p>Creates a generator from a coroutine.</p>
+<p>The proc argument is a procedure that takes one argument, yield. When
+called, make-coroutine-generator immediately returns a generator
+g. When g is called, proc runs until it calls yield. Calling yield
+causes the execution of proc to be suspended, and g returns the value
+passed to yield.</p>
+<p>Whether this generator is finite or infinite depends on the behavior
+of proc. If proc returns, it is the end of the sequence — g returns an
+end-of-file object from then on. The return value of proc is ignored.</p>
+<p>The following code creates a generator that produces a series 0, 1,
+and 2 (effectively the same as (make-range-generator 0 3)) and binds
+it to g.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">g</span>
+  <span class="p">(</span><span class="nf">make-coroutine-generator</span>
+   <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">yield</span><span class="p">)</span> <span class="p">(</span><span class="k">let </span><span class="nv">loop</span> <span class="p">((</span><span class="nf">i</span> <span class="mi">0</span><span class="p">))</span>
+               <span class="p">(</span><span class="nf">when</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">i</span> <span class="mi">3</span><span class="p">)</span> <span class="p">(</span><span class="nf">yield</span> <span class="nv">i</span><span class="p">)</span> <span class="p">(</span><span class="nf">loop</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">i</span> <span class="mi">1</span><span class="p">)))))))</span>
+
+<span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="nv">g</span><span class="p">)</span> <span class="c1">;; =&gt; (0 1 2)</span>
+</pre></div>
+<h2><code>(list-&gt;generator list)</code></h2>
+<p>Convert <code>LIST</code> into a generator.</p>
+<h2><code>(vector-&gt;generator vector [start [end]])</code></h2>
+<h2><code>(reverse-vector-&gt;generator vector [start [end]])</code></h2>
+<h2><code>(string-&gt;generator string [start [end]])</code></h2>
+<h2><code>(bytevector-&gt;generator bytevector [start [end]])</code></h2>
+<p>These procedures return generators that yield each element of the
+given argument. Mutating the underlying object will affect the results
+of the generator.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">list-&gt;generator</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">)))</span>
+  <span class="c1">;; =&gt; (1 2 3 4 5)</span>
+<span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">vector-&gt;generator</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">)))</span>
+  <span class="c1">;; =&gt; (1 2 3 4 5)</span>
+<span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">reverse-vector-&gt;generator</span> <span class="o">&#39;#</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">)))</span>
+  <span class="c1">;; =&gt; (5 4 3 2 1)</span>
+<span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">string-&gt;generator</span> <span class="s">&quot;abcde&quot;</span><span class="p">))</span>
+  <span class="c1">;; =&gt; (#\a #\b #\c #\d #\e)</span>
+</pre></div>
+<p>The generators returned by the constructors are exhausted once all
+elements are retrieved; the optional start-th and end-th arguments can
+limit the range the generator walks across.</p>
+<p>For reverse-vector-&gt;generator, the first value is the element right
+before the end-th element, and the last value is the start-th
+element. For all the other constructors, the first value the generator
+yields is the start-th element, and it ends right before the end-th
+element.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">vector-&gt;generator</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="mi">2</span><span class="p">))</span>
+  <span class="c1">;; =&gt; (c d e)</span>
+<span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">vector-&gt;generator</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="mi">2</span> <span class="mi">4</span><span class="p">))</span>
+  <span class="c1">;; =&gt; (c d)</span>
+<span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">reverse-vector-&gt;generator</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="mi">2</span><span class="p">))</span>
+  <span class="c1">;; =&gt; (e d c)</span>
+<span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">reverse-vector-&gt;generator</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="mi">2</span> <span class="mi">4</span><span class="p">))</span>
+  <span class="c1">;; =&gt; (d c)</span>
+<span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">reverse-vector-&gt;generator</span> <span class="o">&#39;#</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span><span class="p">)</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">))</span>
+  <span class="c1">;; =&gt; (b a)</span>
+</pre></div>
+<h2><code>(make-for-each-generator for-each obj)</code></h2>
+<p>A generator constructor that converts any collection obj to a
+generator that returns its elements using a for-each procedure
+appropriate for obj. This must be a procedure that when called as
+(for-each proc obj) calls proc on each element of obj. Examples of
+such procedures are for-each, string-for-each, and vector-for-each
+from R7RS. The value returned by for-each is ignored. The generator is
+finite if the collection is finite, which would typically be the case.</p>
+<p>The collections need not be conventional ones (lists, strings, etc.)
+as long as for-each can invoke a procedure on everything that counts
+as a member. For example, the following procedure allows
+for-each-generator to generate the digits of an integer from least to
+most significant:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">for-each-digit</span> <span class="nv">proc</span> <span class="nv">n</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">when</span> <span class="p">(</span><span class="nb">&gt; </span><span class="nv">n</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">let-values</span> <span class="p">(((</span><span class="nf">div</span> <span class="nv">rem</span><span class="p">)</span> <span class="p">(</span><span class="nf">truncate/</span> <span class="nv">n</span> <span class="mi">10</span><span class="p">)))</span>
+      <span class="p">(</span><span class="nf">proc</span> <span class="nv">rem</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">for-each-digit</span> <span class="nv">proc</span> <span class="nv">div</span><span class="p">))))</span>
+</pre></div>
+<h2><code>(make-unfold-generator stop? mapper successor seed)</code></h2>
+<p>A generator constructor similar to <code>(scheme list)</code> unfold.</p>
+<p>The stop? predicate takes a seed value and determines whether to
+stop. The mapper procedure calculates a value to be returned by the
+generator from a seed value. The successor procedure calculates the
+next seed value from the current seed value.</p>
+<p>For each call of the resulting generator, stop? is called with the
+current seed value. If it returns true, then the generator returns an
+end-of-file object. Otherwise, it applies mapper to the current seed
+value to get the value to return, and uses successor to update the
+seed value.</p>
+<p>This generator is finite unless stop? never returns true.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">make-unfold-generator</span>
+                      <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">s</span><span class="p">)</span> <span class="p">(</span><span class="nb">&gt; </span><span class="nv">s</span> <span class="mi">5</span><span class="p">))</span>
+                      <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">s</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="nv">s</span> <span class="mi">2</span><span class="p">))</span>
+                      <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">s</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">s</span> <span class="mi">1</span><span class="p">))</span>
+                      <span class="mi">0</span><span class="p">))</span>
+  <span class="c1">;; =&gt; (0 2 4 6 8 10)</span>
+</pre></div>
+<h2><code>(gcons* item ... generator)</code></h2>
+<p>Returns a generator that adds items in front of gen. Once the items
+have been consumed, the generator is guaranteed to tail-call gen.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">gcons*</span> <span class="ss">&#39;a</span> <span class="ss">&#39;b</span> <span class="p">(</span><span class="nf">make-range-generator</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">)))</span>
+ <span class="c1">;; =&gt; (a b 0 1)</span>
+</pre></div>
+<h2><code>(gappend generator ...)</code></h2>
+<p>Returns a generator that yields the items from the first given
+generator, and once it is exhausted, from the second generator, and so
+on.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">gappend</span> <span class="p">(</span><span class="nf">make-range-generator</span> <span class="mi">0</span> <span class="mi">3</span><span class="p">)</span> <span class="p">(</span><span class="nf">make-range-generator</span> <span class="mi">0</span> <span class="mi">2</span><span class="p">)))</span>
+ <span class="c1">;; =&gt; (0 1 2 0 1)</span>
+
+<span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">gappend</span><span class="p">))</span>
+ <span class="c1">;; =&gt; ()</span>
+</pre></div>
+<h2><code>(gflatten generator)</code></h2>
+<p>Returns a generator that yields the elements of the lists produced by
+the given generator.</p>
+<h2><code>(ggroup generator k [padding])</code></h2>
+<p>Returns a generator that yields lists of k items from the given
+generator. If fewer than k elements are available for the last list,
+and padding is absent, the short list is returned; otherwise, it is
+padded by padding to length k.</p>
+<h2><code>(gmerge less-than generator1 ...)</code></h2>
+<p>Returns a generator that yields the items from the given generators in
+the order dictated by less-than. If the items are equal, the leftmost
+item is used first. When all of given generators are exhausted, the
+returned generator is exhausted also.</p>
+<p>As a special case, if only one generator is given, it is returned.</p>
+<h2><code>(gmap proc generator ...)</code></h2>
+<p>When only one generator is given, returns a generator that yields the
+items from the given generator after invoking proc on them.</p>
+<p>When more than one generator is given, each item of the resulting
+generator is a result of applying proc to the items from each
+generator. If any of input generator is exhausted, the resulting
+generator is also exhausted.</p>
+<p>Note: This differs from generator-map-&gt;list, which consumes all values
+at once and returns the results as a list, while gmap returns a
+generator immediately without consuming input.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">gmap</span> <span class="nv">-</span> <span class="p">(</span><span class="nf">make-range-generator</span> <span class="mi">0</span> <span class="mi">3</span><span class="p">)))</span>
+ <span class="c1">;; =&gt; (0 -1 -2)</span>
+
+<span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">gmap</span> <span class="nv">cons</span> <span class="p">(</span><span class="nf">generator</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)</span> <span class="p">(</span><span class="nf">generator</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">)))</span>
+ <span class="c1">;; =&gt; ((1 . 4) (2 . 5))</span>
+</pre></div>
+<h2><code>(gcombine proc seed generator generator2)</code></h2>
+<p>A generator for mapping with state. It yields a sequence of sub-folds
+over proc.</p>
+<p>The proc argument is a procedure that takes as many arguments as the
+input generators plus one. It is called as (proc v1 v2 … seed), where
+v1, v2, … are the values yielded from the input generators, and seed
+is the current seed value. It must return two values, the yielding
+value and the next seed. The result generator is exhausted when any of
+the genn generators is exhausted, at which time all the others are in
+an undefined state.</p>
+<h2><code>(gfilter predicate generator)</code></h2>
+<h2><code>(gremove predicate generator)</code></h2>
+<p>Returns generators that yield the items from the source generator,
+except those on which pred answers false or true respectively.</p>
+<h2><code>(gstate-filter proc seed generator)</code></h2>
+<p>Returns a generator that obtains items from the source generator and
+passes an item and a state (whose initial value is seed) as arguments
+to proc. Proc in turn returns two values, a boolean and a new value of
+the state. If the boolean is true, the item is returned; otherwise,
+this algorithm is repeated until gen is exhausted, at which point the
+returned generator is also exhausted. The final value of the state is
+discarded.</p>
+<h2><code>(gtake gen k [padding])</code></h2>
+<h2><code>(gdrop gen k)</code></h2>
+<p>These are generator analogues of SRFI 1 take and drop. Gtake returns a
+generator that yields (at most) the first k items of the source
+generator, while gdrop returns a generator that skips the first k
+items of the source generator.</p>
+<p>These won't complain if the source generator is exhausted before
+generating k items. By default, the generator returned by gtake
+terminates when the source generator does, but if you provide the
+padding argument, then the returned generator will yield exactly k
+items, using the padding value as needed to provide sufficient
+additional values.</p>
+<h2><code>gtake-while pred gen</code></h2>
+<h2><code>gdrop-while pred gen</code></h2>
+<p>The generator analogues of SRFI-1 take-while and drop-while. The
+generator returned from gtake-while yields items from the source
+generator as long as pred returns true for each. The generator
+returned from gdrop-while first reads and discards values from the
+source generator while pred returns true for them, then starts
+yielding items returned by the source.</p>
+<h2><code>(gdelete item gen [=])</code></h2>
+<p>Creates a generator that returns whatever gen returns, except for any
+items that are the same as item in the sense of =, which defaults to
+equal?. The = predicate is passed exactly two arguments, of which the
+first was generated by gen before the second.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">gdelete</span> <span class="mi">3</span> <span class="p">(</span><span class="nf">generator</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span> <span class="mi">3</span> <span class="mi">6</span> <span class="mi">7</span><span class="p">)))</span>
+  <span class="c1">;; =&gt; (1 2 4 5 6 7)</span>
+</pre></div>
+<h2><code>(gdelete-neighbor-dups gen [=])</code></h2>
+<p>Creates a generator that returns whatever gen returns, except for any
+items that are equal to the preceding item in the sense of =, which
+defaults to equal?. The = predicate is passed exactly two arguments,
+of which the first was generated by gen before the second.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">gdelete-neighbor-dups</span> <span class="p">(</span><span class="nf">list-&gt;generator</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">a</span> <span class="nv">a</span> <span class="nv">a</span> <span class="nv">d</span> <span class="nv">c</span><span class="p">))))</span>
+  <span class="c1">;; =&gt; (a b c a d c)</span>
+</pre></div>
+<h2><code>(gindex value-gen index-gen)</code></h2>
+<p>Creates a generator that returns elements of value-gen specified by
+the indices (non-negative exact integers) generated by index-gen. It
+is an error if the indices are not strictly increasing, or if any
+index exceeds the number of elements generated by value-gen.  The
+result generator is exhausted when either generator is exhausted, at
+which time the other is in an undefined state.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">gindex</span> <span class="p">(</span><span class="nf">list-&gt;generator</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> <span class="nv">f</span><span class="p">))</span>
+                         <span class="p">(</span><span class="nf">list-&gt;generator</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">0</span> <span class="mi">2</span> <span class="mi">4</span><span class="p">))))</span>
+  <span class="c1">;; =&gt; (a c e)</span>
+</pre></div>
+<h2><code>(gselect value-gen truth-gen)</code></h2>
+<p>Creates a generator that returns elements of value-gen that correspond
+to the values generated by truth-gen. If the current value of
+truth-gen is true, the current value of value-gen is generated, but
+otherwise not. The result generator is exhausted when either generator
+is exhausted, at which time the other is in an undefined state.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">generator-&gt;list</span> <span class="p">(</span><span class="nf">gselect</span> <span class="p">(</span><span class="nf">list-&gt;generator</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> <span class="nv">f</span><span class="p">))</span>
+                          <span class="p">(</span><span class="nf">list-&gt;generator</span> <span class="o">&#39;</span><span class="p">(</span><span class="no">#t</span> <span class="no">#f</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#t</span> <span class="no">#f</span><span class="p">))))</span>
+  <span class="c1">;; =&gt; (a d e)</span>
+</pre></div>
+<h2><code>(generator-&gt;list generator [k])</code></h2>
+<p>Reads items from generator and returns a newly allocated list of
+them. By default, it reads until the generator is exhausted.</p>
+<p>If an optional argument k is given, it must be a non-negative integer,
+and the list ends when either k items are consumed, or generator is
+exhausted; therefore generator can be infinite in this case.</p>
+<h2><code>(generator-&gt;reverse-list generator [k])</code></h2>
+<p>Reads items from generator and returns a newly allocated list of them
+in reverse order. By default, this reads until the generator is
+exhausted.</p>
+<p>If an optional argument k is given, it must be a non-negative integer,
+and the list ends when either k items are read, or generator is
+exhausted; therefore generator can be infinite in this case.</p>
+<h2><code>(generator-&gt;vector generator [k])</code></h2>
+<p>Reads items from generator and returns a newly allocated vector of
+them. By default, it reads until the generator is exhausted.</p>
+<p>If an optional argument k is given, it must be a non-negative integer,
+and the list ends when either k items are consumed, or generator is
+exhausted; therefore generator can be infinite in this case.</p>
+<h2><code>(generator-&gt;vector! vector at generator)</code></h2>
+<p>Reads items from generator and puts them into vector starting at index
+at, until vector is full or generator is exhausted. Generator can be
+infinite. The number of elements generated is returned.</p>
+<h2><code>(generator-&gt;string generator [k])</code></h2>
+<p>Reads items from generator and returns a newly allocated string of
+them. It is an error if the items are not characters. By default, it
+reads until the generator is exhausted.</p>
+<p>If an optional argument k is given, it must be a non-negative integer,
+and the string ends when either k items are consumed, or generator is
+exhausted; therefore generator can be infinite in this case.</p>
+<h2><code>(generator-fold proc seed generator ...)</code></h2>
+<p>Works like <code>(scheme list)</code> fold on the values generated by the
+generator arguments.</p>
+<p>When one generator is given, for each value v generated by gen, proc
+is called as (proc v r), where r is the current accumulated result;
+the initial value of the accumulated result is seed, and the return
+value from proc becomes the next accumulated result. When gen is
+exhausted, the accumulated result at that time is returned from
+generator-fold.</p>
+<p>When more than one generator is given, proc is invoked on the values
+returned by all the generator arguments followed by the current
+accumulated result. The procedure terminates when any of the genn
+generators is exhausted, at which time all the others are in an
+undefined state.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">with-input-from-string</span> <span class="s">&quot;a b c d e&quot;</span>
+  <span class="p">(</span><span class="k">lambda </span><span class="p">()</span> <span class="p">(</span><span class="nf">generator-fold</span> <span class="nv">cons</span> <span class="ss">&#39;z</span> <span class="nv">read</span><span class="p">)))</span>
+  <span class="c1">;; =&gt; (e d c b a . z)</span>
+</pre></div>
+<h2><code>(generator-for-each proc generator ...)</code></h2>
+<p>A generator analogue of for-each that consumes generated values using
+side effects. Repeatedly applies proc on the values yielded by gen,
+gen2 … until any one of the generators is exhausted, at which time all
+the others are in an undefined state. The values returned from proc
+are discarded. Returns an unspecified value.</p>
+<h2><code>(generator-map-&gt;list proc generator ...)</code></h2>
+<p>A generator analogue of map that consumes generated values, processes
+them through a mapping function, and returns a list of the mapped
+values. Repeatedly applies proc on the values yielded by gen, gen2 …
+until any one of the generators is exhausted, at which time all the
+others are in an undefined state. The values returned from proc are
+accumulated into a list, which is returned.</p>
+<h2><code>(generator-find predicate generator)</code></h2>
+<p>Returns the first item from the generator gen that satisfies the
+predicate pred, or #f if no such item is found before gen is
+exhausted. If gen is infinite, generator-find will not return if it
+cannot find an appropriate item.</p>
+<h2><code>(generator-count predicate generator)</code></h2>
+<p>Returns the number of items available from the generator gen that
+satisfy the predicate pred.</p>
+<h2><code>(generator-any predicate generator)</code></h2>
+<p>Applies predicate to each item from gen. As soon as it yields a true
+value, the value is returned without consuming the rest of gen. If gen
+is exhausted, returns #f.</p>
+<h2><code>(generator-every predicate generator)</code></h2>
+<p>Applies pred to each item from gen. As soon as it yields a false
+value, the value is returned without consuming the rest of gen. If gen
+is exhausted, returns the last value returned by pred, or #t if pred
+was never called.</p>
+<h2><code>(generator-unfold gen unfold arg ...)</code></h2>
+<p>Equivalent to <code>(unfold eof-object? (lambda (x) x) (lambda (x) (gen))
+(gen) arg ...)</code>. The values of gen are unfolded into the collection
+that unfold creates.</p>
+<p>The signature of the unfold procedure is (unfold stop? mapper
+successor seed args ...). Note that the vector-unfold and
+vector-unfold-right of SRFI 43 and SRFI 133 do not have this signature
+and cannot be used with this procedure. To unfold into a vector, use
+SRFI 1's unfold and then apply list-&gt;vector to the result.</p>
+<div class="highlight"><pre><span></span><span class="c1">;; Iterates over string and unfolds into a list using SRFI 1 unfold</span>
+<span class="p">(</span><span class="nf">generator-unfold</span> <span class="p">(</span><span class="nf">make-for-each-generator</span> <span class="nv">string-for-each</span> <span class="s">&quot;abc&quot;</span><span class="p">)</span> <span class="nv">unfold</span><span class="p">)</span>
+<span class="c1">;; =&gt; (#\a #\b #\c)</span>
+</pre></div>
+<h2><code>(make-accumulator kons knil finalizer)</code></h2>
+<p>Returns an accumulator that, when invoked on an object other than an
+end-of-file object, invokes kons on its argument and the accumulator's
+current state, using the same order as a function passed to fold. It
+then sets the accumulator's state to the value returned by kons and
+returns an unspecified value. The initial state of the accumulator is
+set to knil. However, if an end-of-file object is passed to the
+accumulator, it returns the result of tail-calling the procedure
+finalizer on the state. Repeated calls with an end-of-file object will
+reinvoke finalizer.</p>
+<h2><code>(count-accumulator)</code></h2>
+<p>qReturns an accumulator that, when invoked on an object, adds 1 to a
+count inside the accumulator and returns an unspecified
+value. However, if an end-of-file object is passed, the accumulator
+returns the count.</p>
+<h2><code>(list-accumulator)</code></h2>
+<p>Returns an accumulator that, when invoked on an object, adds that
+object to a list inside the accumulator in order of accumulation and
+returns an unspecified value. However, if an end-of-file object is
+passed, the accumulator returns the list.</p>
+<h2><code>(reverse-list-accumulator)</code></h2>
+<p>Returns an accumulator that, when invoked on an object, adds that
+object to a list inside the accumulator in reverse order of
+accumulation and returns an unspecified value. However, if an
+end-of-file object is passed, the accumulator returns the list.</p>
+<h2><code>(vector-accumulator)</code></h2>
+<p>Returns an accumulator that, when invoked on an object, adds that
+object to a vector inside the accumulator in order of accumulation and
+returns an unspecified value. However, if an end-of-file object is
+passed, the accumulator returns the vector.</p>
+<h2><code>(reverse-vector-accumulator)</code></h2>
+<p>Returns an accumulator that, when invoked on an object, adds that
+object to a vector inside the accumulator in reverse order of
+accumulation and returns an unspecified value. However, if an
+end-of-file object is passed, the accumulator returns the vector.</p>
+<h2><code>(vector-accumulator! vector at)</code></h2>
+<p>Returns an accumulator that, when invoked on an object, adds that
+object to consecutive positions of vector starting at at in order of
+accumulation. It is an error to try to accumulate more objects than
+vector will hold. An unspecified value is returned. However, if an
+end-of-file object is passed, the accumulator returns vector.</p>
+<h2><code>(string-accumulator)</code></h2>
+<p>Returns an accumulator that, when invoked on a character, adds that
+character to a string inside the accumulator in order of accumulation
+and returns an unspecified value. However, if an end-of-file object is
+passed, the accumulator returns the string.</p>
+<h2><code>(bytevector-accumulator)</code></h2>
+<p>Returns an accumulator that, when invoked on a byte, adds that integer
+to a bytevector inside the accumulator in order of accumulation and
+returns an unspecified value. However, if an end-of-file object is
+passed, the accumulator returns the bytevector.</p>
+<h2><code>(bytevector-accumulator! bytevector at)</code></h2>
+<p>Returns an accumulator that, when invoked on a byte, adds that byte to
+consecutive positions of bytevector starting at at in order of
+accumulation. It is an error to try to accumulate more bytes than
+vector will hold. An unspecified value is returned. However, if an
+end-of-file object is passed, the accumulator returns bytevector.</p>
+<h2><code>(sum-accumulator)</code></h2>
+<p>Returns an accumulator that, when invoked on a number, adds that
+number to a sum inside the accumulator in order of accumulation and
+returns an unspecified value. However, if an end-of-file object is
+passed, the accumulator returns the sum.</p>
+<h2><code>(product-accumulator)</code></h2>
+<p>Returns an accumulator that, when invoked on a number, multiplies that
+number to a product inside the accumulator in order of accumulation
+and returns an unspecified value. However, if an end-of-file object is
+passed, the accumulator returns the product.</p>
+</div>
+    </div>
+  </body>
+</html>

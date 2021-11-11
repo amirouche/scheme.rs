@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme division)</code></h1>
+<p>This is based on <a href="https://srfi.schemers.org/srfi-141/">SRFI-141</a>.</p>
+<p>This SRFI provides a fairly complete set of integral division and
+remainder operators.</p>
+<h2><code>(floor/ numerator denominator)</code></h2>
+<h2><code>(floor-quotient numerator denominator)</code></h2>
+<h2><code>(floor-remainder numerator denominator)</code></h2>
+<blockquote><p>q = floor(n/d)</p>
+</blockquote>
+<p>Thus r is negative iff d is negative.</p>
+<h2><code>(ceiling/ numerator denominator)</code></h2>
+<h2><code>(ceiling-quotient numerator denominator)</code></h2>
+<h2><code>(ceiling-remainder numerator denominator)</code></h2>
+<blockquote><p>q = ceiling(n/d)</p>
+</blockquote>
+<p>Thus r is negative iff d is non-negative.</p>
+<p>If denominator is the number of units in a block, and <numerator> is
+some number of units, then (ceiling-quotient numerator denominator)
+gives the number of blocks needed to cover numerator units. For
+example, denominator might be the number of bytes in a disk sector,
+and numerator the number of bytes in a file; then the quotient is the
+number of disk sectors needed to store the contents of the file. For
+another example, denominator might be the number of octets in the
+output of a cryptographic hash function, and numerator the number of
+octets desired in a key for a symmetric cipher, to be derived using
+the cryptographic hash function; then the quotient is the number of
+hash values needed to concatenate to make a key.</p>
+<h2><code>(truncate/ numerator denominator)</code></h2>
+<h2><code>(truncate-quotient numerator denominator)</code></h2>
+<h2><code>(truncate-remainder numerator denominator)</code></h2>
+<blockquote><p>q = truncate(n/d)</p>
+</blockquote>
+<p>Thus r is negative iff n is negative. However, by any non-unit
+denominator, the quotient of +1, 0, or -1 is 0; that is, three
+contiguous numerators by a common denominator share a common
+quotient. Of the other division operator pairs, only the round pair
+exhibits this property.</p>
+<h2><code>(round/ numerator denominator)</code></h2>
+<h2><code>(round-quotient numerator denominator)</code></h2>
+<h2><code>(round-remainder numerator denominator)</code></h2>
+<blockquote><p>q = round(n/d)</p>
+</blockquote>
+<p>The round function rounds to the nearest integer, breaking ties by
+choosing the nearest even integer. Nothing general can be said about
+the sign of r. Like the truncate operator pair, the quotient of +1, 0,
+or -1 by any non-unit denominator is 0, so that three contiguous
+numerators by a common denominator share a common quotient.</p>
+<h2><code>(euclidean/ numerator denominator)</code></h2>
+<h2><code>(euclidean-quotient numerator denominator)</code></h2>
+<h2><code>(euclidean-remainder numerator denominator)</code></h2>
+<p>If d &gt; 0, q = floor(n/d); if d &lt; 0, q = ceiling(n/d).</p>
+<p>This division operator pair satisfies the stronger property</p>
+<blockquote><p>0 &lt;= r &lt; |d|,</p>
+</blockquote>
+<p>used often in mathematics. Thus, for example, (euclidean-remainder
+numerator denominator) is always a valid index into a vector whose
+length is at least the absolute value of denominator. This division
+operator pair is so named because it is the subject of the Euclidean
+division algorithm.</p>
+<h2><code>(balanced/ numerator denominator)</code></h2>
+<h2><code>(balanced-quotient numerator denominator)</code></h2>
+<h2><code>(balanced-remainder numerator denominator)</code></h2>
+<p>This division operator pair satisfies the property</p>
+<blockquote><p>-|d/2| &lt;= r &lt; |d/2|.</p>
+</blockquote>
+<p>When d is a power of 2, say 2k for some k, this reduces to</p>
+<blockquote><p>-2(k - 1) &lt;= r &lt; 2(k - 1).</p>
+</blockquote>
+<p>Computer scientists will immediately recognize this as the interval of
+integers representable in two's-complement with k bits.</p>
+</div>
+    </div>
+  </body>
+</html>

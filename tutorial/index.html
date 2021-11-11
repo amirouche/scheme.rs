@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1>Tutorial</h1>
+<h2>Basics</h2>
+<h3>Continuation</h3>
+<p>After reading this section you will be able to write basic Scheme
+programs. In particular, you will study:</p>
+<ul>
+<li><p>How to comment code</p>
+</li>
+<li><p>How to write literals for builtin types</p>
+</li>
+<li><p>How to call a procedure</p>
+</li>
+<li><p>How to define a variable</p>
+</li>
+<li><p>How to compare objects</p>
+</li>
+<li><p>How to define a procedure</p>
+</li>
+</ul>
+<h3>How to comment code</h3>
+<p>You can comment code with the semi-colon, that is <code>;</code>.  Idiomatic code
+use two semi-colons:</p>
+<div class="highlight"><pre><span></span><span class="c1">;; Everything after one semi-colon is a comment.</span>
+</pre></div>
+<p>The following sections will use two semi-colons with followed by an
+arrow <code>=&gt;</code> to describe the return value.</p>
+<h3>How to write literals for builtin types</h3>
+<h4>number</h4>
+<ul>
+<li>Integers can be written as usual <code>42</code></li>
+<li>Inexact reals can be written as usual <code>3.1415</code></li>
+<li>There is more number types.  It is called the <a href="https://en.wikipedia.org/wiki/Numerical_tower">Numerical
+tower</a></li>
+</ul>
+<h4>boolean</h4>
+<ul>
+<li>false: <code>#f</code></li>
+<li>true: <code>#t</code></li>
+</ul>
+<h4>characters</h4>
+<p>Characters can be written with their natural representation prefixed
+with <code>#\\</code>, for instance the character <code>x</code> is represented in Scheme
+code as follow:</p>
+<div class="highlight"><pre><span></span><span class="sc">#\x</span>
+</pre></div>
+<h4>string</h4>
+<p>A string is written with double quotes, that is <code>"</code>, for instance:</p>
+<div class="highlight"><pre><span></span><span class="s">&quot;hello world&quot;</span>
+</pre></div>
+<h4>symbol</h4>
+<p>A symbol is most of the time written with a simple quote prefix, that
+is <code>'</code>. For instance:</p>
+<div class="highlight"><pre><span></span><span class="ss">&#39;unique</span>
+</pre></div>
+<h4>pair</h4>
+<p>A pair of the symbol <code>'pi</code> and the value <code>3.1415</code> can be written as:</p>
+<div class="highlight"><pre><span></span><span class="o">&#39;</span><span class="p">(</span><span class="nv">pi</span> <span class="o">.</span> <span class="mf">3.1415</span><span class="p">)</span>
+</pre></div>
+<h4>list</h4>
+<p>A list can be written as literals separated by one space and enclosed
+by parenthesis. For instance, the following list has three items:</p>
+<div class="highlight"><pre><span></span><span class="o">&#39;</span><span class="p">(</span><span class="nv">unique</span> <span class="s">&quot;hello world&quot;</span> <span class="p">(</span><span class="nf">pi</span> <span class="o">.</span> <span class="mf">3.1415</span><span class="p">))</span><span class="o">`</span>
+</pre></div>
+<p>The first item is the symbol <code>'unique</code>, the second item is a string,
+the third item is a pair.</p>
+<p>The empty list is written <code>'()</code>.</p>
+<h4>vector</h4>
+<p>A vector looks somewhat like a list but without the explicit simple
+quote. It use a hash prefix. For instance, the following vector has
+three items:</p>
+<div class="highlight"><pre><span></span><span class="o">#</span><span class="p">(</span><span class="nv">unique</span> <span class="s">&quot;hello world&quot;</span> <span class="mi">42</span><span class="p">)</span>
+</pre></div>
+<p>The first item is the symbol <code>'unique</code>, the second item is a string,
+the third item is a number.</p>
+<h4>bytevector</h4>
+<p>A bytevector is like vector but can contain only bytes.  It looks like
+a list of integers, prefixed with <code>#vu8</code>. For instance, the following
+bytevector has three bytes:</p>
+<div class="highlight"><pre><span></span><span class="o">#</span><span class="nv">vu8</span><span class="p">(</span><span class="mi">0</span> <span class="mi">42</span> <span class="mi">255</span><span class="p">)</span>
+</pre></div>
+<h3>How to call a procedure</h3>
+<p>A procedure call looks like a list without the simple quote prefix.</p>
+<p>The following describe the addition 21 and 21:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">+ </span><span class="mi">21</span> <span class="mi">21</span><span class="p">)</span> <span class="c1">;; =&gt; 42</span>
+</pre></div>
+<p>It returns <code>42</code>. So does the following multiplication:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">* </span><span class="mi">21</span> <span class="mi">2</span><span class="p">)</span> <span class="c1">;; =&gt; 42</span>
+</pre></div>
+<p>The first item is a procedure object.  Most of the time, procedure
+names are made of letters separated with dashes.  That usually called
+<code>kebab-case</code>.</p>
+<p>Here is another procedure call:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">string-append </span><span class="s">&quot;hello&quot;</span> <span class="s">&quot; &quot;</span> <span class="s">&quot;world&quot;</span><span class="p">)</span> <span class="c1">;; =&gt; &quot;hello world&quot;</span>
+</pre></div>
+<p>It will return a string <code>"hello world"</code>.</p>
+<h3>How to define a variable</h3>
+<p>The first kind of variables that you encountered are procedures,
+things like <code>+</code>, <code>*</code> or <code>string-append</code>.</p>
+<p>Variables can also contain constants. You can use <code>define</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">%thruth</span> <span class="mi">42</span><span class="p">)</span>
+</pre></div>
+<p>The above code will create a variable called <code>%thruth</code> that contains
+<code>42</code>.</p>
+<p>Look at this very complicated computation:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">+ </span><span class="nv">%thruth</span> <span class="mi">1</span> <span class="p">(</span><span class="nb">* </span><span class="mi">2</span> <span class="mi">647</span><span class="p">))</span> <span class="c1">;; =&gt; 1337</span>
+</pre></div>
+<h3>How to compare objects</h3>
+<h4>Identity equivalence</h4>
+<p>To compare by identity, in pratice, whether two object represent the
+same memory location, you can use the procedure <code>eq?</code>.</p>
+<p>In the case where you are comparing symbols you can use the procedure
+<code>eq?</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">eq? </span><span class="ss">&#39;unique</span> <span class="ss">&#39;unique</span><span class="p">)</span> <span class="c1">;; =&gt; #t</span>
+<span class="p">(</span><span class="nb">eq? </span><span class="ss">&#39;unique</span> <span class="ss">&#39;singleton</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
+</pre></div>
+<h3>Equivalence</h3>
+<p>If you do not know the type of the compared objects, or the objects
+can be of different types, you can use the procedure <code>equal?</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">equal? </span><span class="no">#t</span> <span class="s">&quot;true&quot;</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
+</pre></div>
+<p>The string <code>"true"</code> is not equivalent to the boolean <code>#t</code>.</p>
+<p>It is rare to use <code>equal?</code>, because, usually, you know the type of the
+compared objects and the compared object have the same type.</p>
+<h3>Equivalence predicates</h3>
+<p>The astute reader might have recognized a pattern in the naming of the
+equivalence procedures <code>eq?</code> and <code>equal?</code>: both end with a question
+mark.  That is a convention that all procedures that can only return a
+boolean should end with a question mark.  Those are called
+<em>predicates</em>.</p>
+<p>They are predicates for every builtin types.  For instance string type
+has a string equivalence predicate written <code>string=?</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">string=? </span><span class="s">&quot;hello&quot;</span> <span class="s">&quot;hello world&quot;</span> <span class="s">&quot;hello, world!&quot;</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
+</pre></div>
+<p>The predicate procedure <code>string=?</code> will return <code>#t</code> if all arguments
+are the same string, in the sense they contain the same characters.</p>
+<h3>How to define a procedure</h3>
+<p>The simplest procedure ever, is the procedure that takes no argument
+and returns itself:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">ruse</span><span class="p">)</span>
+  <span class="nv">ruse</span><span class="p">)</span>
+</pre></div>
+<p>The above is sugar syntax for the following:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">ruse</span> <span class="p">(</span><span class="k">lambda </span><span class="p">()</span> <span class="nv">ruse</span><span class="p">))</span>
+</pre></div>
+<p>A procedure that takes no arguments is called a <em>thunk</em>.  Indentation
+and the newline are cosmetic conventions.  If you call the procedure
+<code>ruse</code>, it will return <code>ruse</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">eq? </span><span class="nv">ruse</span> <span class="p">(</span><span class="nf">ruse</span><span class="p">))</span>
+</pre></div>
+<p>One can define a procedure that adds one as follow:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">add1</span> <span class="nv">number</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">+ </span><span class="nv">number</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+<p>The predicate to compare numbers is <code>=</code>.  Hence, the following:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">= </span><span class="mi">2006</span> <span class="p">(</span><span class="nf">add1</span> <span class="mi">2005</span><span class="p">))</span> <span class="c1">;; =&gt; #t</span>
+</pre></div>
+<p>Mind the fact that it returns a new number.  It does not mutate the
+value even if it is passed as a variable.</p>
+<p>Let's imagine a procedure that appends a name to the string <code>"Hello"</code>.
+For instance, given <code>"Aziz"</code> or a variable containing <code>"Aziz"</code>, it
+will return <code>"Hello Aziz"</code>.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">name</span> <span class="s">&quot;Aziz&quot;</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">say-hello</span> <span class="nv">name</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">string-append </span><span class="s">&quot;Hello &quot;</span> <span class="nv">name</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nb">string=? </span><span class="s">&quot;Hello Aziz&quot;</span> <span class="p">(</span><span class="nf">say-hello</span> <span class="nv">name</span><span class="p">))</span> <span class="c1">;; =&gt; #t</span>
+
+<span class="c1">;; XXX: the variable name still contains &quot;Aziz&quot;</span>
+
+<span class="p">(</span><span class="nb">string=? </span><span class="nv">name</span> <span class="s">&quot;Aziz&quot;</span><span class="p">))</span> <span class="c1">;; =&gt; #t</span>
+</pre></div>
+<p>It does not matter for the callee whether the arguments are passed as
+variables or literals:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">string=? </span><span class="s">&quot;Hello John&quot;</span>  <span class="p">(</span><span class="nf">say-hello</span> <span class="s">&quot;John&quot;</span><span class="p">))</span> <span class="c1">;; =&gt; #t</span>
+</pre></div>
+<h3>Backtrack</h3>
+<p>In this section you learned:</p>
+<ul>
+<li><p>How to comment code using a semi-colon character <code>;</code></p>
+</li>
+<li><p>How to write literals for builtin types</p>
+<ul>
+<li>integer: <code>42</code></li>
+<li>float: <code>3.1415</code></li>
+<li>symbol: <code>'unique</code></li>
+<li>string: <code>"hello world"</code></li>
+<li>pair: <code>(pi . 3.1415)</code></li>
+<li>list: <code>'(42 "hello world" (pi . 3.1415))</code></li>
+<li>vector: <code>#(42 "hello world" (pi . 3.1415))</code></li>
+<li>bytevector: <code>#vu8(1 42 255)</code></li>
+</ul>
+</li>
+<li><p>How to call a procedure <code>(string-append "hello " "Aziz")</code></p>
+</li>
+<li><p>How to define a variable <code>(define %thruth 42)</code></p>
+</li>
+<li><p>How to compare objects using their type specific predicates. For
+instance: <code>(string=? "hello" "hello")</code></p>
+</li>
+<li><p>How to define a procedure again using <code>define</code> with slightly
+different syntax <code>(define (add1 number) (+ number 1))</code></p>
+</li>
+</ul>
+<h2>Forward</h2>
+<h3>Continuation</h3>
+<p>After reading this section you will be able to write more complex
+Scheme code.  In particular you will study:</p>
+<ul>
+<li><p>How to create lexical bindings</p>
+</li>
+<li><p>How to set a variable</p>
+</li>
+<li><p>How to do a branch <code>if</code></p>
+</li>
+<li><p>How to create a new type</p>
+</li>
+<li><p>How to write a named-let</p>
+</li>
+</ul>
+<h3>How to create lexical bindings</h3>
+<p>Lexical bindings can be created with <code>let</code>, <code>let*</code>, <code>letrec</code> and
+<code>letrec*</code>.  They have slightly different behaviors, but the same
+syntax:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="p">(</span><span class="nf">&lt;binding&gt;</span> <span class="o">...</span><span class="p">)</span> <span class="nv">&lt;expression&gt;</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+<p>Where <code>&lt;binding&gt;</code> looks like an association of a variable name with
+the initial value it is holding.  For instance:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">a</span> <span class="mi">1</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">b</span> <span class="mi">2</span><span class="p">))</span>
+  <span class="p">(</span><span class="nb">+ </span><span class="nv">a</span> <span class="nv">b</span> <span class="mi">3</span><span class="p">))</span> <span class="c1">;; =&gt; 6</span>
+</pre></div>
+<p>The above <code>let</code> form will bind <code>a</code> to <code>1</code>, <code>b</code> to <code>2</code> and return the
+output of <code>(+ a b 3)</code> that is <code>6</code>.</p>
+<h3>How to set a variable</h3>
+<p>To change what a variable holds without overriding it or mutating the
+object contained in the varialbe, you can use <code>set!</code>.  Mind the
+exclamation mark, it is a convention that forms that have a
+side-effect ends with a exclamation mark. For instance:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">%thruth</span> <span class="mi">42</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nb">display </span><span class="nv">%truth</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">newline</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">set! </span><span class="nv">%thruth</span> <span class="mi">101</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nb">display </span><span class="nv">%truth</span><span class="p">)</span>
+<span class="p">(</span><span class="nf">newline</span><span class="p">)</span>
+</pre></div>
+<h3>How to do a branch <code>if</code></h3>
+<p>Scheme <code>if</code> will consider false, only the object <code>#f</code>. Hence, one can
+do the following:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">if </span><span class="no">#t</span>
+  <span class="p">(</span><span class="nb">display </span><span class="s">&quot;true&quot;</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">display </span><span class="s">&quot;never executed&quot;</span><span class="p">))</span>
+</pre></div>
+<p>Similarly:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">if </span><span class="no">#f</span>
+  <span class="p">(</span><span class="nb">display </span><span class="s">&quot;never executed&quot;</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">display </span><span class="s">&quot;false&quot;</span><span class="p">))</span>
+</pre></div>
+<p>In particular, the number zero is true according to scheme <code>if</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">if </span><span class="mi">0</span>
+  <span class="p">(</span><span class="nb">display </span><span class="s">&quot;zero is true&quot;</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">display </span><span class="s">&quot;never executed&quot;</span><span class="p">))</span>
+</pre></div>
+<p>If you want to check whether a value is zero you can use the predicate
+<code>zero?</code> like so:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">zero? </span><span class="nv">%thruth</span><span class="p">)</span>
+   <span class="p">(</span><span class="nb">display </span><span class="s">&quot;%thruth is zero&quot;</span><span class="p">)</span>
+   <span class="p">(</span><span class="nb">display </span><span class="s">&quot;%thruth is not zero&quot;</span><span class="p">))</span>
+</pre></div>
+<p>Or the less idiomatic predicate <code>=</code>:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="nv">%truth</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">display </span><span class="s">&quot;%thruth is zero&quot;</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">display </span><span class="s">&quot;%thruth is not zero&quot;</span><span class="p">))</span>
+</pre></div>
+<h3>How to create a new type</h3>
+<p>To create a new type you can use the macro <code>define-record-type</code>. For
+instance, in a todo list application, we will need an <code>&lt;item&gt;</code> type
+that can be defined as:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-record-type</span> <span class="nv">&lt;item&gt;</span>
+  <span class="p">(</span><span class="nf">make-item</span> <span class="nv">title</span> <span class="nv">body</span> <span class="nv">status</span><span class="p">)</span>
+  <span class="nv">item?</span>
+  <span class="p">(</span><span class="nf">title</span> <span class="nv">item-title</span> <span class="nv">item-title!</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">body</span> <span class="nv">item-body</span> <span class="nv">item-body!</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">status</span> <span class="nv">item-status</span> <span class="nv">item-status!</span><span class="p">))</span>
+</pre></div>
+<p>Where:</p>
+<ul>
+<li><code>&lt;item&gt;</code> is the record name,</li>
+<li><code>make-item</code> is the constructor of record instances,</li>
+<li><code>item?</code> is the predicate that allows to tell whether an object is a
+<code>&lt;item&gt;</code> type,</li>
+<li><code>title</code>, <code>body</code> and <code>status</code> are fields with their associated
+getters and setters. Setters ends with an exclamation mark.  They
+will mutate the object.  Setters are optional.</li>
+</ul>
+<p>Here is an example use of the above <code>&lt;item&gt;</code> definition:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">item</span> <span class="p">(</span><span class="nf">make-item</span> <span class="s">&quot;Learn Scheme&quot;</span> <span class="s">&quot;The Scheme programming language is awesome, I should learn it&quot;</span> <span class="ss">&#39;todo</span><span class="p">))</span>
+
+<span class="c1">;; To change the status, one can do the following:</span>
+
+<span class="p">(</span><span class="nf">item-status!</span> <span class="nv">item</span> <span class="ss">&#39;wip</span><span class="p">)</span>
+
+<span class="c1">;; to get the title, one can do the following:</span>
+
+<span class="p">(</span><span class="nb">display </span><span class="p">(</span><span class="nf">item-title</span> <span class="nv">item</span><span class="p">))</span>
+<span class="p">(</span><span class="nf">newline</span><span class="p">)</span>
+</pre></div>
+<h3>How to write a named-let</h3>
+<p>A named-let allows to do recursion without going through the ceremony
+of defining a separate procedure.  In pratice, it used in similar
+contexts such as <code>for</code> or <code>while</code> loop in other languages.  Given the
+procedure <code>(cons item items)</code> that will return a new list with <code>ITEMS</code>
+as tail and <code>ITEM</code> as first item, study the following code:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="nv">loop</span> <span class="p">((</span><span class="nf">index</span> <span class="mi">0</span><span class="p">)</span>
+           <span class="p">(</span><span class="nf">out</span> <span class="o">&#39;</span><span class="p">())</span>
+  <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="nv">index</span> <span class="mi">10</span><span class="p">)</span>
+      <span class="p">(</span><span class="nb">display </span><span class="nv">out</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">loop</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">index</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="nv">index</span> <span class="nv">out</span><span class="p">))))</span>
+</pre></div>
+<p>It is equivalent to the following:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">loop</span> <span class="nv">index</span> <span class="nv">out</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">= </span><span class="nv">index</span> <span class="mi">10</span><span class="p">)</span>
+      <span class="p">(</span><span class="nb">display </span><span class="nv">out</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">loop</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">index</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons </span><span class="nv">index</span> <span class="nv">out</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nf">loop</span> <span class="mi">0</span> <span class="o">&#39;</span><span class="p">())</span>
+</pre></div>
+<p>A named-let, look like a <code>let</code> form that can be used to bind variables
+prefixed with a name.  Here is some pseudo-code that describe the
+syntax of the named-let form:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="nv">&lt;name&gt;</span> <span class="p">(</span><span class="nf">&lt;binding&gt;</span> <span class="o">...</span><span class="p">)</span> <span class="nv">expression</span> <span class="o">...</span><span class="p">))</span>
+</pre></div>
+<p>So <code>&lt;binding&gt;</code> and <code>&lt;expression&gt;</code> are very similar to a <code>let</code>.
+<code>&lt;name&gt;</code> will be bound to a procedure that takes as many argument as
+there is <code>&lt;binding&gt;</code> and its body will be <code>&lt;expression&gt; ...</code>.  It will
+be called with the associated objects in <code>&lt;binding&gt; ...</code>. <code>expression</code>
+can call <code>&lt;name&gt;</code> most likely in tail call position but not
+necessarly.  If the named-let is not tail-recursive, it is also known
+to be a <em>grow the stack recursive call</em>.  Another way to see the
+named-let is pseudo-code:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">&lt;name&gt;</span> <span class="p">(</span><span class="k">lambda </span><span class="nv">&lt;formals&gt;</span> <span class="nv">&lt;expression&gt;</span> <span class="o">...</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">&lt;name&gt;</span> <span class="nv">&lt;arguments&gt;</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+<p>Where:</p>
+<ul>
+<li><code>&lt;formals&gt;</code> are the variable names from <code>&lt;binding&gt; ...</code></li>
+<li><code>&lt;arguments&gt;</code> are the initial object bound in <code>&lt;binding&gt; ...</code></li>
+</ul>
+<p>That is all.</p>
+<h3>Backtrack</h3>
+<ul>
+<li><p>How to create lexical bindings with <code>let</code>, <code>let*</code>, <code>letrec</code> and
+<code>letrec*</code>,</p>
+</li>
+<li><p>How to set a variable using <code>(set! %thruth 42)</code>,</p>
+</li>
+<li><p>How to do a <code>if</code> with <code>(if %thruth (display "That is true") (display
+"That is false"))</code>,</p>
+</li>
+<li><p>How to create a new type using <code>define-record-type</code> that can look
+like:</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-record-type</span> <span class="nv">&lt;record-name&gt;</span>
+  <span class="p">(</span><span class="nf">make-record-name</span> <span class="nv">field0</span> <span class="o">...</span><span class="p">)</span>
+  <span class="nv">record-name?</span>
+  <span class="p">(</span><span class="nf">field0</span> <span class="nv">record-name-field0</span> <span class="nv">record-name-field0!</span><span class="p">))</span>
+</pre></div>
+<ul>
+<li>How to write a named-let, for instance an infinite loop will look
+like:</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">let </span><span class="nv">loop</span> <span class="p">((</span><span class="nf">index</span> <span class="mi">0</span><span class="p">))</span>
+  <span class="p">(</span><span class="nb">display </span><span class="nv">index</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">loop</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">index</span> <span class="mi">1</span><span class="p">)))</span>
+</pre></div>
+<h2>Beyond</h2>
+<h3>Continuation</h3>
+<p>After reading this section you will be able to create libraries.</p>
+<h3>Backtrack</h3>
+<h2>Elements of Style</h2>
+<!--
+- See scheme style guides
+- See common lisp style guides
+- See clojure style guides
+- Better to avoid `eqv?` --></div>
+    </div>
+  </body>
+</html>

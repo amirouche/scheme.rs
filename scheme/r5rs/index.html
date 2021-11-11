@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme r5rs)</code></h1>
+<p>Thie library
+export<a href="https://bitbucket.org/cowan/r7rs/src/draft-10/rnrs/">R5RS</a>
+forms. It is based on the following libraries:</p>
+<ul>
+<li><code>(scheme base)</code></li>
+<li><code>(scheme inexact)</code></li>
+<li><code>(scheme complex)</code></li>
+<li><code>(scheme cxr)</code></li>
+<li><code>(scheme file)</code></li>
+<li><code>(scheme char)</code></li>
+<li><code>(scheme read)</code></li>
+<li><code>(scheme write)</code></li>
+<li><code>(scheme eval)</code></li>
+<li><code>(scheme repl)</code></li>
+<li><code>(scheme load)</code></li>
+<li><code>(scheme lazy)</code>t</li>
+</ul>
+<p>It exports the following forms:</p>
+<ul>
+<li><code>*</code></li>
+<li><code>+</code></li>
+<li><code>-</code></li>
+<li><code>/</code></li>
+<li><code>&lt;</code></li>
+<li><code>&lt;=</code></li>
+<li><code>=</code></li>
+<li><code>&gt;</code></li>
+<li><code>&gt;=</code></li>
+<li><code>abs</code></li>
+<li><code>acos</code></li>
+<li><code>and</code></li>
+<li><code>angle</code></li>
+<li><code>append</code></li>
+<li><code>apply</code></li>
+<li><code>asin</code></li>
+<li><code>assoc</code></li>
+<li><code>assq</code></li>
+<li><code>assv</code></li>
+<li><code>atan</code></li>
+<li><code>begin</code></li>
+<li><code>boolean?</code></li>
+<li><code>caaaar</code></li>
+<li><code>caaadr</code></li>
+<li><code>caaar</code></li>
+<li><code>caadar</code></li>
+<li><code>caaddr</code></li>
+<li><code>caadr</code></li>
+<li><code>caar</code></li>
+<li><code>cadaar</code></li>
+<li><code>cadadr</code></li>
+<li><code>cadar</code></li>
+<li><code>caddar</code></li>
+<li><code>cadddr</code></li>
+<li><code>caddr</code></li>
+<li><code>cadr</code></li>
+<li><code>call-with-current-continuation</code></li>
+<li><code>call-with-input-file</code></li>
+<li><code>call-with-output-file</code></li>
+<li><code>call-with-values</code></li>
+<li><code>car</code></li>
+<li><code>case</code></li>
+<li><code>cdaaar</code></li>
+<li><code>cdaadr</code></li>
+<li><code>cdaar</code></li>
+<li><code>cdadar</code></li>
+<li><code>cdaddr</code></li>
+<li><code>cdadr</code></li>
+<li><code>cdar</code></li>
+<li><code>cddaar</code></li>
+<li><code>cddadr</code></li>
+<li><code>cddar</code></li>
+<li><code>cdddar</code></li>
+<li><code>cddddr</code></li>
+<li><code>cdddr</code></li>
+<li><code>cddr</code></li>
+<li><code>cdr</code></li>
+<li><code>ceiling</code></li>
+<li><code>char-&gt;integer</code></li>
+<li><code>char-alphabetic?</code></li>
+<li><code>char-ci&lt;=?</code></li>
+<li><code>char-ci&lt;?</code></li>
+<li><code>char-ci=?</code></li>
+<li><code>char-ci&gt;=?</code></li>
+<li><code>char-ci&gt;?</code></li>
+<li><code>char-downcase</code></li>
+<li><code>char-lower-case?</code></li>
+<li><code>char-numeric?</code></li>
+<li><code>char-ready?</code></li>
+<li><code>char-upcase</code></li>
+<li><code>char-upper-case?</code></li>
+<li><code>char-whitespace?</code></li>
+<li><code>char&lt;=?</code></li>
+<li><code>char&lt;?</code></li>
+<li><code>char=?</code></li>
+<li><code>char&gt;=?</code></li>
+<li><code>char&gt;?</code></li>
+<li><code>char?</code></li>
+<li><code>close-input-port</code></li>
+<li><code>close-output-port</code></li>
+<li><code>complex?</code></li>
+<li><code>cond</code></li>
+<li><code>cons</code></li>
+<li><code>cos</code></li>
+<li><code>current-input-port</code></li>
+<li><code>current-output-port</code></li>
+<li><code>define</code></li>
+<li><code>define-syntax</code></li>
+<li><code>delay</code></li>
+<li><code>denominator</code></li>
+<li><code>display</code></li>
+<li><code>do</code></li>
+<li><code>dynamic-wind</code></li>
+<li><code>eof-object?</code></li>
+<li><code>eq?</code></li>
+<li><code>equal?</code></li>
+<li><code>eqv?</code></li>
+<li><code>eval</code></li>
+<li><code>even?</code></li>
+<li><code>exact-&gt;inexact</code></li>
+<li><code>exact?</code></li>
+<li><code>exp</code></li>
+<li><code>expt</code></li>
+<li><code>floor</code></li>
+<li><code>for-each</code></li>
+<li><code>force</code></li>
+<li><code>gcd</code></li>
+<li><code>if</code></li>
+<li><code>imag-part</code></li>
+<li><code>inexact-&gt;exact</code></li>
+<li><code>inexact?</code></li>
+<li><code>input-port?</code></li>
+<li><code>integer-&gt;char</code></li>
+<li><code>integer?</code></li>
+<li><code>interaction-environment</code></li>
+<li><code>lambda</code></li>
+<li><code>lcm</code></li>
+<li><code>length</code></li>
+<li><code>let</code></li>
+<li><code>let*</code></li>
+<li><code>let-syntax</code></li>
+<li><code>letrec</code></li>
+<li><code>letrec-syntax</code></li>
+<li><code>list</code></li>
+<li><code>list-&gt;string</code></li>
+<li><code>list-&gt;vector</code></li>
+<li><code>list-ref</code></li>
+<li><code>list-tail</code></li>
+<li><code>list?</code></li>
+<li><code>load</code></li>
+<li><code>log</code></li>
+<li><code>magnitude</code></li>
+<li><code>make-polar</code></li>
+<li><code>make-rectangular</code></li>
+<li><code>make-string</code></li>
+<li><code>make-vector</code></li>
+<li><code>map</code></li>
+<li><code>max</code></li>
+<li><code>member</code></li>
+<li><code>memq</code></li>
+<li><code>memv</code></li>
+<li><code>min</code></li>
+<li><code>modulo</code></li>
+<li><code>negative?</code></li>
+<li><code>newline</code></li>
+<li><code>not</code></li>
+<li><code>null-environment</code></li>
+<li><code>null?</code></li>
+<li><code>number-&gt;string</code></li>
+<li><code>number?</code></li>
+<li><code>numerator</code></li>
+<li><code>odd?</code></li>
+<li><code>open-input-file</code></li>
+<li><code>open-output-file</code></li>
+<li><code>or</code></li>
+<li><code>output-port?</code></li>
+<li><code>pair?</code></li>
+<li><code>peek-char</code></li>
+<li><code>positive?</code></li>
+<li><code>procedure?</code></li>
+<li><code>quasiquote</code></li>
+<li><code>quote</code></li>
+<li><code>quotient</code></li>
+<li><code>rational?</code></li>
+<li><code>rationalize</code></li>
+<li><code>read</code></li>
+<li><code>read-char</code></li>
+<li><code>real-part</code></li>
+<li><code>real?</code></li>
+<li><code>remainder</code></li>
+<li><code>reverse</code></li>
+<li><code>round</code></li>
+<li><code>scheme-report-environment</code></li>
+<li><code>set!</code></li>
+<li><code>set-car!</code></li>
+<li><code>set-cdr!</code></li>
+<li><code>sin</code></li>
+<li><code>sqrt</code></li>
+<li><code>string</code></li>
+<li><code>string-&gt;list</code></li>
+<li><code>string-&gt;number</code></li>
+<li><code>string-&gt;symbol</code></li>
+<li><code>string-append</code></li>
+<li><code>string-ci&lt;=?</code></li>
+<li><code>string-ci&lt;?</code></li>
+<li><code>string-ci=?</code></li>
+<li><code>string-ci&gt;=?</code></li>
+<li><code>string-ci&gt;?</code></li>
+<li><code>string-copy</code></li>
+<li><code>string-fill!</code></li>
+<li><code>string-length</code></li>
+<li><code>string-ref</code></li>
+<li><code>string-set!</code></li>
+<li><code>string&lt;=?</code></li>
+<li><code>string&lt;?</code></li>
+<li><code>string=?</code></li>
+<li><code>string&gt;=?</code></li>
+<li><code>string&gt;?</code></li>
+<li><code>string?</code></li>
+<li><code>substring</code></li>
+<li><code>symbol-&gt;string</code></li>
+<li><code>symbol?</code></li>
+<li><code>syntax-rules</code></li>
+<li><code>tan</code></li>
+<li><code>truncate</code></li>
+<li><code>values</code></li>
+<li><code>vector</code></li>
+<li><code>vector-&gt;list</code></li>
+<li><code>vector-fill!</code></li>
+<li><code>vector-length</code></li>
+<li><code>vector-ref</code></li>
+<li><code>vector-set!</code></li>
+<li><code>vector?</code></li>
+<li><code>with-input-from-file</code></li>
+<li><code>with-output-to-file</code></li>
+<li><code>write</code></li>
+<li><code>write-char</code></li>
+<li><code>zero?</code></li>
+</ul>
+</div>
+    </div>
+  </body>
+</html>

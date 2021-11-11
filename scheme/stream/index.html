@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme stream)</code></h1>
+<p>This is based on <a href="https://srfi.schemers.org/srfi-41/">SRFI-41</a>.</p>
+<p>Streams, sometimes called lazy lists, are a sequential data structure
+containing elements computed only on demand. A stream is either null
+or is a pair with a stream in its cdr. Since elements of a stream are
+computed only when accessed, streams can be infinite. Once computed,
+the value of a stream element is cached in case it is needed again.</p>
+<p>Streams without memoization were first described by Peter Landin
+in 1965. Memoization became accepted as an essential feature of
+streams about a decade later. Today, streams are the signature data
+type of functional programming languages such as Haskell.</p>
+<p>This Scheme Request for Implementation describes two libraries for
+operating on streams: a canonical set of stream primitives and a set
+of procedures and syntax derived from those primitives that permits
+convenient expression of stream operations. They rely on facilities
+provided by R6RS, including libraries, records, and error
+reporting. To load both stream libraries, say:</p>
+
+<div><pre>(import (scheme stream))</pre></div>
+<h2><code>stream-null</code></h2>
+<p>Stream-null is a promise that, when forced, is a single object,
+distinguishable from all other objects, that represents the null
+stream. Stream-null is immutable and unique.</p>
+<h2><code>(stream-cons object stream)</code></h2>
+<p>Stream-cons is a macro that accepts an object and a stream and creates
+a newly-allocated stream containing a promise that, when forced, is a
+stream-pair with the object in its stream-car and the stream in its
+stream-cdr. Stream-cons must be syntactic, not procedural, because
+neither object nor stream is evaluated when stream-cons is
+called. Since stream is not evaluated, when the stream-pair is
+created, it is not an error to call stream-cons with a stream that is
+not of type stream; however, doing so will cause an error later when
+the stream-cdr of the stream-pair is accessed. Once created, a
+stream-pair is immutable; there is no stream-set-car! or
+stream-set-cdr! that modifies an existing stream-pair. There is no
+dotted-pair or improper stream as with lists.</p>
+<h2><code>(stream? object)</code></h2>
+<p>Stream? is a procedure that takes an object and returns #t if the
+object is a stream and #f otherwise. If object is a stream, stream?
+does not force its promise. If (stream? obj) is #t, then one of
+(stream-null? obj) and (stream-pair? obj) will be #t and the other
+will be #f; if (stream? obj) is #f, both (stream-null? obj) and
+(stream-pair? obj) will be #f.</p>
+<h2><code>(stream-null? object)</code></h2>
+<p>Stream-null? is a procedure that takes an object and returns #t if the
+object is the distinguished null stream and #f otherwise. If object is
+a stream, stream-null? must force its promise in order to distinguish
+stream-null from stream-pair.</p>
+<h2><code>(stream-pair? object)</code></h2>
+<p>Stream-pair? is a procedure that takes an object and returns #t if the
+object is a stream-pair constructed by stream-cons and #f
+otherwise. If object is a stream, stream-pair? must force its promise
+in order to distinguish stream-null from stream-pair.</p>
+<h2><code>(stream-car stream)</code></h2>
+<p>Stream-car is a procedure that takes a stream and returns the object
+stored in the stream-car of the stream. Stream-car signals an error if
+the object passed to it is not a stream-pair. Calling stream-car
+causes the object stored there to be evaluated if it has not yet been;
+the object’s value is cached in case it is needed again.</p>
+<h2>`(stream-cdr stream)</h2>
+<p>Stream-cdr is a procedure that takes a stream and returns the stream
+stored in the stream-cdr of the stream. Stream-cdr signals an error if
+the object passed to it is not a stream-pair. Calling stream-cdr does
+not force the promise containing the stream stored in the stream-cdr
+of the stream.</p>
+<h2><code>(stream-lambda args body)</code></h2>
+<p>Stream-lambda creates a procedure that returns a promise to evaluate
+the body of the procedure. The last body expression to be evaluated
+must yield a stream. As with normal lambda, args may be a single
+variable name, in which case all the formal arguments are collected
+into a single list, or a list of variable names, which may be null if
+there are no arguments, proper if there are an exact number of
+arguments, or dotted if a fixed number of arguments is to be followed
+by zero or more arguments collected into a list. Body must contain at
+least one expression, and may contain internal definitions preceding
+any expressions to be evaluated.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">strm123</span>
+  <span class="p">(</span><span class="nf">stream-cons</span> <span class="mi">1</span>
+    <span class="p">(</span><span class="nf">stream-cons</span> <span class="mi">2</span>
+      <span class="p">(</span><span class="nf">stream-cons</span> <span class="mi">3</span>
+        <span class="nv">stream-null</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nf">stream-car</span> <span class="nv">strm123</span><span class="p">)</span> <span class="err">⇒</span> <span class="mi">1</span>
+
+<span class="p">(</span><span class="nf">stream-car</span> <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">strm123</span><span class="p">)</span> <span class="err">⇒</span> <span class="mi">2</span>
+
+<span class="p">(</span><span class="nf">stream-pair?</span>
+  <span class="p">(</span><span class="nf">stream-cdr</span>
+    <span class="p">(</span><span class="nf">stream-cons</span> <span class="p">(</span><span class="nb">/ </span><span class="mi">1</span> <span class="mi">0</span><span class="p">)</span> <span class="nv">stream-null</span><span class="p">)))</span> <span class="err">⇒</span> <span class="no">#f</span>
+
+<span class="p">(</span><span class="nf">stream?</span> <span class="p">(</span><span class="nb">list </span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">))</span> <span class="err">⇒</span> <span class="no">#f</span>
+
+<span class="p">(</span><span class="k">define </span><span class="nv">iter</span>
+  <span class="p">(</span><span class="nf">stream-lambda</span> <span class="p">(</span><span class="nf">f</span> <span class="nv">x</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">stream-cons</span> <span class="nv">x</span> <span class="p">(</span><span class="nf">iter</span> <span class="nv">f</span> <span class="p">(</span><span class="nf">f</span> <span class="nv">x</span><span class="p">)))))</span>
+
+<span class="p">(</span><span class="k">define </span><span class="nv">nats</span> <span class="p">(</span><span class="nf">iter</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="mi">1</span><span class="p">))</span> <span class="mi">0</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">stream-car</span> <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">nats</span><span class="p">))</span> <span class="err">⇒</span> <span class="mi">1</span>
+
+<span class="p">(</span><span class="k">define </span><span class="nv">stream-add</span>
+  <span class="p">(</span><span class="nf">stream-lambda</span> <span class="p">(</span><span class="nf">s1</span> <span class="nv">s2</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">stream-cons</span>
+      <span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="nf">stream-car</span> <span class="nv">s1</span><span class="p">)</span> <span class="p">(</span><span class="nf">stream-car</span> <span class="nv">s2</span><span class="p">))</span>
+      <span class="p">(</span><span class="nf">stream-add</span> <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">s1</span><span class="p">)</span>
+                  <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">s2</span><span class="p">)))))</span>
+
+<span class="p">(</span><span class="k">define </span><span class="nv">evens</span> <span class="p">(</span><span class="nf">stream-add</span> <span class="nv">nats</span> <span class="nv">nats</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">stream-car</span> <span class="nv">evens</span><span class="p">)</span> <span class="err">⇒</span> <span class="mi">0</span>
+
+<span class="p">(</span><span class="nf">stream-car</span> <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">evens</span><span class="p">))</span> <span class="err">⇒</span> <span class="mi">2</span>
+
+<span class="p">(</span><span class="nf">stream-car</span> <span class="p">(</span><span class="nf">stream-cdr</span> <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">evens</span><span class="p">)))</span> <span class="err">⇒</span> <span class="mi">4</span>
+</pre></div>
+<h2><code>(define-stream (name args) body)</code> syntax</h2>
+<p>Define-stream creates a procedure that returns a stream, and may
+appear anywhere a normal define may appear, including as an internal
+definition, and may have internal definitions of its own, including
+other define-streams. The defined procedure takes arguments in the
+same way as stream-lambda. Define-stream is syntactic sugar on
+stream-lambda; see also stream-let, which is also a sugaring of
+stream-lambda.</p>
+<p>A simple version of stream-map that takes only a single input stream
+calls itself recursively:</p>
+
+<div><pre>(define-stream (stream-map proc strm)
+  (if (stream-null? strm)
+      stream-null
+      (stream-cons
+        (proc (stream-car strm))
+        (stream-map proc (stream-cdr strm))))))</pre></div>
+<h2><code>(list-&gt;stream list-of-objects)</code></h2>
+<p>[α] → {α}</p>
+<p>List-&gt;stream takes a list of objects and returns a newly-allocated
+stream containing in its elements the objects in the list. Since the
+objects are given in a list, they are evaluated when list-&gt;stream is
+called, before the stream is created. If the list of objects is null,
+as in (list-&gt;stream '()), the null stream is returned. See also
+stream.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">strm123</span> <span class="p">(</span><span class="nf">list-&gt;stream</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)))</span>
+
+<span class="c1">; fails with divide-by-zero error</span>
+<span class="p">(</span><span class="k">define </span><span class="nv">s</span> <span class="p">(</span><span class="nf">list-&gt;stream</span> <span class="p">(</span><span class="nb">list </span><span class="mi">1</span> <span class="p">(</span><span class="nb">/ </span><span class="mi">1</span> <span class="mi">0</span><span class="p">)</span> <span class="mi">-1</span><span class="p">)))</span>
+</pre></div>
+<h2><code>(port-&gt;stream [port])</code></h2>
+<p>port → {char}</p>
+<p>Port-&gt;stream takes a port and returns a newly-allocated stream
+containing in its elements the characters on the port. If port is not
+given it defaults to the current input port. The returned stream has
+finite length and is terminated by stream-null.</p>
+<p>It looks like one use of port-&gt;stream would be this:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">s</span> <span class="c1">;wrong!</span>
+  <span class="p">(</span><span class="nb">with-input-from-file </span><span class="nv">filename</span>
+    <span class="p">(</span><span class="k">lambda </span><span class="p">()</span> <span class="p">(</span><span class="nf">port-&gt;stream</span><span class="p">))))</span>
+</pre></div>
+<p>But that fails, because with-input-from-file is eager, and closes the
+input port prematurely, before the first character is read. To read a
+file into a stream, say:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">file-&gt;stream</span> <span class="nv">filename</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">p</span> <span class="p">(</span><span class="nb">open-input-file </span><span class="nv">filename</span><span class="p">)))</span>
+    <span class="p">(</span><span class="nf">stream-let</span> <span class="nv">loop</span> <span class="p">((</span><span class="nf">c</span> <span class="p">(</span><span class="nb">read-char </span><span class="nv">p</span><span class="p">)))</span>
+      <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">eof-object? </span><span class="nv">c</span><span class="p">)</span>
+          <span class="p">(</span><span class="k">begin </span><span class="p">(</span><span class="nb">close-input-port </span><span class="nv">p</span><span class="p">)</span>
+                 <span class="nv">stream-null</span><span class="p">)</span>
+          <span class="p">(</span><span class="nf">stream-cons</span> <span class="nv">c</span>
+            <span class="p">(</span><span class="nf">loop</span> <span class="p">(</span><span class="nb">read-char </span><span class="nv">p</span><span class="p">)))))))</span>
+</pre></div>
+<h2><code>(stream object ...)</code></h2>
+<p>Stream is syntax that takes zero or more objects and creates a
+newly-allocated stream containing in its elements the objects, in
+order. Since stream is syntactic, the objects are evaluated when they
+are accessed, not when the stream is created. If no objects are given,
+as in (stream), the null stream is returned. See also list-&gt;stream.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">strm123</span> <span class="p">(</span><span class="nf">stream</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1">; (/ 1 0) not evaluated when stream is created</span>
+<span class="p">(</span><span class="k">define </span><span class="nv">s</span> <span class="p">(</span><span class="nf">stream</span> <span class="mi">1</span> <span class="p">(</span><span class="nb">/ </span><span class="mi">1</span> <span class="mi">0</span><span class="p">)</span> <span class="mi">-1</span><span class="p">))</span>
+</pre></div>
+<h2><code>(stream-&gt;list [n] stream)</code></h2>
+<p>nat × {α} → [α]</p>
+<p>Stream-&gt;list takes a natural number n and a stream and returns a
+newly-allocated list containing in its elements the first n items in
+the stream. If the stream has less than n items all the items in the
+stream will be included in the returned list. If n is not given it
+defaults to infinity, which means that unless stream is finite
+stream-&gt;list will never return.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-&gt;list</span> <span class="mi">10</span>
+  <span class="p">(</span><span class="nf">stream-map</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="nv">x</span> <span class="nv">x</span><span class="p">))</span>
+    <span class="p">(</span><span class="nf">stream-from</span> <span class="mi">0</span><span class="p">)))</span>
+  <span class="err">⇒</span> <span class="p">(</span><span class="mi">0</span> <span class="mi">1</span> <span class="mi">4</span> <span class="mi">9</span> <span class="mi">16</span> <span class="mi">25</span> <span class="mi">36</span> <span class="mi">49</span> <span class="mi">64</span> <span class="mi">81</span><span class="p">)</span>
+</pre></div>
+<h2><code>(stream-append stream ...)</code></h2>
+<p>{α} ... → {α}</p>
+<p>Stream-append returns a newly-allocated stream containing in its
+elements those elements contained in its input streams, in order of
+input. If any of the input streams is infinite, no elements of any of
+the succeeding input streams will appear in the output stream; thus,
+if x is infinite, (stream-append x y) ≡ x. See also stream-concat.</p>
+<p>Quicksort can be used to sort a stream, using stream-append to build
+the output; the sort is lazy; so if only the beginning of the output
+stream is needed, the end of the stream is never sorted.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">qsort</span> <span class="nv">lt?</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">stream-null?</span> <span class="nv">strm</span><span class="p">)</span>
+      <span class="nv">stream-null</span>
+      <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">x</span> <span class="p">(</span><span class="nf">stream-car</span> <span class="nv">strm</span><span class="p">))</span>
+            <span class="p">(</span><span class="nf">xs</span> <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">strm</span><span class="p">)))</span>
+        <span class="p">(</span><span class="nf">stream-append</span>
+          <span class="p">(</span><span class="nf">qsort</span> <span class="nv">lt?</span>
+            <span class="p">(</span><span class="nf">stream-filter</span>
+              <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">u</span><span class="p">)</span> <span class="p">(</span><span class="nf">lt?</span> <span class="nv">u</span> <span class="nv">x</span><span class="p">))</span>
+              <span class="nv">xs</span><span class="p">))</span>
+          <span class="p">(</span><span class="nf">stream</span> <span class="nv">x</span><span class="p">)</span>
+          <span class="p">(</span><span class="nf">qsort</span> <span class="nv">lt?</span>
+            <span class="p">(</span><span class="nf">stream-filter</span>
+              <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">u</span><span class="p">)</span> <span class="p">(</span><span class="nb">not </span><span class="p">(</span><span class="nf">lt?</span> <span class="nv">u</span> <span class="nv">x</span><span class="p">)))</span>
+              <span class="nv">xs</span><span class="p">))))))</span>
+</pre></div>
+<p>Note also that, when used in tail position as in qsort, stream-append
+does not suffer the poor performance of append on lists. The list
+version of append requires re-traversal of all its list arguments
+except the last each time it is called. But stream-append is
+different. Each recursive call to stream-append is suspended; when it
+is later forced, the preceding elements of the result have already
+been traversed, so tail-recursive loops that produce streams are
+efficient even when each element is appended to the end of the result
+stream. This also implies that during traversal of the result only one
+promise needs to be kept in memory at a time.</p>
+<h2><code>(stream-concat stream)</code></h2>
+<p>{{α}} ... → {α}</p>
+<p>Stream-concat takes a stream consisting of one or more streams and
+returns a newly-allocated stream containing all the elements of the
+input streams. If any of the streams in the input stream is infinite,
+any remaining streams in the input stream will never appear in the
+output stream. See also stream-append.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-&gt;list</span>
+  <span class="p">(</span><span class="nf">stream-concat</span>
+    <span class="p">(</span><span class="nf">stream</span>
+      <span class="p">(</span><span class="nf">stream</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="nf">stream</span><span class="p">)</span> <span class="p">(</span><span class="nf">stream</span> <span class="mi">3</span> <span class="mi">2</span> <span class="mi">1</span><span class="p">))))</span>
+  <span class="err">⇒</span> <span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">2</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+<p>The permutations of a finite stream can be determined by interleaving
+each element of the stream in all possible positions within each
+permutation of the other elements of the stream. Interleave returns a
+stream of streams with x inserted in each possible position of yy:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">interleave</span> <span class="nv">x</span> <span class="nv">yy</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-match</span> <span class="nv">yy</span>
+    <span class="p">(()</span> <span class="p">(</span><span class="nf">stream</span> <span class="p">(</span><span class="nf">stream</span> <span class="nv">x</span><span class="p">)))</span>
+    <span class="p">((</span><span class="nf">y</span> <span class="o">.</span> <span class="nv">ys</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">stream-append</span>
+        <span class="p">(</span><span class="nf">stream</span> <span class="p">(</span><span class="nf">stream-cons</span> <span class="nv">x</span> <span class="nv">yy</span><span class="p">))</span>
+        <span class="p">(</span><span class="nf">stream-map</span>
+          <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">z</span><span class="p">)</span> <span class="p">(</span><span class="nf">stream-cons</span> <span class="nv">y</span> <span class="nv">z</span><span class="p">))</span>
+          <span class="p">(</span><span class="nf">interleave</span> <span class="nv">x</span> <span class="nv">ys</span><span class="p">))))))</span>
+
+<span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">perms</span> <span class="nv">xs</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">stream-null?</span> <span class="nv">xs</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">stream</span> <span class="p">(</span><span class="nf">stream</span><span class="p">))</span>
+      <span class="p">(</span><span class="nf">stream-concat</span>
+        <span class="p">(</span><span class="nf">stream-map</span>
+          <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">ys</span><span class="p">)</span>
+            <span class="p">(</span><span class="nf">interleave</span> <span class="p">(</span><span class="nf">stream-car</span> <span class="nv">xs</span><span class="p">)</span> <span class="nv">ys</span><span class="p">))</span>
+          <span class="p">(</span><span class="nf">perms</span> <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">xs</span><span class="p">))))))</span>
+</pre></div>
+<h2><code>(stream-constant object ...)</code></h2>
+<p>α ... → {α}</p>
+<p>Stream-constant takes one or more objects and returns a
+newly-allocated stream containing in its elements the objects,
+repeating the objects in succession forever.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-constant</span> <span class="mi">1</span><span class="p">)</span> <span class="err">⇒</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">1</span> <span class="o">...</span>
+
+
+<span class="p">(</span><span class="nf">stream-constant</span> <span class="no">#t</span> <span class="no">#f</span><span class="p">)</span> <span class="err">⇒</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="no">#t</span> <span class="no">#f</span> <span class="o">...</span>
+</pre></div>
+<h2><code>(stream-drop n stream) procedure</code></h2>
+<p>nat × {α} → {α}</p>
+<p>Stream-drop returns the suffix of the input stream that starts at the
+next element after the first n elements. The output stream shares
+structure with the input stream; thus, promises forced in one instance
+of the stream are also forced in the other instance of the stream. If
+the input stream has less than n elements, stream-drop returns the
+null stream. See also stream-take.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">stream-split</span> <span class="nv">n</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="nb">values </span><span class="p">(</span><span class="nf">stream-take</span> <span class="nv">n</span> <span class="nv">strm</span><span class="p">)</span>
+          <span class="p">(</span><span class="nf">stream-drop</span> <span class="nv">n</span> <span class="nv">strm</span><span class="p">)))</span>
+</pre></div>
+<h2><code>(stream-drop-while pred? stream)</code></h2>
+<p>(α → boolean) × {α} → {α}</p>
+<p>Stream-drop-while returns the suffix of the input stream that starts
+at the first element x for which (pred? x) is #f. The output stream
+shares structure with the input stream. See also stream-take-while.</p>
+<p>Stream-unique creates a new stream that retains only the first of any
+sub-sequences of repeated elements.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">stream-unique</span> <span class="nv">eql?</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">stream-null?</span> <span class="nv">strm</span><span class="p">)</span>
+      <span class="nv">stream-null</span>
+      <span class="p">(</span><span class="nf">stream-cons</span> <span class="p">(</span><span class="nf">stream-car</span> <span class="nv">strm</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">stream-unique</span> <span class="nv">eql?</span>
+          <span class="p">(</span><span class="nf">stream-drop-while</span>
+            <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span>
+              <span class="p">(</span><span class="nf">eql?</span> <span class="p">(</span><span class="nf">stream-car</span> <span class="nv">strm</span><span class="p">)</span> <span class="nv">x</span><span class="p">))</span>
+            <span class="nv">strm</span><span class="p">)))))</span>
+</pre></div>
+<h2><code>(stream-filter pred? stream)</code></h2>
+<p>(α → boolean) × {α} → {α}</p>
+<p>Stream-filter returns a newly-allocated stream that contains only
+those elements x of the input stream for which (pred? x) is non-#f.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-filter</span> <span class="nv">odd?</span> <span class="p">(</span><span class="nf">stream-from</span> <span class="mi">0</span><span class="p">))</span>
+   <span class="err">⇒</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">5</span> <span class="mi">7</span> <span class="mi">9</span> <span class="o">...</span>
+</pre></div>
+<h2><code>(stream-fold proc base stream)</code></h2>
+<p>(α × β → α) × α × {β} → α</p>
+<p>Stream-fold applies a binary procedure to base and the first element
+of stream to compute a new base, then applies the procedure to the new
+base and the next element of stream to compute a succeeding base, and
+so on, accumulating a value that is finally returned as the value of
+stream-fold when the end of the stream is reached. Stream must be
+finite, or stream-fold will enter an infinite loop. See also
+stream-scan, which is similar to stream-fold, but useful for infinite
+streams. For readers familiar with other functional languages, this is
+a left-fold; there is no corresponding right-fold, since right-fold
+relies on finite streams that are fully-evaluated, at which time they
+may as well be converted to a list.</p>
+<p>Stream-fold is often used to summarize a stream in a single value, for
+instance, to compute the maximum element of a stream.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">stream-maximum</span> <span class="nv">lt?</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-fold</span>
+    <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span> <span class="nv">y</span><span class="p">)</span> <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">lt?</span> <span class="nv">x</span> <span class="nv">y</span><span class="p">)</span> <span class="nv">y</span> <span class="nv">x</span><span class="p">))</span>
+    <span class="p">(</span><span class="nf">stream-car</span> <span class="nv">strm</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">strm</span><span class="p">)))</span>
+</pre></div>
+<p>Sometimes, it is useful to have stream-fold defined only on non-null
+streams:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">stream-fold-one</span> <span class="nv">proc</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-fold</span> <span class="nv">proc</span>
+    <span class="p">(</span><span class="nf">stream-car</span> <span class="nv">strm</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">strm</span><span class="p">)))</span>
+</pre></div>
+<p>Stream-minimum can then be defined as:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">stream-minimum</span> <span class="nv">lt?</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-fold-one</span>
+    <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span> <span class="nv">y</span><span class="p">)</span> <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">lt?</span> <span class="nv">x</span> <span class="nv">y</span><span class="p">)</span> <span class="nv">x</span> <span class="nv">y</span><span class="p">))</span>
+    <span class="nv">strm</span><span class="p">))</span>
+</pre></div>
+<p>Stream-fold can also be used to build a stream:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">isort</span> <span class="nv">lt?</span> <span class="nv">strm</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">insert</span> <span class="nv">strm</span> <span class="nv">x</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">stream-match</span> <span class="nv">strm</span>
+        <span class="p">(()</span> <span class="p">(</span><span class="nf">stream</span> <span class="nv">x</span><span class="p">))</span>
+        <span class="p">((</span><span class="nf">y</span> <span class="o">.</span> <span class="nv">ys</span><span class="p">)</span>
+          <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">lt?</span> <span class="nv">y</span> <span class="nv">x</span><span class="p">)</span>
+              <span class="p">(</span><span class="nf">stream-cons</span> <span class="nv">y</span> <span class="p">(</span><span class="nf">insert</span> <span class="nv">ys</span> <span class="nv">x</span><span class="p">))</span>
+              <span class="p">(</span><span class="nf">stream-cons</span> <span class="nv">x</span> <span class="nv">strm</span><span class="p">)))))</span>
+    <span class="p">(</span><span class="nf">stream-fold</span> <span class="nv">insert</span> <span class="nv">stream-null</span> <span class="nv">strm</span><span class="p">))</span>
+</pre></div>
+<h2><code>(stream-for-each proc stream ...)</code></h2>
+<p>(α × β × ...) × {α} × {β} ...</p>
+<p>Stream-for-each applies a procedure element-wise to corresponding
+elements of the input streams for its side-effects; it returns
+nothing. Stream-for-each stops as soon as any of its input streams is
+exhausted.</p>
+<p>The following procedure displays the contents of a file:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">display-file</span> <span class="nv">filename</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-for-each</span> <span class="nv">display</span>
+    <span class="p">(</span><span class="nf">file-&gt;stream</span> <span class="nv">filename</span><span class="p">)))</span>
+</pre></div>
+<h2><code>(stream-from first [step])</code></h2>
+<p>number × number → {number}</p>
+<p>Stream-from creates a newly-allocated stream that contains first as
+its first element and increments each succeeding element by step. If
+step is not given it defaults to 1. First and step may be of any
+numeric type. Stream-from is frequently useful as a generator in
+stream-of expressions. See also stream-range for a similar procedure
+that creates finite streams.</p>
+<p>Stream-from could be implemented as (stream-iterate (lambda (x) (+ x
+step)) first).</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">nats</span> <span class="p">(</span><span class="nf">stream-from</span> <span class="mi">0</span><span class="p">))</span> <span class="err">⇒</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="o">...</span>
+
+<span class="p">(</span><span class="k">define </span><span class="nv">odds</span> <span class="p">(</span><span class="nf">stream-from</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">))</span> <span class="err">⇒</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">5</span> <span class="o">...</span>
+</pre></div>
+<h2><code>(stream-iterate proc base)</code></h2>
+<p>(α → α) × α → {α}</p>
+<p>Stream-iterate creates a newly-allocated stream containing base in its
+first element and applies proc to each element in turn to determine
+the succeeding element. See also stream-unfold and stream-unfolds.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-iterate</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="mi">1</span><span class="p">))</span> <span class="mi">0</span><span class="p">)</span>
+  <span class="err">⇒</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="o">...</span>
+
+<span class="p">(</span><span class="nf">stream-iterate</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="nv">x</span> <span class="mi">2</span><span class="p">))</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="err">⇒</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">4</span> <span class="mi">8</span> <span class="mi">16</span> <span class="o">...</span>
+</pre></div>
+<p>Given a seed between 0 and 232, exclusive, the following expression
+creates a stream of pseudo-random integers between 0 and 232,
+exclusive, beginning with seed, using the method described by Stephen
+Park and Keith Miller:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-iterate</span>
+  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">modulo </span><span class="p">(</span><span class="nb">* </span><span class="nv">x</span> <span class="mi">16807</span><span class="p">)</span> <span class="mi">2147483647</span><span class="p">))</span>
+  <span class="nv">seed</span><span class="p">)</span>
+</pre></div>
+<p>Successive values of the continued fraction shown below approach the
+value of the “golden ratio” φ ≈ 1.618:</p>
+<p>Continued fraction</p>
+<p>The fractions can be calculated by the stream</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-iterate</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="p">(</span><span class="nb">/ </span><span class="nv">x</span><span class="p">)))</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+<h2><code>(stream-length stream)</code></h2>
+<p>{α} → nat</p>
+<p>Stream-length takes an input stream and returns the number of elements
+in the stream; it does not evaluate its elements. Stream-length may
+only be used on finite streams; it enters an infinite loop with
+infinite streams.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-length</span> <span class="nv">strm123</span><span class="p">)</span> <span class="err">⇒</span> <span class="mi">3</span>
+</pre></div>
+<h2><code>(stream-let tag ((var expr) ...) body)</code> syntax</h2>
+<p>Stream-let creates a local scope that binds each variable to the value
+of its corresponding expression. It additionally binds tag to a
+procedure which takes the bound variables as arguments and body as its
+defining expressions, binding the tag with stream-lambda. Tag is in
+scope within body, and may be called recursively. When the expanded
+expression defined by the stream-let is evaluated, stream-let
+evaluates the expressions in its body in an environment containing the
+newly-bound variables, returning the value of the last expression
+evaluated, which must yield a stream.</p>
+<p>Stream-let provides syntactic sugar on stream-lambda, in the same
+manner as normal let provides syntactic sugar on normal
+lambda. However, unlike normal let, the tag is required, not optional,
+because unnamed stream-let is meaningless.</p>
+<p>Stream-member returns the first stream-pair of the input strm with a
+stream-car x that satisfies (eql? obj x), or the null stream if x is
+not present in strm.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">stream-member</span> <span class="nv">eql?</span> <span class="nv">obj</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-let</span> <span class="nv">loop</span> <span class="p">((</span><span class="nf">strm</span> <span class="nv">strm</span><span class="p">))</span>
+    <span class="p">(</span><span class="k">cond </span><span class="p">((</span><span class="nf">stream-null?</span> <span class="nv">strm</span><span class="p">)</span> <span class="nv">strm</span><span class="p">)</span>
+          <span class="p">((</span><span class="nf">eql?</span> <span class="nv">obj</span> <span class="p">(</span><span class="nf">stream-car</span> <span class="nv">strm</span><span class="p">))</span> <span class="nv">strm</span><span class="p">)</span>
+          <span class="p">(</span><span class="k">else </span><span class="p">(</span><span class="nf">loop</span> <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">strm</span><span class="p">))))))</span>
+</pre></div>
+<h2><code>(stream-map proc stream ...)</code></h2>
+<p>(α × β ... → ω) × {α} × {β} ... → {ω}</p>
+<p>Stream-map applies a procedure element-wise to corresponding elements
+of the input streams, returning a newly-allocated stream containing
+elements that are the results of those procedure applications. The
+output stream has as many elements as the minimum-length input stream,
+and may be infinite.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">square</span> <span class="nv">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="nv">x</span> <span class="nv">x</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">stream-map</span> <span class="nv">square</span> <span class="p">(</span><span class="nf">stream</span> <span class="mi">9</span> <span class="mi">3</span><span class="p">))</span> <span class="err">⇒</span> <span class="mi">81</span> <span class="mi">9</span>
+
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">sigma</span> <span class="nv">f</span> <span class="nv">m</span> <span class="nv">n</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-fold</span> <span class="nv">+</span> <span class="mi">0</span>
+    <span class="p">(</span><span class="nf">stream-map</span> <span class="nv">f</span> <span class="p">(</span><span class="nf">stream-range</span> <span class="nv">m</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">n</span> <span class="mi">1</span><span class="p">)))))</span>
+
+<span class="p">(</span><span class="nf">sigma</span> <span class="nv">square</span> <span class="mi">1</span> <span class="mi">100</span><span class="p">)</span> <span class="err">⇒</span> <span class="mi">338350</span>
+</pre></div>
+<p>In some functional languages, stream-map takes only a single input
+stream, and stream-zipwith provides a companion function that takes
+multiple input streams.</p>
+<h2><code>(stream-match stream clause ...)</code> syntax</h2>
+<p>Stream-match provides the syntax of pattern-matching for streams. The
+input stream is an expression that evaluates to a stream. Clauses are
+of the form (pattern [fender] expr), consisting of a pattern that
+matches a stream of a particular shape, an optional fender that must
+succeed if the pattern is to match, and an expression that is
+evaluated if the pattern matches. There are four types of patterns:</p>
+<ul>
+<li>() — Matches the null stream.</li>
+<li>(pat0 pat1 ...) — Matches a finite stream with length exactly equal
+to the number of pattern elements.</li>
+<li>(pat0 pat1 ... . patrest) — Matches an infinite stream, or a finite
+stream with length at least as great as the number of pattern
+elements before the literal dot.</li>
+<li>pat — Matches an entire stream. Should always appear last in the
+list of clauses; it’s not an error to appear elsewhere, but
+subsequent clauses could never match.</li>
+</ul>
+<p>Each pattern element pati may be either:</p>
+<ul>
+<li>An identifier — Matches any stream element. Additionally, the value
+of the stream element is bound to the variable named by the
+identifier, which is in scope in the fender and expression of the
+corresponding clause. Each identifier in a single pattern must be
+unique.</li>
+<li>A literal underscore — Matches any stream element, but creates no
+bindings.</li>
+</ul>
+<p>The patterns are tested in order, left-to-right, until a matching
+pattern is found; if fender is present, it must evaluate as non-#f for
+the match to be successful. Pattern variables are bound in the
+corresponding fender and expression. Once the matching pattern is
+found, the corresponding expression is evaluated and returned as the
+result of the match. An error is signaled if no pattern matches the
+input stream.</p>
+<p>Stream-match is often used to distinguish null streams from non-null
+streams, binding head and tail:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">len</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-match</span> <span class="nv">strm</span>
+    <span class="p">(()</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="p">((</span><span class="nf">head</span> <span class="o">.</span> <span class="nv">tail</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="p">(</span><span class="nf">len</span> <span class="nv">tail</span><span class="p">)))))</span>
+</pre></div>
+<p>Fenders can test the common case where two stream elements must be
+identical; the else pattern is an identifier bound to the entire
+stream, not a keyword as in cond.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-match</span> <span class="nv">strm</span>
+  <span class="p">((</span><span class="nf">x</span> <span class="nv">y</span> <span class="o">.</span> <span class="nv">_</span><span class="p">)</span> <span class="p">(</span><span class="nb">equal? </span><span class="nv">x</span> <span class="nv">y</span><span class="p">)</span> <span class="ss">&#39;ok</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">else </span><span class="ss">&#39;error</span><span class="p">))</span>
+</pre></div>
+<p>A more complex example uses two nested matchers to match two different
+stream arguments; (stream-merge lt? . strms) stably merges two or more
+streams ordered by the lt? predicate:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">stream-merge</span> <span class="nv">lt?</span> <span class="o">.</span> <span class="nv">strms</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">merge</span> <span class="nv">xx</span> <span class="nv">yy</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">stream-match</span> <span class="nv">xx</span> <span class="p">(()</span> <span class="nv">yy</span><span class="p">)</span> <span class="p">((</span><span class="nf">x</span> <span class="o">.</span> <span class="nv">xs</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">stream-match</span> <span class="nv">yy</span> <span class="p">(()</span> <span class="nv">xx</span><span class="p">)</span> <span class="p">((</span><span class="nf">y</span> <span class="o">.</span> <span class="nv">ys</span><span class="p">)</span>
+        <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">lt?</span> <span class="nv">y</span> <span class="nv">x</span><span class="p">)</span>
+            <span class="p">(</span><span class="nf">stream-cons</span> <span class="nv">y</span> <span class="p">(</span><span class="nf">merge</span> <span class="nv">xx</span> <span class="nv">ys</span><span class="p">))</span>
+            <span class="p">(</span><span class="nf">stream-cons</span> <span class="nv">x</span> <span class="p">(</span><span class="nf">merge</span> <span class="nv">xs</span> <span class="nv">yy</span><span class="p">))))))))</span>
+  <span class="p">(</span><span class="nf">stream-let</span> <span class="nv">loop</span> <span class="p">((</span><span class="nf">strms</span> <span class="nv">strms</span><span class="p">))</span>
+    <span class="p">(</span><span class="k">cond </span><span class="p">((</span><span class="nb">null? </span><span class="nv">strms</span><span class="p">)</span> <span class="nv">stream-null</span><span class="p">)</span>
+          <span class="p">((</span><span class="nb">null? </span><span class="p">(</span><span class="nb">cdr </span><span class="nv">strms</span><span class="p">))</span> <span class="p">(</span><span class="nb">car </span><span class="nv">strms</span><span class="p">))</span>
+          <span class="p">(</span><span class="k">else </span><span class="p">(</span><span class="nf">merge</span> <span class="p">(</span><span class="nb">car </span><span class="nv">strms</span><span class="p">)</span>
+                       <span class="p">(</span><span class="nb">apply </span><span class="nv">stream-merge</span> <span class="nv">lt?</span>
+                         <span class="p">(</span><span class="nb">cdr </span><span class="nv">strms</span><span class="p">)))))))</span>
+</pre></div>
+<h2><code>(stream-of expr clause ...)</code> syntax</h2>
+<p>Stream-of provides the syntax of stream comprehensions, which generate
+streams by means of looping expressions. The result is a stream of
+objects of the type returned by expr. There are four types of clauses:</p>
+<ul>
+<li>(var in stream-expr) — Loop over the elements of stream-expr, in
+order from the start of the stream, binding each element of the
+stream in turn to var. Stream-from and stream-range are frequently
+useful as generators for stream-expr.</li>
+<li>(var is expr) — Bind var to the value obtained by evaluating expr.</li>
+<li>(pred? expr) — Include in the output stream only those elements x
+for which (pred? x) is non-#f.</li>
+</ul>
+<p>The scope of variables bound in the stream comprehension is the
+clauses to the right of the binding clause (but not the binding clause
+itself) plus the result expression.</p>
+<p>When two or more generators are present, the loops are processed as if
+they are nested from left to right; that is, the rightmost generator
+varies fastest. A consequence of this is that only the first generator
+may be infinite and all subsequent generators must be finite. If no
+generators are present, the result of a stream comprehension is a
+stream containing the result expression; thus, (stream-of 1) produces
+a finite stream containing only the element 1.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-of</span> <span class="p">(</span><span class="nb">* </span><span class="nv">x</span> <span class="nv">x</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">x</span> <span class="nv">in</span> <span class="p">(</span><span class="nf">stream-range</span> <span class="mi">0</span> <span class="mi">10</span><span class="p">))</span>
+  <span class="p">(</span><span class="nb">even? </span><span class="nv">x</span><span class="p">))</span>
+  <span class="err">⇒</span> <span class="mi">0</span> <span class="mi">4</span> <span class="mi">16</span> <span class="mi">36</span> <span class="mi">64</span>
+
+<span class="p">(</span><span class="nf">stream-of</span> <span class="p">(</span><span class="nb">list </span><span class="nv">a</span> <span class="nv">b</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">a</span> <span class="nv">in</span> <span class="p">(</span><span class="nf">stream-range</span> <span class="mi">1</span> <span class="mi">4</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">b</span> <span class="nv">in</span> <span class="p">(</span><span class="nf">stream-range</span> <span class="mi">1</span> <span class="mi">3</span><span class="p">)))</span>
+  <span class="err">⇒</span> <span class="p">(</span><span class="mi">1</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="mi">3</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="mi">3</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">stream-of</span> <span class="p">(</span><span class="nb">list </span><span class="nv">i</span> <span class="nv">j</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">i</span> <span class="nv">in</span> <span class="p">(</span><span class="nf">stream-range</span> <span class="mi">1</span> <span class="mi">5</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">j</span> <span class="nv">in</span> <span class="p">(</span><span class="nf">stream-range</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">i</span> <span class="mi">1</span><span class="p">)</span> <span class="mi">5</span><span class="p">)))</span>
+  <span class="err">⇒</span> <span class="p">(</span><span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="mi">1</span> <span class="mi">3</span><span class="p">)</span> <span class="p">(</span><span class="mi">1</span> <span class="mi">4</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span> <span class="mi">3</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span> <span class="mi">4</span><span class="p">)</span> <span class="p">(</span><span class="mi">3</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+<h2><code>(stream-range first past [step])</code></h2>
+<p>number × number × number → {number}</p>
+<p>Stream-range creates a newly-allocated stream that contains first as
+its first element and increments each succeeding element by step. The
+stream is finite and ends before past, which is not an element of the
+stream. If step is not given it defaults to 1 if first is less than
+past and -1 otherwise. First, past and step may be of any numeric
+type. Stream-range is frequently useful as a generator in stream-of
+expressions. See also stream-from for a similar procedure that creates
+infinite streams.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-range</span> <span class="mi">0</span> <span class="mi">10</span><span class="p">)</span> <span class="err">⇒</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span> <span class="mi">6</span> <span class="mi">7</span> <span class="mi">8</span> <span class="mi">9</span>
+
+<span class="p">(</span><span class="nf">stream-range</span> <span class="mi">0</span> <span class="mi">10</span> <span class="mi">2</span><span class="p">)</span> <span class="err">→</span> <span class="mi">0</span> <span class="mi">2</span> <span class="mi">4</span> <span class="mi">6</span> <span class="mi">8</span>
+</pre></div>
+<p>Successive elements of the stream are calculated by adding step to
+first, so if any of first, past or step are inexact, the length of the
+output stream may differ from (ceiling (- (/ (- past first) step) 1).</p>
+<h2><code>(stream-ref stream n)</code></h2>
+<p>{α} × nat → α</p>
+<p>Stream-ref returns the nth element of stream, counting from zero. An
+error is signaled if n is greater than or equal to the length of
+stream.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">fact</span> <span class="nv">n</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-ref</span>
+    <span class="p">(</span><span class="nf">stream-scan</span> <span class="nv">*</span> <span class="mi">1</span> <span class="p">(</span><span class="nf">stream-from</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="nv">n</span><span class="p">))</span>
+</pre></div>
+<h2><code>(stream-reverse stream)</code></h2>
+<p>{α} → {α}</p>
+<p>Stream-reverse returns a newly-allocated stream containing the
+elements of the input stream but in reverse order. Stream-reverse may
+only be used with finite streams; it enters an infinite loop with
+infinite streams. Stream-reverse does not force evaluation of the
+elements of the stream.</p>
+<div class="highlight"><pre><span></span><span class="nv">&gt;</span> <span class="p">(</span><span class="k">define </span><span class="nv">s</span> <span class="p">(</span><span class="nf">stream</span> <span class="mi">1</span> <span class="p">(</span><span class="nb">/ </span><span class="mi">1</span> <span class="mi">0</span><span class="p">)</span> <span class="mi">-1</span><span class="p">))</span>
+<span class="nv">&gt;</span> <span class="p">(</span><span class="k">define </span><span class="nv">r</span> <span class="p">(</span><span class="nf">stream-reverse</span> <span class="nv">s</span><span class="p">))</span>
+<span class="nv">&gt;</span> <span class="p">(</span><span class="nf">stream-ref</span> <span class="nv">r</span> <span class="mi">0</span><span class="p">)</span>
+<span class="nv">&gt;</span> <span class="p">(</span><span class="nf">stream-ref</span> <span class="nv">r</span> <span class="mi">2</span><span class="p">)</span>
+<span class="mi">1</span>
+<span class="nv">&gt;</span> <span class="p">(</span><span class="nf">stream-ref</span> <span class="nv">r</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nv">error:</span> <span class="nv">division</span> <span class="nv">by</span> <span class="nv">zero</span>
+</pre></div>
+<h2><code>(stream-scan proc base stream)</code></h2>
+<p>(α × β → α) × α × {β} → {α}</p>
+<p>Stream-scan accumulates the partial folds of an input stream into a
+newly-allocated output stream. The output stream is the base followed
+by (stream-fold proc base (stream-take i stream)) for each of the
+first i elements of stream.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-scan</span> <span class="nv">+</span> <span class="mi">0</span> <span class="p">(</span><span class="nf">stream-from</span> <span class="mi">1</span><span class="p">))</span>
+  <span class="err">⇒</span> <span class="p">(</span><span class="nf">stream</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">3</span> <span class="mi">6</span> <span class="mi">10</span> <span class="mi">15</span> <span class="o">...</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">stream-scan</span> <span class="nv">*</span> <span class="mi">1</span> <span class="p">(</span><span class="nf">stream-from</span> <span class="mi">1</span><span class="p">))</span>
+  <span class="err">⇒</span> <span class="p">(</span><span class="nf">stream</span> <span class="mi">1</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">6</span> <span class="mi">24</span> <span class="mi">120</span> <span class="o">...</span><span class="p">)</span>
+</pre></div>
+<h2><code>(stream-take n stream)</code></h2>
+<p>nat × {α} → {α}</p>
+<p>Stream-take takes a non-negative integer n and a stream and returns a
+newly-allocated stream containing the first n elements of the input
+stream. If the input stream has less than n elements, so does the
+output stream. See also stream-drop.</p>
+<p>Mergesort splits a stream into two equal-length pieces, sorts them
+recursively and merges the results:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">msort</span> <span class="nv">lt?</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">let* </span><span class="p">((</span><span class="nf">n</span> <span class="p">(</span><span class="nb">quotient </span><span class="p">(</span><span class="nf">stream-length</span> <span class="nv">strm</span><span class="p">)</span> <span class="mi">2</span><span class="p">))</span>
+         <span class="p">(</span><span class="nf">ts</span> <span class="p">(</span><span class="nf">stream-take</span> <span class="nv">n</span> <span class="nv">strm</span><span class="p">))</span>
+         <span class="p">(</span><span class="nf">ds</span> <span class="p">(</span><span class="nf">stream-drop</span> <span class="nv">n</span> <span class="nv">strm</span><span class="p">)))</span>
+    <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">zero? </span><span class="nv">n</span><span class="p">)</span>
+        <span class="nv">strm</span>
+        <span class="p">(</span><span class="nf">stream-merge</span> <span class="nv">lt?</span>
+          <span class="p">(</span><span class="nf">msort</span> <span class="nv">&lt;</span> <span class="nv">ts</span><span class="p">)</span> <span class="p">(</span><span class="nf">msort</span> <span class="nv">&lt;</span> <span class="nv">ds</span><span class="p">)))))</span>
+</pre></div>
+<h2><code>(stream-take-while pred? stream)</code></h2>
+<p>(α → boolean) × {α} → {α}</p>
+<p>Stream-take-while takes a predicate and a stream and returns a
+newly-allocated stream containing those elements x that form the
+maximal prefix of the input stream for which (pred? x) is non-#f. See
+also stream-drop-while.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-car</span>
+  <span class="p">(</span><span class="nf">stream-reverse</span>
+    <span class="p">(</span><span class="nf">stream-take-while</span>
+      <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">x</span> <span class="mi">1000</span><span class="p">))</span>
+        <span class="nv">primes</span><span class="p">)))</span> <span class="err">⇒</span> <span class="mi">997</span>
+</pre></div>
+<h2><code>(stream-unfold map pred? gen base)</code></h2>
+<p>(α → β) × (α → boolean) × (α → α) × α → {β}</p>
+<p>Stream-unfold is the fundamental recursive stream constructor. It
+constructs a stream by repeatedly applying gen to successive values of
+base, in the manner of stream-iterate, then applying map to each of
+the values so generated, appending each of the mapped values to the
+output stream as long as (pred? base) is non-#f. See also
+stream-iterate and stream-unfolds.</p>
+<p>The expression below creates the finite stream 0 1 4 9 16 25 36 49
+64 81. Initially the base is 0, which is less than 10, so map squares
+the base and the mapped value becomes the first element of the output
+stream. Then gen increments the base by 1, so it becomes 1; this is
+less than 10, so map squares the new base and 1 becomes the second
+element of the output stream. And so on, until the base becomes 10,
+when pred? stops the recursion and stream-null ends the output stream.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">stream-unfold</span>
+  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">expt </span><span class="nv">x</span> <span class="mi">2</span><span class="p">))</span> <span class="c1">; map</span>
+  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt; </span><span class="nv">x</span> <span class="mi">10</span><span class="p">))</span>   <span class="c1">; pred?</span>
+  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">x</span> <span class="mi">1</span><span class="p">))</span>    <span class="c1">; gen</span>
+  <span class="mi">0</span><span class="p">)</span>                      <span class="c1">; base</span>
+</pre></div>
+<h2><code>(stream-unfolds proc seed)</code></h2>
+<p>(α → (values α × β ...)) × α → (values {β} ...)</p>
+<p>Stream-unfolds returns n newly-allocated streams containing those
+elements produced by successive calls to the generator proc, which
+takes the current seed as its argument and returns n+1 values</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">proc</span> <span class="nv">seed</span> <span class="err">→</span> <span class="nv">seed</span> <span class="nv">result0</span> <span class="o">...</span> <span class="nv">resultn-1</span>
+</pre></div>
+<p>where the returned seed is the input seed to the next call to the
+generator and resulti indicates how to produce the next element of the
+ith result stream:</p>
+<ul>
+<li>(value) — value is the next car of the result stream</li>
+<li>#f — no value produced by this iteration of the generator proc for
+the result stream</li>
+<li>() — the end of the result stream</li>
+</ul>
+<p>It may require multiple calls of proc to produce the next element of
+any particular result stream. See also stream-iterate and
+stream-unfold.</p>
+<p>Stream-unfolds is especially useful when writing expressions that
+return multiple streams. For instance, (stream-partition pred? strm)
+is equivalent to</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">values</span>
+  <span class="p">(</span><span class="nf">stream-filter</span> <span class="nv">pred?</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-filter</span>
+    <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">not </span><span class="p">(</span><span class="nf">pred?</span> <span class="nv">x</span><span class="p">)))</span> <span class="nv">strm</span><span class="p">))</span>
+</pre></div>
+<p>but only tests pred? once for each element of strm.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">stream-partition</span> <span class="nv">pred?</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-unfolds</span>
+    <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">s</span><span class="p">)</span>
+      <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">stream-null?</span> <span class="nv">s</span><span class="p">)</span>
+          <span class="p">(</span><span class="nb">values </span><span class="nv">s</span> <span class="o">&#39;</span><span class="p">()</span> <span class="o">&#39;</span><span class="p">())</span>
+          <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">a</span> <span class="p">(</span><span class="nf">stream-car</span> <span class="nv">s</span><span class="p">))</span>
+                <span class="p">(</span><span class="nf">d</span> <span class="p">(</span><span class="nf">stream-cdr</span> <span class="nv">s</span><span class="p">)))</span>
+            <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">pred?</span> <span class="nv">a</span><span class="p">)</span>
+                <span class="p">(</span><span class="nb">values </span><span class="nv">d</span> <span class="p">(</span><span class="nb">list </span><span class="nv">a</span><span class="p">)</span> <span class="no">#f</span><span class="p">)</span>
+                <span class="p">(</span><span class="nb">values </span><span class="nv">d</span> <span class="no">#f</span> <span class="p">(</span><span class="nb">list </span><span class="nv">a</span><span class="p">))))))</span>
+    <span class="nv">strm</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">call-with-values</span>
+  <span class="p">(</span><span class="k">lambda </span><span class="p">()</span>
+    <span class="p">(</span><span class="nf">stream-partition</span> <span class="nv">odd?</span>
+      <span class="p">(</span><span class="nf">stream-range</span> <span class="mi">1</span> <span class="mi">6</span><span class="p">)))</span>
+  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">odds</span> <span class="nv">evens</span><span class="p">)</span>
+    <span class="p">(</span><span class="nb">list </span><span class="p">(</span><span class="nf">stream-&gt;list</span> <span class="nv">odds</span><span class="p">)</span>
+          <span class="p">(</span><span class="nf">stream-&gt;list</span> <span class="nv">evens</span><span class="p">))))</span>
+  <span class="err">⇒</span> <span class="p">((</span><span class="mi">1</span> <span class="mi">3</span> <span class="mi">5</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span> <span class="mi">4</span><span class="p">))</span>
+</pre></div>
+<h2><code>(stream-zip stream ...)</code></h2>
+<p>{α} × {β} × ... → {[α β ...]}</p>
+<p>Stream-zip takes one or more input streams and returns a
+newly-allocated stream in which each element is a list (not a stream)
+of the corresponding elements of the input streams. The output stream
+is as long as the shortest input stream, if any of the input streams
+is finite, or is infinite if all the input streams are infinite.</p>
+<p>A common use of stream-zip is to add an index to a stream, as in
+(stream-finds eql? obj strm), which returns all the zero-based indices
+in strm at which obj appears; (stream-find eql? obj strm) returns the
+first such index, or #f if obj is not in strm.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">define-stream</span> <span class="p">(</span><span class="nf">stream-finds</span> <span class="nv">eql?</span> <span class="nv">obj</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-of</span> <span class="p">(</span><span class="nb">car </span><span class="nv">x</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">x</span> <span class="nv">in</span> <span class="p">(</span><span class="nf">stream-zip</span> <span class="p">(</span><span class="nf">stream-from</span> <span class="mi">0</span><span class="p">)</span> <span class="nv">strm</span><span class="p">))</span>
+    <span class="p">(</span><span class="nf">eql?</span> <span class="nv">obj</span> <span class="p">(</span><span class="nb">cadr </span><span class="nv">x</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">stream-find</span> <span class="nv">eql?</span> <span class="nv">obj</span> <span class="nv">strm</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">stream-car</span>
+    <span class="p">(</span><span class="nf">stream-append</span>
+      <span class="p">(</span><span class="nf">stream-finds</span> <span class="nv">eql?</span> <span class="nv">obj</span> <span class="nv">strm</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">stream</span> <span class="no">#f</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nf">stream-find</span> <span class="nv">char=?</span> <span class="sc">#\l</span>
+  <span class="p">(</span><span class="nf">list-&gt;stream</span>
+    <span class="p">(</span><span class="nb">string-&gt;list </span><span class="s">&quot;hello&quot;</span><span class="p">)))</span> <span class="err">⇒</span> <span class="mi">2</span>
+
+<span class="p">(</span><span class="nf">stream-find</span> <span class="nv">char=?</span> <span class="sc">#\l</span>
+  <span class="p">(</span><span class="nf">list-&gt;stream</span>
+    <span class="p">(</span><span class="nb">string-&gt;list </span><span class="s">&quot;goodbye&quot;</span><span class="p">)))</span> <span class="err">⇒</span> <span class="no">#f</span>
+</pre></div>
+<p>Stream-find is not as inefficient as it looks; although it calls
+stream-finds, which finds all matching indices, the matches are
+computed lazily, and only the first match is needed for stream-find.</p>
+</div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme list-queue)</code></h1>
+<p>This library is based on <a href="https://srfi.schemers.org/srfi-117/">SRFI-117</a>.</p>
+<p>List queues are mutable ordered collections that can contain any
+Scheme object. Each list queue is based on an ordinary Scheme list
+containing the elements of the list queue by maintaining pointers to
+the first and last pairs of the list. It's cheap to add or remove
+elements from the front of the list or to add elements to the back,
+but not to remove elements from the back. List queues are disjoint
+from other types of Scheme objects.</p>
+<h2><code>(make-list-queue list [ last ])</code></h2>
+<p>Returns a newly allocated list queue containing the elements of list
+in order. The result shares storage with list. If the last argument is
+not provided, this operation is O(n) where n is the length of list.</p>
+<p>However, if last is provided, make-list-queue returns a newly
+allocated list queue containing the elements of the list whose first
+pair is first and whose last pair is last. It is an error if the pairs
+do not belong to the same list. Alternatively, both first and last can
+be the empty list. In either case, the operation is O(1).</p>
+<p>Note: To apply a non-destructive list procedure to a list queue and
+return a new list queue, use (make-list-queue (proc (list-queue-list
+list-queue))).</p>
+<h2><code>(list-queue element ...)</code></h2>
+<p>Returns a newly allocated list queue containing the elements. This
+operation is O(n) where n is the number of elements.</p>
+<h2><code>(list-queue-copy list-queue)</code></h2>
+<p>Returns a newly allocated list queue containing the elements of
+list-queue. This operation is O(n) where n is the length of list-queue</p>
+<h2><code>(list-queue-unfold stop? mapper successor seed [ queue ])</code></h2>
+<p>Performs the following algorithm:</p>
+<p>If the result of applying the predicate stop? to seed is true, return
+queue. Otherwise, apply the procedure mapper to seed, returning a
+value which is added to the front of queue. Then get a new seed by
+applying the procedure successor to seed, and repeat this algorithm.</p>
+<p>If queue is omitted, a newly allocated list queue is used.</p>
+<h2><code>(list-queue-unfold-right stop? mapper successor seed [ queue ])</code></h2>
+<p>Performs the following algorithm:</p>
+<p>If the result of applying the predicate stop? to seed is true, return
+the list queue. Otherwise, apply the procedure mapper to seed,
+returning a value which is added to the back of the list queue. Then
+get a new seed by applying the procedure successor to seed, and repeat
+this algorithm.</p>
+<p>If queue is omitted, a newly allocated list queue is used.</p>
+<h2><code>(list-queue? obj)</code></h2>
+<p>Returns #t if obj is a list queue, and #f otherwise. This operation is
+O(1).</p>
+<h2><code>(list-queue-empty? list-queue)</code></h2>
+<p>Returns #t if list-queue has no elements, and #f otherwise. This
+operation is O(1).</p>
+<h2><code>(list-queue-front list-queue)</code></h2>
+<p>Returns the first element of list-queue. If the list queue is empty,
+it is an error. This operation is O(1).</p>
+<h2><code>(list-queue-back list-queue)</code></h2>
+<p>Returns the last element of list-queue. If the list queue is empty, it
+is an error. This operation is O(1).</p>
+<h2><code>(list-queue-list list-queue)</code></h2>
+<p>Returns the list that contains the members of list-queue in order. The
+result shares storage with list-queue. This operation is O(1).</p>
+<h2><code>(list-queue-first-last list-queue)</code></h2>
+<p>Returns two values, the first and last pairs of the list that contains
+the members of list-queue in order. If list-queue is empty, returns
+two empty lists. The results share storage with list-queue. This
+operation is O(1).</p>
+<h2><code>(list-queue-add-front! list-queue element)</code></h2>
+<p>Adds element to the beginning of list-queue. Returns an unspecified
+value. This operation is O(1).</p>
+<h2><code>(list-queue-add-back! list-queue element)</code></h2>
+<p>Adds element to the end of list-queue. Returns an unspecified
+value. This operation is O(1).</p>
+<h2><code>(list-queue-remove-front! list-queue)</code></h2>
+<p>Removes the first element of list-queue and returns it. If the list
+queue is empty, it is an error. This operation is O(1).</p>
+<h2><code>(list-queue-remove-back! list-queue)</code></h2>
+<p>Removes the last element of list-queue and returns it. If the list
+queue is empty, it is an error. This operation is O(n) where n is the
+length of list-queue, because queues do not not have backward links.</p>
+<h2><code>(list-queue-remove-all! list-queue)</code></h2>
+<p>Removes all the elements of list-queue and returns them in order as a
+list. This operation is O(1).</p>
+<h2><code>(list-queue-set-list! list-queue list [ last ])</code></h2>
+<p>Replaces the list associated with list-queue with list, effectively
+discarding all the elements of list-queue in favor of those in
+list. Returns an unspecified value. This operation is O(n) where n is
+the length of list. If last is provided, it is treated in the same way
+as in make-list-queue, and the operation is O(1).</p>
+<p>Note: To apply a destructive list procedure to a list queue, use
+(list-queue-set-list! (proc (list-queue-list list-queue))).</p>
+<h2><code>(list-queue-append list-queue ...)</code></h2>
+<p>Returns a list queue which contains all the elements in front-to-back
+order from all the list-queues in front-to-back order. The result does
+not share storage with any of the arguments. This operation is O(n) in
+the total number of elements in all queues.</p>
+<h2><code>(list-queue-append! list-queue ...)</code></h2>
+<p>Returns a list queue which contains all the elements in front-to-back
+order from all the list-queues in front-to-back order. It is an error
+to assume anything about the contents of the list-queues after the
+procedure returns. This operation is O(n) in the total number of
+queues, not elements. It is not part of the R7RS-small list API, but
+is included here for efficiency when pure functional append is not
+required.</p>
+<h2><code>(list-queue-concatenate list-of-list-queues)</code></h2>
+<p>Returns a list queue which contains all the elements in front-to-back
+order from all the list queues which are members of
+list-of-list-queues in front-to-back order. The result does not share
+storage with any of the arguments. This operation is O(n) in the total
+number of elements in all queues. It is not part of the R7RS-small
+list API, but is included here to make appending a large number of
+queues possible in Schemes that limit the number of arguments to
+apply.</p>
+<h2><code>(list-queue-map proc list-queue)</code></h2>
+<p>Applies proc to each element of list-queue in unspecified order and
+returns a newly allocated list queue containing the results. This
+operation is O(n) where n is the length of list-queue.</p>
+<h2><code>(list-queue-map! proc list-queue)</code></h2>
+<p>Applies proc to each element of list-queue in front-to-back order and
+modifies list-queue to contain the results. This operation is O(n) in
+the length of list-queue. It is not part of the R7RS-small list API,
+but is included here to make transformation of a list queue by
+mutation more efficient.</p>
+<h2><code>(list-queue-for-each proc list-queue)</code></h2>
+<p>Applies proc to each element of list-queue in front-to-back order,
+discarding the returned values. Returns an unspecified value. This
+operation is O(n) where n is the length of list-queue.</p>
+</div>
+    </div>
+  </body>
+</html>

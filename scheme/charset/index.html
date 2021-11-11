@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/normalize.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/highlight.css">
+    <title>scheme.rs</title>
+  </head>
+  <body>
+    <div id="container">
+      <div><h1><code>(scheme charset)</code></h1>
+<p>This library is based on
+<a href="https://srfi.schemers.org/srfi-14/">SRFI-14</a>.</p>
+<p>The ability to efficiently represent and manipulate sets of characters
+is an unglamorous but very useful capability for text-processing code
+-- one that tends to pop up in the definitions of other libraries.</p>
+<h2><code>(char-set? obj)</code></h2>
+<p>Is the object obj a character set?</p>
+<h2><code>(char-set= cs1 ...)</code></h2>
+<p>Are the character sets equal?</p>
+<p>Boundary cases:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">char-set=</span><span class="p">)</span> <span class="k">=&gt; </span><span class="nv">true</span>
+<span class="p">(</span><span class="nf">char-set=</span> <span class="nv">cs</span><span class="p">)</span> <span class="k">=&gt; </span><span class="nv">true</span>
+</pre></div>
+<p>Rationale: transitive binary relations are generally extended to n-ary
+relations in Scheme, which enables clearer, more concise code to be
+written. While the zero-argument and one-argument cases will almost
+certainly not arise in first-order uses of such relations, they may
+well arise in higher-order cases or macro-generated code. E.g.,
+consider</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">apply </span><span class="nv">char-set=</span> <span class="nv">cset-list</span><span class="p">)</span>
+</pre></div>
+<p>This is well-defined if the list is empty or a singleton list. Hence
+we extend these relations to any number of arguments. Implementors
+have reported actual uses of n-ary relations in higher-order cases
+allowing for fewer than two arguments. The way of Scheme is to handle
+the general case; we provide the fully general extension.</p>
+<p>A counter-argument to this extension is that R5RS's transitive binary
+arithmetic relations (=, &lt;, etc.) require at least two arguments,
+hence this decision is a break with the prior convention -- although
+it is at least one that is backwards-compatible.</p>
+<h2><code>(char-set&lt;= cs1 ...)</code></h2>
+<p>Returns true if every character set csi is a subset of character set csi+1.</p>
+<p>Boundary cases:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">char-set&lt;=</span><span class="p">)</span> <span class="k">=&gt; </span><span class="nv">true</span>
+<span class="p">(</span><span class="nf">char-set&lt;=</span> <span class="nv">cs</span><span class="p">)</span> <span class="k">=&gt; </span><span class="nv">true</span>
+</pre></div>
+<p>Rationale: See char-set= for discussion of zero- and one-argument
+applications. Consider testing a list of char-sets for monotonicity
+with</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">apply </span><span class="nv">char-set&lt;=</span> <span class="nv">cset-list</span><span class="p">)</span>
+</pre></div>
+<h2><code>(char-set-hash cs [bound])</code></h2>
+<p>Compute a hash value for the character set cs. Bound is a non-negative
+exact integer specifying the range of the hash function. A positive
+value restricts the return value to the range [0,bound).</p>
+<p>If bound is either zero or not given, the implementation may use an
+implementation-specific default value, chosen to be as large as is
+efficiently practical. For instance, the default range might be chosen
+for a given implementation to map all strings into the range of
+integers that can be represented with a single machine word.</p>
+<p>Invariant:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">char-set=</span> <span class="nv">cs1</span> <span class="nv">cs2</span><span class="p">)</span> <span class="k">=&gt; </span><span class="p">(</span><span class="nb">= </span><span class="p">(</span><span class="nf">char-set-hash</span> <span class="nv">cs1</span> <span class="nv">b</span><span class="p">)</span> <span class="p">(</span><span class="nf">char-set-hash</span> <span class="nv">cs2</span> <span class="nv">b</span><span class="p">))</span>
+</pre></div>
+<p>A legal but nonetheless discouraged implementation:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">char-set-hash</span> <span class="nv">cs</span> <span class="o">.</span> <span class="nv">maybe-bound</span><span class="p">)</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+<p>Rationale: allowing the user to specify an explicit bound simplifies
+user code by removing the mod operation that typically accompanies
+every hash computation, and also may allow the implementation of the
+hash function to exploit a reduced range to efficiently compute the
+hash value. E.g., for small bounds, the hash function may be computed
+in a fashion such that intermediate values never overflow into bignum
+integers, allowing the implementor to provide a fixnum-specific "fast
+path" for computing the common cases very rapidly.</p>
+<h2><code>(char-set-cursor cset)</code></h2>
+<h2><code>(char-set-ref cset cursor)</code></h2>
+<h2><code>(char-set-cursor-next cset cursor)</code></h2>
+<h2><code>(end-of-char-set? cursor)</code></h2>
+<p>Cursors are a low-level facility for iterating over the characters in
+a set. A cursor is a value that indexes a character in a char
+set. char-set-cursor produces a new cursor for a given char set. The
+set element indexed by the cursor is fetched with char-set-ref. A
+cursor index is incremented with char-set-cursor-next; in this way,
+code can step through every character in a char set. Stepping a cursor
+"past the end" of a char set produces a cursor that answers true to
+end-of-char-set?. It is an error to pass such a cursor to char-set-ref
+or to char-set-cursor-next.</p>
+<p>A cursor value may not be used in conjunction with a different
+character set; if it is passed to char-set-ref or char-set-cursor-next
+with a character set other than the one used to create it, the results
+and effects are undefined.</p>
+<p>Cursor values are not necessarily distinct from other types. They may
+be integers, linked lists, records, procedures or other values. This
+license is granted to allow cursors to be very "lightweight" values
+suitable for tight iteration, even in fairly simple implementations.</p>
+<p>Note that these primitives are necessary to export an iteration facility for char sets to loop macros.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">cs</span> <span class="p">(</span><span class="nf">char-set</span> <span class="sc">#\G</span> <span class="sc">#\a</span> <span class="sc">#\T</span> <span class="sc">#\e</span> <span class="sc">#\c</span> <span class="sc">#\h</span><span class="p">))</span>
+
+    <span class="c1">;; Collect elts of CS into a list.</span>
+    <span class="p">(</span><span class="k">let </span><span class="nv">lp</span> <span class="p">((</span><span class="nf">cur</span> <span class="p">(</span><span class="nf">char-set-cursor</span> <span class="nv">cs</span><span class="p">))</span> <span class="p">(</span><span class="nf">ans</span> <span class="o">&#39;</span><span class="p">()))</span>
+      <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">end-of-char-set?</span> <span class="nv">cur</span><span class="p">)</span> <span class="nv">ans</span>
+          <span class="p">(</span><span class="nf">lp</span> <span class="p">(</span><span class="nf">char-set-cursor-next</span> <span class="nv">cs</span> <span class="nv">cur</span><span class="p">)</span>
+              <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nf">char-set-ref</span> <span class="nv">cs</span> <span class="nv">cur</span><span class="p">)</span> <span class="nv">ans</span><span class="p">))))</span>
+      <span class="k">=&gt; </span><span class="p">(</span><span class="sc">#\G</span> <span class="sc">#\T</span> <span class="sc">#\a</span> <span class="sc">#\c</span> <span class="sc">#\e</span> <span class="sc">#\h</span><span class="p">)</span>
+
+    <span class="c1">;; Equivalently, using a list unfold (from SRFI 1):</span>
+    <span class="p">(</span><span class="nf">unfold-right</span> <span class="nv">end-of-char-set?</span>
+                  <span class="p">(</span><span class="nf">curry</span> <span class="nv">char-set-ref</span> <span class="nv">cs</span><span class="p">)</span>
+              <span class="p">(</span><span class="nf">curry</span> <span class="nv">char-set-cursor-next</span> <span class="nv">cs</span><span class="p">)</span>
+              <span class="p">(</span><span class="nf">char-set-cursor</span> <span class="nv">cs</span><span class="p">))</span>
+      <span class="k">=&gt; </span><span class="p">(</span><span class="sc">#\G</span> <span class="sc">#\T</span> <span class="sc">#\a</span> <span class="sc">#\c</span> <span class="sc">#\e</span> <span class="sc">#\h</span><span class="p">)</span>
+</pre></div>
+<p>Rationale: Note that the cursor API's four functions "fit" the
+functional protocol used by the unfolders provided by the list, string
+and char-set SRFIs (see the example above). By way of contrast, here
+is a simpler, two-function API that was rejected for failing this
+criterion. Besides char-set-cursor, it provided a single function that
+mapped a cursor and a character set to two values, the indexed
+character and the next cursor. If the cursor had exhausted the
+character set, then this function returned false instead of the
+character value, and another end-of-char-set cursor. In this way, the
+other three functions of the current API were combined together.</p>
+<h2><code>(char-set-fold kons knil cs)</code></h2>
+<p>This is the fundamental iterator for character sets. Applies the
+function kons across the character set cs using initial state value
+knil. That is, if cs is the empty set, the procedure returns
+knil. Otherwise, some element c of cs is chosen; let cs' be the
+remaining, unchosen characters. The procedure returns</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">char-set-fold</span> <span class="nv">kons</span> <span class="p">(</span><span class="nf">kons</span> <span class="nv">c</span> <span class="nv">knil</span><span class="p">)</span> <span class="nv">cs</span><span class="o">&#39;</span><span class="p">)</span>
+
+    <span class="nv">Examples:</span>
+
+    <span class="c1">;; CHAR-SET-MEMBERS</span>
+    <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">cs</span><span class="p">)</span> <span class="p">(</span><span class="nf">char-set-fold</span> <span class="nv">cons</span> <span class="o">&#39;</span><span class="p">()</span> <span class="nv">cs</span><span class="p">))</span>
+
+    <span class="c1">;; CHAR-SET-SIZE</span>
+    <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">cs</span><span class="p">)</span> <span class="p">(</span><span class="nf">char-set-fold</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">c</span> <span class="nv">i</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">i</span> <span class="mi">1</span><span class="p">))</span> <span class="mi">0</span> <span class="nv">cs</span><span class="p">))</span>
+
+    <span class="c1">;; How many vowels in the char set?</span>
+    <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">cs</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">char-set-fold</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">c</span> <span class="nv">i</span><span class="p">)</span> <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">vowel?</span> <span class="nv">c</span><span class="p">)</span> <span class="p">(</span><span class="nb">+ </span><span class="nv">i</span> <span class="mi">1</span><span class="p">)</span> <span class="nv">i</span><span class="p">))</span>
+                     <span class="mi">0</span> <span class="nv">cs</span><span class="p">))</span>
+</pre></div>
+<h2><code>(char-set-unfold f p g seed [base-cs])</code></h2>
+<h2><code>(char-set-unfold! f p g seed base-cs)</code></h2>
+<p>This is a fundamental constructor for char-sets.</p>
+<ul>
+<li><p>G is used to generate a series of "seed" values from the initial
+seed: seed, (g seed), (g2 seed), (g3 seed), ...</p>
+</li>
+<li><p>P tells us when to stop -- when it returns true when applied to one
+of these seed values.</p>
+</li>
+<li><p>F maps each seed value to a character. These characters are added to
+the base character set base-cs to form the result; base-cs defaults
+to the empty set. char-set-unfold! adds the characters to base-cs in
+a linear-update -- it is allowed, but not required, to side-effect
+and use base-cs's storage to construct the result.</p>
+</li>
+</ul>
+<p>More precisely, the following definitions hold, ignoring the optional-argument issues:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">char-set-unfold</span> <span class="nv">p</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">seed</span> <span class="nv">base-cs</span><span class="p">)</span>
+      <span class="p">(</span><span class="nf">char-set-unfold!</span> <span class="nv">p</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">seed</span> <span class="p">(</span><span class="nf">char-set-copy</span> <span class="nv">base-cs</span><span class="p">)))</span>
+
+    <span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">char-set-unfold!</span> <span class="nv">p</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">seed</span> <span class="nv">base-cs</span><span class="p">)</span>
+      <span class="p">(</span><span class="k">let </span><span class="nv">lp</span> <span class="p">((</span><span class="nf">seed</span> <span class="nv">seed</span><span class="p">)</span> <span class="p">(</span><span class="nf">cs</span> <span class="nv">base-cs</span><span class="p">))</span>
+            <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nf">p</span> <span class="nv">seed</span><span class="p">)</span> <span class="nv">cs</span>                                 <span class="c1">; P says we are done.</span>
+                <span class="p">(</span><span class="nf">lp</span> <span class="p">(</span><span class="nf">g</span> <span class="nv">seed</span><span class="p">)</span>                                <span class="c1">; Loop on (G SEED).</span>
+                    <span class="p">(</span><span class="nf">char-set-adjoin!</span> <span class="nv">cs</span> <span class="p">(</span><span class="nf">f</span> <span class="nv">seed</span><span class="p">))))))</span>      <span class="c1">; Add (F SEED) to set.</span>
+
+    <span class="p">(</span><span class="nf">Note</span> <span class="nv">that</span> <span class="nv">the</span> <span class="nv">actual</span> <span class="nv">implementation</span> <span class="nv">may</span> <span class="nv">be</span> <span class="nv">more</span> <span class="nv">efficient</span><span class="o">.</span><span class="p">)</span>
+</pre></div>
+<p>Examples:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">port-&gt;char-set</span> <span class="nv">p</span><span class="p">)</span> <span class="nv">=</span> <span class="p">(</span><span class="nf">char-set-unfold</span> <span class="nv">eof-object?</span> <span class="nv">values</span>
+                                          <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">read-char </span><span class="nv">p</span><span class="p">))</span>
+                                          <span class="p">(</span><span class="nb">read-char </span><span class="nv">p</span><span class="p">))</span>
+
+    <span class="p">(</span><span class="nf">list-&gt;char-set</span> <span class="nv">lis</span><span class="p">)</span> <span class="nv">=</span> <span class="p">(</span><span class="nf">char-set-unfold</span> <span class="nv">null?</span> <span class="nv">car</span> <span class="nv">cdr</span> <span class="nv">lis</span><span class="p">)</span>
+</pre></div>
+<h2><code>(char-set-for-each proc cs)</code></h2>
+<p>Apply procedure proc to each character in the character set cs. Note
+that the order in which proc is applied to the characters in the set
+is not specified, and may even change from one procedure application
+to another.</p>
+<p>Nothing at all is specified about the value returned by this
+procedure; it is not even required to be consistent from call to
+call. It is simply required to be a value (or values) that may be
+passed to a command continuation, e.g. as the value of an expression
+appearing as a non-terminal subform of a begin expression. Note that
+in R5RS, this restricts the procedure to returning a single value;
+non-R5RS systems may not even provide this restriction.  char-set-map
+proc cs -&gt; char-set proc is a char-&gt;char procedure. Apply it to all
+the characters in the char-set cs, and collect the results into a new
+character set.</p>
+<p>Essentially lifts proc from a char-&gt;char procedure to a char-set -&gt; char-set procedure.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">char-set-map</span> <span class="nv">char-downcase</span> <span class="nv">cset</span><span class="p">)</span>
+</pre></div>
+<h2><code>(char-set-copy cs)</code></h2>
+<p>Returns a copy of the character set cs. "Copy" means that if either
+the input parameter or the result value of this procedure is passed to
+one of the linear-update procedures described below, the other
+character set is guaranteed not to be altered.</p>
+<p>A system that provides pure-functional implementations of the
+linear-operator suite could implement this procedure as the identity
+function -- so copies are not guaranteed to be distinct by eq?.</p>
+<h2><code>(char-set char1 ...)</code></h2>
+<p>Return a character set containing the given characters.</p>
+<h2><code>(list-&gt;char-set  char-list [base-cs])</code></h2>
+<h2><code>(list-&gt;char-set! char-list base-cs)</code></h2>
+<p>Return a character set containing the characters in the list of
+characters char-list.</p>
+<p>If character set base-cs is provided, the characters from char-list
+are added to it. list-&gt;char-set! is allowed, but not required, to
+side-effect and reuse the storage in base-cs; list-&gt;char-set produces
+a fresh character set.</p>
+<h2><code>(string-&gt;char-set  s [base-cs])</code></h2>
+<h2><code>(string-&gt;char-set! s base-cs)</code></h2>
+<p>Return a character set containing the characters in the string s.</p>
+<p>If character set base-cs is provided, the characters from s are added
+to it. string-&gt;char-set! is allowed, but not required, to side-effect
+and reuse the storage in base-cs; string-&gt;char-set produces a fresh
+character set.</p>
+<h2><code>(char-set-filter  pred cs [base-cs])</code></h2>
+<h2><code>(char-set-filter! pred cs base-cs)</code></h2>
+<p>Returns a character set containing every character c in cs such that
+(pred c) returns true.</p>
+<p>If character set base-cs is provided, the characters specified by pred
+are added to it. char-set-filter! is allowed, but not required, to
+side-effect and reuse the storage in base-cs; char-set-filter produces
+a fresh character set.</p>
+<p>An implementation may not save away a reference to pred and invoke it
+after char-set-filter or char-set-filter! returns -- that is, "lazy,"
+on-demand implementations are not allowed, as pred may have external
+dependencies on mutable data or have other side-effects.</p>
+<p>Rationale: This procedure provides a means of converting a character
+predicate into its equivalent character set; the cs parameter allows
+the programmer to bound the predicate's domain. Programmers should be
+aware that filtering a character set such as char-set:full could be a
+very expensive operation in an implementation that provided an
+extremely large character type, such as 32-bit Unicode. An earlier
+draft of this library provided a simple predicate-&gt;char-set procedure,
+which was rejected in favor of char-set-filter for this reason.</p>
+<h2><code>(ucs-range-&gt;char-set  lower upper [error? base-cs])</code></h2>
+<h2><code>(ucs-range-&gt;char-set! lower upper error? base-cs)</code></h2>
+<p>Lower and upper are exact non-negative integers; lower &lt;= upper.</p>
+<p>Returns a character set containing every character whose ISO/IEC 10646
+UCS-4 code lies in the half-open range [lower,upper).</p>
+<p>If the requested range includes unassigned UCS values, these are
+silently ignored (the current UCS specification has "holes" in the
+space of assigned codes).</p>
+<p>If the requested range includes "private" or "user space" codes, these
+are handled in an implementation-specific manner; however, a UCS- or
+Unicode-based Scheme implementation should pass them through
+transparently.</p>
+<p>If any code from the requested range specifies a valid, assigned UCS
+character that has no corresponding representative in the
+implementation's character type, then (1) an error is raised if error?
+is true, and (2) the code is ignored if error? is false (the
+default). This might happen, for example, if the implementation uses
+ASCII characters, and the requested range includes non-ASCII
+characters.</p>
+<p>If character set base-cs is provided, the characters specified by the
+range are added to it. ucs-range-&gt;char-set! is allowed, but not
+required, to side-effect and reuse the storage in base-cs;
+ucs-range-&gt;char-set produces a fresh character set.</p>
+<p>Note that ASCII codes are a subset of the Latin-1 codes, which are in
+turn a subset of the 16-bit Unicode codes, which are themselves a
+subset of the 32-bit UCS-4 codes. We commit to a specific encoding in
+this routine, regardless of the underlying representation of
+characters, so that client code using this library will be
+portable. I.e., a conformant Scheme implementation may use EBCDIC or
+SHIFT-JIS to encode characters; it must simply map the UCS characters
+from the given range into the native representation when possible, and
+report errors when not possible.</p>
+<h2><code>(-&gt;char-set x)</code></h2>
+<p>Coerces x into a char-set. X may be a string, character or char-set. A
+string is converted to the set of its constituent characters; a
+character is converted to a singleton set; a char-set is returned
+as-is. This procedure is intended for use by other procedures that
+want to provide "user-friendly," wide-spectrum interfaces to their
+clients.</p>
+<h2><code>(char-set-size cs)</code></h2>
+<p>Returns the number of elements in character set cs.</p>
+<h2><code>(char-set-count pred cs)</code></h2>
+<p>Apply pred to the chars of character set cs, and return the number of
+chars that caused the predicate to return true.</p>
+<h2><code>(char-set-&gt;list cs)</code></h2>
+<p>This procedure returns a list of the members of character set cs. The
+order in which cs's characters appear in the list is not defined, and
+may be different from one call to another.</p>
+<h2><code>(char-set-&gt;string cs)</code></h2>
+<p>This procedure returns a string containing the members of character
+set cs. The order in which cs's characters appear in the string is not
+defined, and may be different from one call to another.</p>
+<h2><code>(char-set-contains? cs char)</code></h2>
+<p>This procedure tests char for membership in character set cs.</p>
+<p>The MIT Scheme character-set package called this procedure
+char-set-member?, but the argument order isn't consistent with the
+name.</p>
+<h2><code>(char-set-every pred cs)</code></h2>
+<h2><code>(char-set-any   pred cs)</code></h2>
+<p>The char-set-every procedure returns true if predicate pred returns
+true of every character in the character set cs. Likewise,
+char-set-any applies pred to every character in character set cs, and
+returns the first true value it finds. If no character produces a true
+value, it returns false. The order in which these procedures sequence
+through the elements of cs is not specified.</p>
+<p>Note that if you need to determine the actual character on which a
+predicate returns true, use char-set-any and arrange for the predicate
+to return the character parameter as its true value, e.g.</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">char-set-any</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">c</span><span class="p">)</span> <span class="p">(</span><span class="k">and </span><span class="p">(</span><span class="nb">char-upper-case? </span><span class="nv">c</span><span class="p">)</span> <span class="nv">c</span><span class="p">))</span>
+                  <span class="nv">cs</span><span class="p">)</span>
+</pre></div>
+<h2><code>(char-set-adjoin cs char1 ...)</code></h2>
+<h2><code>(char-set-delete cs char1 ...)</code></h2>
+<p>Add/delete the chari characters to/from character set cs.</p>
+<h2><code>(char-set-adjoin! cs char1 ...)</code></h2>
+<h2><code>(char-set-delete! cs char1 ...)</code></h2>
+<p>Linear-update variants. These procedures are allowed, but not
+required, to side-effect their first parameter.</p>
+<h2><code>(char-set-complement cs)</code></h2>
+<h2><code>(char-set-union cs1 ...)</code></h2>
+<h2><code>(char-set-intersection cs1 ...)</code></h2>
+<h2><code>(char-set-difference cs1 cs2 ...)</code></h2>
+<h2><code>(char-set-xor cs1 ...)</code></h2>
+<h2><code>(char-set-diff+intersection cs1 cs2 ...)</code></h2>
+<p>These procedures implement set complement, union, intersection,
+difference, and exclusive-or for character sets. The union,
+intersection and xor operations are n-ary. The difference function is
+also n-ary, associates to the left (that is, it computes the
+difference between its first argument and the union of all the other
+arguments), and requires at least one argument.</p>
+<p>Boundary cases:</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">char-set-union</span><span class="p">)</span> <span class="k">=&gt; </span><span class="nv">char-set:empty</span>
+<span class="p">(</span><span class="nf">char-set-intersection</span><span class="p">)</span> <span class="k">=&gt; </span><span class="nv">char-set:full</span>
+<span class="p">(</span><span class="nf">char-set-xor</span><span class="p">)</span> <span class="k">=&gt; </span><span class="nv">char-set:empty</span>
+<span class="p">(</span><span class="nf">char-set-difference</span> <span class="nv">cs</span><span class="p">)</span> <span class="k">=&gt; </span><span class="nv">cs</span>
+</pre></div>
+<p>char-set-diff+intersection returns both the difference and the
+intersection of the arguments -- it partitions its first parameter. It
+is equivalent to</p>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">values </span><span class="p">(</span><span class="nf">char-set-difference</span> <span class="nv">cs1</span> <span class="nv">cs2</span> <span class="o">...</span><span class="p">)</span>
+        <span class="p">(</span><span class="nf">char-set-intersection</span> <span class="nv">cs1</span> <span class="p">(</span><span class="nf">char-set-union</span> <span class="nv">cs2</span> <span class="o">...</span><span class="p">)))</span>
+</pre></div>
+<p>but can be implemented more efficiently.</p>
+<p>Programmers should be aware that char-set-complement could potentially
+be a very expensive operation in Scheme implementations that provide a
+very large character type, such as 32-bit Unicode. If this is a
+possibility, sets can be complimented with respect to a smaller
+universe using char-set-difference.</p>
+<h2><code>(char-set-complement! cs)</code></h2>
+<h2><code>(char-set-union! cs1 cs2 ...)</code></h2>
+<h2><code>(char-set-intersection! cs1 cs2 ...)</code></h2>
+<h2><code>(char-set-difference! cs1 cs2 ...)</code></h2>
+<h2><code>(char-set-xor! cs1 cs2 ...)</code></h2>
+<h2><code>(char-set-diff+intersection! cs1 cs2 cs3 ...)</code></h2>
+<p>These are linear-update variants of the set-algebra functions. They
+are allowed, but not required, to side-effect their first (required)
+parameter.</p>
+<p>char-set-diff+intersection! is allowed to side-effect both of its two
+required parameters, cs1 and cs2.</p>
+<h2><code>char-set:lower-case</code></h2>
+<p>Lower-case letters</p>
+<h2><code>char-set:upper-case</code></h2>
+<p>Upper-case letters</p>
+<h2><code>char-set:title-case</code></h2>
+<p>Title-case letters</p>
+<h2><code>char-set:letter</code></h2>
+<p>Letters</p>
+<h2><code>char-set:digit</code></h2>
+<p>Digits</p>
+<h2><code>char-set:letter+digit</code></h2>
+<p>Letters and digits</p>
+<h2><code>char-set:graphic</code></h2>
+<p>Printing characters except spaces</p>
+<h2><code>char-set:printing</code></h2>
+<p>Printing characters including spaces</p>
+<h2><code>char-set:whitespace</code></h2>
+<p>Whitespace characters</p>
+<h2><code>char-set:iso-control</code></h2>
+<p>The ISO control characters</p>
+<h2><code>char-set:punctuation</code></h2>
+<p>Punctuation characters</p>
+<h2><code>char-set:symbol</code></h2>
+<p>Symbol characters</p>
+<h2><code>char-set:hex-digit</code></h2>
+<p>A hexadecimal digit: 0-9, A-F, a-f</p>
+<h2><code>char-set:blank</code></h2>
+<p>Blank characters -- horizontal whitespace</p>
+<h2><code>char-set:ascii</code></h2>
+<p>All characters in the ASCII set.</p>
+<h2><code>char-set:empty</code></h2>
+<p>Empty set</p>
+<h2><code>char-set:full</code></h2>
+<p>All characters</p>
+</div>
+    </div>
+  </body>
+</html>
