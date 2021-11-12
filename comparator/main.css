@@ -1,11 +1,3 @@
-@font-face {
-    font-family: 'Linux Libertine';
-    src: url('static/LinLibertine_Rah.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-
-}
-
 * {
     box-sizing: border-box;
 }
@@ -31,10 +23,10 @@ p, h1, h2, h3, h4, h5, h6 {
 #box, #loading {
     display: none;
     box-sizing: border-box;
-    background: hsla(0, 0%, 0%, 0.9);
+    /* background: hsla(0, 0%, 0%, 0.9); */
     border-radius: 5px;
-    color: #777;
-    font-family: mono, monospace;
+    /* color: #777; */
+    /* font-family: mono, monospace; */
     margin-bottom: 10px;
     padding: 15px;
     text-align: center;
@@ -42,7 +34,7 @@ p, h1, h2, h3, h4, h5, h6 {
 
 #box {
     display: block;
-    border: 2px solid #f45e61;
+    border: 1px solid black;
     padding: 15px;
     text-align: left;
 }
@@ -116,49 +108,49 @@ p, h1, h2, h3, h4, h5, h6 {
 
 
 body {
-    background-color: black;
-    background: url("static/billy-huynh-278252-unsplash-small.jpg") fixed;
-    background-size: cover;
-    color: white;
+    /* background-color: black; */
+    /* background: url("static/billy-huynh-278252-unsplash-small.jpg") fixed; */
+    /* background-size: cover; */
+    /* color: white; */
     margin: 0px;
     padding: 0px;
-    font-family: 'Linux Libertine', serif;
-    line-height: 1.6em;
-    font-size: 20px;
+    /* font-family: 'Linux Libertine', serif; */
+    /* line-height: 1.6em; */
+    /* font-size: 20px; */
 }
 
-a:link, a:visited, a:active {
-    color: #3498db;
-}
+/* a:link, a:visited, a:active { */
+/*     color: #3498db; */
+/* } */
 
-a:hover {
-    color: #2980b9;
-}
+/* a:hover { */
+/*     color: #2980b9; */
+/* } */
 
 
-blockquote {
-    border: 1px solid #3498db;
-    border-left: 5px solid #3498db;
-    padding: 15px 30px;
-    text-align: justify;
-}
+/* blockquote { */
+/*     border: 1px solid #3498db; */
+/*     border-left: 5px solid #3498db; */
+/*     padding: 15px 30px; */
+/*     text-align: justify; */
+/* } */
 
-blockquote > p {
-    font-size: 1.2em;
-}
+/* blockquote > p { */
+/*     font-size: 1.2em; */
+/* } */
 
-#overlay {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    z-index: -99;
-    transform: translateX(-50%) translateY(-50%);
-    background: url(static/overlay-video-dark.png);
-}
+/* #overlay { */
+/*     position: fixed; */
+/*     top: 50%; */
+/*     left: 50%; */
+/*     min-width: 100%; */
+/*     min-height: 100%; */
+/*     width: auto; */
+/*     height: auto; */
+/*     z-index: -99; */
+/*     transform: translateX(-50%) translateY(-50%); */
+/*     background: url(static/overlay-video-dark.png); */
+/* } */
 
 #container {
     max-width: 777px;
