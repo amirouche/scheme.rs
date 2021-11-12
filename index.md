@@ -27,49 +27,51 @@ give something back.
 
 Or, like others, to make it your secret sauce.
 
+## [Discourse](/discourse/)
+
 ## [Tutorial](/tutorial/)
 
 ## Standard Library
 
-- [`(scheme base)`](/scheme/base/)
+- [`(scheme base)`](/scheme/base/) R7RS-small
 - [`(scheme bitwise)`](/scheme/bitwise/)
 - [`(scheme box)`](/scheme/box/)
 - [`(scheme bytevector)`](/scheme/bytevector/)
-- [`(scheme case-lambda)`](/scheme/case-lambda/)
-- [`(scheme char)`](/scheme/char/)
+- [`(scheme case-lambda)`](/scheme/case-lambda/)  R7RS-small
+- [`(scheme char)`](/scheme/char/) R7RS-small
 - [`(scheme charset)`](/scheme/charset/)
 - [`(scheme comparator)`](/scheme/comparator/)
-- [`(scheme complex)`](/scheme/complex/)
-- [`(scheme cxr)`](/scheme/cxr/)
+- [`(scheme complex)`](/scheme/complex/) R7RS-small
+- [`(scheme cxr)`](/scheme/cxr/) R7RS-small
 - [`(scheme division)`](/scheme/division/)
 - [`(scheme ephemeron)`](/scheme/ephemeron/)
-- [`(scheme eval)`](/scheme/eval/)
-- [`(scheme file)`](/scheme/file/)
+- [`(scheme eval)`](/scheme/eval/) R7RS-small
+- [`(scheme file)`](/scheme/file/) R7RS-small
 - [`(scheme fixnum)`](/scheme/fixnum/)
 - [`(scheme flonum)`](/scheme/flonum/)
 - [`(scheme generator)`](/scheme/generator/)
 - [`(scheme hash-table)`](/scheme/hash-table/)
 - [`(scheme idque)`](/scheme/idque/)
 - [`(scheme ilist)`](/scheme/ilist/)
-- [`(scheme inexact)`](/scheme/inexact/)
-- [`(scheme lazy)`](/scheme/lazy/)
+- [`(scheme inexact)`](/scheme/inexact/) R7RS-small
+- [`(scheme lazy)`](/scheme/lazy/) R7RS-small
 - [`(scheme list)`](/scheme/list/)
 - [`(scheme list-queue)`](/scheme/list-queue/)
-- [`(scheme load)`](/scheme/load/)
+- [`(scheme load)`](/scheme/load/) R7RS-small
 - [`(scheme lseq)`](/scheme/lseq/)
 - [`(scheme mapping)`](/scheme/mapping/)
 - [`(scheme mapping-hash)`](/scheme/mapping-hash/)
-- [`(scheme process-context)`](/scheme/process-context/)
-- [`(scheme r5rs)`](/scheme/r5rs/)
-- [`(scheme read)`](/scheme/read/)
+- [`(scheme process-context)`](/scheme/process-context/) R7RS-small
+- [`(scheme r5rs)`](/scheme/r5rs/) R7RS-small
+- [`(scheme read)`](/scheme/read/) R7RS-small
 - [`(scheme regex)`](/scheme/regex/)
-- [`(scheme repl)`](/scheme/repl/)
+- [`(scheme repl)`](/scheme/repl/) R7RS-small
 - [`(scheme rlist)`](/scheme/rlist/)
 - [`(scheme set)`](/scheme/set/)
 - [`(scheme show)`](/scheme/show/)
 - [`(scheme sort)`](/scheme/sort/)
 - [`(scheme stream)`](/scheme/stream/)
 - [`(scheme text)`](/scheme/text/)
-- [`(scheme time)`](/scheme/time/)
+- [`(scheme time)`](/scheme/time/) R7RS-small
 - [`(scheme vector)`](/scheme/vector/)
-- [`(scheme write)`](/scheme/write/)
+- [`(scheme write)`](/scheme/write/) R7RS-small
