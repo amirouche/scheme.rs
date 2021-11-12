@@ -7,11 +7,20 @@ through three gates.
 * At the second gate ask, is it necessary.
 * At the third gate ask, is it kind.
 
-> "You should attempt to re-express your target's position so clearly,
-> vividly, and fairly that your target says, "Thanks, I wish I'd
-> thought of putting it that way.""
+> 1. You should attempt to re-express your target's position so
+>    clearly, vividly, and fairly that your target says, "Thanks, I
+>    wish I'd thought of putting it that way."
 >
-> — Rapoport's First Rule
+> 2. You should list any points of agreement (especially if they are
+>    not matters of general or widespread agreement).
+>
+> 3. You should list any points of agreement (especially if they are
+>    not matters of general or widespread agreement).
+>
+> 4. You should list any points of agreement (especially if they are
+>    not matters of general or widespread agreement).
+>
+> — [Dennett's version of Rapoport's Rules](https://wikiless.org/wiki/Rogerian_rhetoric?lang=en#Dennett's_version)
 
 ## Argument Ranking
 
@@ -116,10 +125,10 @@ through three gates.
 >
 > — 老子(Lao Tse), 道德經(Dao De Jing)
 
-The first principle of Wikipedia etiquette has been said to be **Assume Good
-Faith**.
+The first principle of Wikipedia etiquette has been said to be
+**Assume Good Faith**, also they **Be Bold, but not Reckless**.
 
-#### Wrong discourse
+**Wrong discourse**
 
 - Answer: Jumping into a conversation with endless unapplicable,
   unrealistic or unrelated answers to the question.
@@ -128,15 +137,13 @@ Faith**.
   claim of just asking questions, and ignoring the answers. Asking
   loaded questions.
 
-#### Good discourse
+**Good discourse**
 
 - Answer: A clear and honest response to the central point of a question
   without an aggressive attempt to convince.
 
 - Question: question asked with the intention to be fair, open, and
   honest, regardless of the outcome of the interaction.
-
-#### Conclusion
 
 Social rules are expected to be broken from time to time, in that
 regard they are different from a code of conduct.
@@ -204,9 +211,21 @@ regard they are different from a code of conduct.
 >
 > — James P. Carse, Finite and Infinite Games
 
+> Instead of trying to prove your opponent wrong, try to see in what sense he might be right.
+> — Robert Nozick, Anarchy, State, and Utopia
+
+> "I don't argue: I just say what I know or what I believe, as the case may be."
+> — John W. Cohan
+
+> "You should mention anything you have learned from your target."
+
+## LICENSE
+
 The whole page is licensed under
 [cc-by-nc-sa](https://creativecommons.org/licenses/by-nc-sa/4.0); it
 slightly adapted from https://wiki.xxiivv.com/site/discourse.html to
 be able to support the static site generator used on https://scheme.rs
 and to avoid the words `bad` (replaced with `wrong`) and `faith`
-(replaced with `discourse`).
+(replaced with `discourse`), a few other changes, see
+[history](https://git.sr.ht/~amirouche/scheme.rs/log/main/item/discourse/index.md)
+for complete log.
