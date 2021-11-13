@@ -1,7 +1,9 @@
 Let's agree that *serif* fonts do not always carry boring stuff. And have a taste of it:
 
-> Programming languages should be designed not by piling feature on top of feature, but by removing the weaknesses and restrictions that make additional features appear necessary.
-> — [Revised 7 Report on the Algorithmic Language Scheme](http://r7rs.org/), Introduction.
+> Programming languages should be designed not by piling feature on
+> top of feature, but by removing the weaknesses and restrictions that
+> make additional features appear necessary.  — [Revised 7 Report on
+> the Algorithmic Language Scheme](http://r7rs.org/), Introduction.
 
 Otherwise said, Scheme offers a minimalist core of powerful primitives
 upon which one can build abstractions to solve (real world) problems.
@@ -75,3 +77,36 @@ Or, like others, to make it your secret sauce.
 - [`(scheme time)`](/scheme/time/) R7RS-small
 - [`(scheme vector)`](/scheme/vector/)
 - [`(scheme write)`](/scheme/write/) R7RS-small
+
+## Source, and single page files
+
+You can find the [source over the
+rainbow](https://git.sr.ht/~amirouche/scheme.rs). There is available a
+[single markdown file](scheme.rs.md), and a [(slightly broken) single
+html file](scheme.rs.html);
+
+## LICENSE
+
+Except otherwise noted, this documentation is licensed under the SRFI
+license:
+
+Copyright (C) Amirouche Amazigh BOUBEKKI, and contributors (2021).
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
