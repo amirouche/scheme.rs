@@ -287,7 +287,6 @@
 ;;   (let loop ((routes (query-routes model)))
 ;;     (if (valid? path routes)
 
-
 (define (create-app init view)
   (let ((model (okvs-open #f)))
     (okvs-in-transaction model (lambda (txn) (init txn)))
@@ -321,7 +320,6 @@
 
 (define (eval-string string)
   (eval (string->scm string) (environment '(scheme base))))
-
 
 (define data
   '(("scheme" "is" "programming language")
@@ -539,21 +537,17 @@ Chez Scheme also includes extensive support for interfacing with C and other lan
   `(div
     (div (@ (style ,style-box))
          (h2 "Filters")
-         (ul (@ (style ((columns . "2"))))
-             (li (@ (style ((border . "1px solid hsla(0, 100%, 0%, 0.3)")
+         (ul (@ (style ((display . "flex"))))
+             (li (@ (style (
                             (margin . "5px")
-                            (padding . "15px")
-                            (display . "flex")
-                            (justify-content . "space-around"))))
-              (p "R7RS") (div (@ (on ((click ,(toggle 'R7RS)))))
-                              ,(widget-switch (filter-ref txn 'R7RS))))
-             (li (@ (style ((margin . "5px")
                             (border . "1px solid hsla(0, 100%, 0%, 0.3)")
                             (padding . "15px")
                             (display . "flex")
                             (justify-content . "space-around"))))
-                 (p "R7RS") (div (@ (on ((click ,(toggle 'R7RS)))))
-                                 ,(widget-switch (filter-ref txn 'R7RS))))
+                 (p (@ (style ((margin-right . "15px"))))
+                    "R7RS")
+                 (div (@ (on ((click ,(toggle 'R7RS)))))
+                      ,(widget-switch (filter-ref txn 'R7RS))))
              ))
     ,@(if (filter-ref txn 'R7RS)
           (let loop ((schemes (query-schemes txn))
