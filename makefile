@@ -6,3 +6,6 @@ all: html
 html:
 	cat index.md discourse/index.md tutorial/index.md $(shell find scheme/ -name "index.md") > scheme.rs.md
 	pandoc scheme.rs.md -o scheme.rs.html
+
+serve:
+	python3 -m http.server
