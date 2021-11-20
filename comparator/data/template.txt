@@ -5,4 +5,3 @@
 (name url "https://example.com/")
 (name forge "https://forge.hyper.dev")
 (name description "frobaction description foo bar qux!")
-(name r6rs #t)
