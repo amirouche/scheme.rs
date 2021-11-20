@@ -1,0 +1,18 @@
+;; Implementation mit
+
+(mit type scheme)
+(mit name "MIT")
+(mit url "https://www.gnu.org/software/mit-scheme/")
+(mit forge "https://www.gnu.org/software/mit-scheme/")
+(mit description "MIT/GNU Scheme is an implementation of the Scheme programming language, providing an interpreter, compiler, source-code debugger, integrated Emacs-like editor, and a large runtime library. MIT/GNU Scheme is best suited to programming large applications with a rapid development cycle.")
+(mit r5rs #t)
+(mit debian #t)
+(mit guix #t)
+(mit cffi #t)
+(mit cffi #t)
+(mit doc50k #t)
+(mit windows #t)
+(mit macos #t)
+(mit gnu/linux #t)
+(mit amd64 #t)
+(mit x86 #t)

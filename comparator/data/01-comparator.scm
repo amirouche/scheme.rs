@@ -137,9 +137,9 @@
 (android subtype os)
 (android name "Android")
 
-(iOS type filter)
-(iOS subtype os)
-(iOS name "IOS")
+(ios type filter)
+(ios subtype os)
+(ios name "IOS")
 
 ;;; Hardware architecture
 
