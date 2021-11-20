@@ -112,3 +112,18 @@ blockquote > p {
     font-family: Hack, mono, monospace;
     font-size: 20px;
 }
+
+button {
+    padding: 5px;
+    margin: 5px;
+}
+
+button.active {
+    background: green;
+}
+
+div.scheme {
+    padding: 15px;
+    maring: 10px;
+    border: 1px darkgray solid;
+}
