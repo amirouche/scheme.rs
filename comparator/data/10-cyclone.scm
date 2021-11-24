@@ -6,7 +6,6 @@
 (cyclone forge "https://github.com/justinethier/cyclone")
 (cyclone description "A brand-new compiler that allows practical application development using R7RS Scheme. We provide modern features and a stable system capable of generating fast native binaries. ")
 (cyclone r7rs-small #t)
-(cyclone r7rs-large #t)
 (cyclone cffi #t)
 (cyclone windows #t)
 (cyclone macos #t)

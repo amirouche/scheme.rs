@@ -19,4 +19,3 @@
 (gambit ios #t)
 (gambit amd64 #t)
 (gambit x86 #t)
-(gambit top3 #t)

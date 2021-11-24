@@ -1,0 +1,17 @@
+;; STklos
+
+(stklos type scheme)
+(stklos name "STklos Scheme")
+(stklos url "https://stklos.net")
+(stklos forge "https://github.com/egallesio/stklos")
+(stklos description "STklos is a free Scheme system mostly compliant with the languages features defined in R7RS small. The aim of this implementation is to be fast as well as light. The implementation is based on an ad-hoc Virtual Machine.")
+(stklos r5rs #t)
+(stklos r7rs-small #t)
+(stklos cffi #t)
+(stklos doc50k #t)
+(stklos freebsd #t)
+(stklos android #t)
+(stklos gnu/linux #t)
+(stklos amd64 #t)
+(stklos x86 #t)
+(stklos oop #t)

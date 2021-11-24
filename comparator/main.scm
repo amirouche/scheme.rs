@@ -202,9 +202,8 @@
 (chez name "Chez Scheme")
 (chez url "https://scheme.com/")
 (chez forge "https://github.com/cisco/chezscheme")
-(chez description "both a programming language and an implementation of that language, with supporting tools and documentation. As a superset of the language described in the Revised 6 Report on the Algorithmic Language Scheme (R6RS), Chez Scheme supports all standard features of Scheme, including first-class procedures, proper treatment of tail calls, continuations, user-defined records, libraries, exceptions, and hygienic macro expansion. Chez Scheme also includes extensive support for interfacing with C and other languages, support for multiple threads possibly running on multiple cores, non-blocking I/O, and many other features.")
+(chez description "supports all standard features of Scheme, including first-class procedures, proper treatment of tail calls, continuations, user-defined records, libraries, exceptions, and hygienic macro expansion. Chez Scheme also includes extensive support for interfacing with C and other languages, support for multiple threads possibly running on multiple cores, non-blocking I/O, and many other features.")
 (chez r6rs #t)
-(chez r7rs-small #t)
 (chez debian #t)
 (chez guix #t)
 (chez cffi #t)
@@ -237,7 +236,6 @@
 (gambit ios #t)
 (gambit amd64 #t)
 (gambit x86 #t)
-(gambit top3 #t)
 ;; Gerbil Scheme
 
 (gerbil type scheme)
@@ -358,7 +356,6 @@
 (cyclone forge "https://github.com/justinethier/cyclone")
 (cyclone description "A brand-new compiler that allows practical application development using R7RS Scheme. We provide modern features and a stable system capable of generating fast native binaries. ")
 (cyclone r7rs-small #t)
-(cyclone r7rs-large #t)
 (cyclone cffi #t)
 (cyclone windows #t)
 (cyclone macos #t)
@@ -437,6 +434,23 @@
 (s9fes netbsd #t)
 (s9fes amd64 #t)
 (s9fes toy #t)
+;; STklos
+
+(stklos type scheme)
+(stklos name "STklos Scheme")
+(stklos url "https://stklos.net")
+(stklos forge "https://github.com/egallesio/stklos")
+(stklos description "STklos is a free Scheme system mostly compliant with the languages features defined in R7RS small. The aim of this implementation is to be fast as well as light. The implementation is based on an ad-hoc Virtual Machine.")
+(stklos r5rs #t)
+(stklos r7rs-small #t)
+(stklos cffi #t)
+(stklos doc50k #t)
+(stklos freebsd #t)
+(stklos android #t)
+(stklos gnu/linux #t)
+(stklos amd64 #t)
+(stklos x86 #t)
+(stklos oop #t)
 ;; This is the end... of the symbolic expression started in
 ;; 00-hyperdata called hyperdata.
 ))
