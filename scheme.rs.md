@@ -1167,7 +1167,7 @@ The formal syntax of Scheme is described in section [\[BNF\]](#BNF).
 #### Base and optional features
 
 Every identifier defined in this report appears in one or more of
-several *libraries*. Identifiers defined in the *base library* are not
+several `libraries`. Identifiers defined in the *base library* are not
 marked specially in the body of the report. This library includes the
 core syntax of Scheme and generally useful procedures that manipulate
 data. For example, the variable abs is bound to a procedure of one
@@ -1207,8 +1207,8 @@ previously used for the same purpose. In addition to errors signaled in
 situations described in this report, programmers can signal their own
 errors and handle signaled errors.
 
-The phrase “an error that satisfies *predicate* is signaled” means that
-an error is signaled as above. Furthermore, if the object that is
+The phrase “an error that satisfies *predicate* is signaled” means
+that an error is signaled as above. Furthermore, if the object that is
 signaled is passed to the specified predicate (such as file-error? or
 read-error?), the predicate returns #t.
 
@@ -1266,10 +1266,10 @@ for identifiers in the base library, or
 
 > *template*  *name* library *category*
 
-where *name* is the short name of a library as defined in
+where `name` is the short name of a library as defined in
 Appendix [\[stdlibraries\]](#stdlibraries).
 
-If *category* is “syntax,” the entry describes an expression type, and
+If `category` is “syntax,” the entry describes an expression type, and
 the template gives the syntax of the expression type. Components of
 expressions are designated by syntactic variables, which are written
 using angle brackets, for example expression and variable. Syntactic
@@ -1289,18 +1289,18 @@ thing thing ...
 
 indicates one or more occurrences of a thing.
 
-If *category* is “auxiliary syntax,” then the entry describes a syntax
+If `category` is “auxiliary syntax,” then the entry describes a syntax
 binding that occurs only as part of specific surrounding expressions.
 Any use as an independent syntactic construct or variable is an error.
 
-If *category* is “procedure,” then the entry describes a procedure, and
+If `category` is “procedure,” then the entry describes a procedure, and
 the header line gives a template for a call to the procedure. Argument
 names in the template are *italicized*. Thus the header line
 
 > `(vector-ref vector k)` *procedure*
 
 indicates that the procedure bound to the `vector-ref` variable takes
-two arguments, a vector *vector* and an exact non-negative integer *k*
+two arguments, a vector `vector` and an exact non-negative integer `k`
 (see below). The header lines
 
 > (make-vector *k*)  procedure
@@ -1348,20 +1348,20 @@ type restrictions:
 The names *s**t**a**r**t* and *e**n**d* are used as indexes into
 strings, vectors, and bytevectors. Their use implies the following:
 
--   It is an error if *start* is greater than *end*.
+-   It is an error if `start` is greater than `end`.
 
--   It is an error if *end* is greater than the length of the string,
+-   It is an error if `end` is greater than the length of the string,
     vector, or bytevector.
 
--   If *start* is omitted, it is assumed to be zero.
+-   If `start` is omitted, it is assumed to be zero.
 
--   If *end* is omitted, it assumed to be the length of the string,
+-   If `end` is omitted, it assumed to be the length of the string,
     vector, or bytevector.
 
--   The index *start* is always inclusive and the index *end* is always
-    exclusive. As an example, consider a string. If *start* and *end*
-    are the same, an empty substring is referred to, and if *start* is
-    zero and *end* is the length of *string*, then the entire string is
+-   The index `start` is always inclusive and the index `end` is always
+    exclusive. As an example, consider a string. If `start` and `end`
+    are the same, an empty substring is referred to, and if `start` is
+    zero and `end` is the length of `string`, then the entire string is
     referred to.
 
 #### Evaluation examples
@@ -1433,7 +1433,7 @@ inline hex escape or the same escapes available in strings.
 
 For example, the identifier `|H\x65;llo|` is the same identifier as
 `Hello`, and in an implementation that supports the appropriate Unicode
-character the identifier `|\x3BB;|` is the same as the identifier *λ*.
+character the identifier `|\x3BB;|` is the same as the identifier `λ`.
 What is more, `|\t\t|` and `|\x9;\x9;|` are the same. Note that `||` is
 a valid identifier that is different from any other identifier.
 
@@ -2061,7 +2061,7 @@ will be returned as the results of the procedure call.
 
 Formals have one of the following forms:
 
--   `(variable_1 \ldots\,)`: The procedure takes a fixed number of
+-   `(variable_1 ...)`: The procedure takes a fixed number of
     arguments; when the procedure is called, the arguments will be
     stored in fresh locations that are bound to the corresponding
     variables.
@@ -2071,7 +2071,7 @@ Formals have one of the following forms:
     into a newly allocated list, and the list is stored in a fresh
     location that is bound to variable.
 
--   `(variable_1 \ldots\, variable_{n} . variable_{n+1})`: If a
+-   `(variable_1 ... variable_{n} . variable_{n+1})`: If a
     space-delimited period precedes the last variable, then the
     procedure takes *n* or more arguments, where *n* is the number of
     formal arguments before the period (it is an error if there is not
@@ -2161,15 +2161,15 @@ else  auxiliary syntax
 =>  auxiliary syntax
 *Syntax:* Clauses take one of two forms, either
 
-    (\hyper{test} \hyperi{expression} \dotsfoo)
+    (<test> <expression> ...)
 
 where test is any expression, or
 
-    (\hyper{test} => \hyper{expression})
+    (<test> => <expression>)
 
 The last clause can be an “else clause,” which has the form
 
-    (else \hyperi{expression} \hyperii{expression} \dotsfoo)\rm.
+    (else <expression> <expression> ...)\rm.
 
 *Semantics:* A cond expression is evaluated by evaluating the test
 expressions of successive clauses in order until one of them evaluates
@@ -2205,21 +2205,21 @@ the last one are returned.
 (case *key clause<sub>1</sub> clause<sub>2</sub> … *)  syntax
 *Syntax:* Key can be any expression. Each clause has the form
 
-    ((\hyperi{datum} \dotsfoo) \hyperi{expression} \hyperii{expression} \dotsfoo)\rm,
+    ((<datum> ...) <expression> <expression> ...)\rm,
 
 where each datum is an external representation of some object. It is an
 error if any of the datums are the same anywhere in the expression.
 Alternatively, a clause can be of the form
 
-    ((\hyperi{datum} \dotsfoo) => \hyper{expression})
+    ((<datum> ...) => <expression>)
 
 The last clause can be an “else clause,” which has one of the forms
 
-    (else \hyperi{expression} \hyperii{expression} \dotsfoo)
+    (else <expression> <expression> ...)
 
 or
 
-    (else => \hyper{expression})\rm.
+    (else => <expression>)\rm.
 
 *Semantics:* A case expression is evaluated as follows. Key is evaluated
 and its result is compared against each datum. If the result of
@@ -2317,11 +2317,11 @@ is unspecified.
 expand different expressions depending on the implementation. A
 ce-clause takes the following form:
 
-`(feature requirement expression \ldots\,)`
+`(feature requirement expression ...)`
 
 The last clause can be an “else clause,” which has the form
 
-`(else expression \ldots\,)`
+`(else expression ...)`
 
 A feature requirement takes one of the following forms:
 
@@ -2329,9 +2329,9 @@ A feature requirement takes one of the following forms:
 
 -   `(library library name)`
 
--   `(and feature requirement \ldots\,)`
+-   `(and feature requirement ...)`
 
--   `(or feature requirement \ldots\,)`
+-   `(or feature requirement ...)`
 
 -   `(not feature requirement)`
 
@@ -2374,7 +2374,7 @@ the returned values.
 (let *bindings body*)  syntax
 *Syntax:* Bindings has the form
 
-    ((\hyperi{variable} \hyperi{init}) \dotsfoo)\rm,
+    ((<variable> <init>) ...)\rm,
 
 where each init is an expression, and body is a sequence of zero or more
 definitions followed by a sequence of one or more expressions as
@@ -2403,7 +2403,7 @@ See also “named let,” section [\[namedlet\]](#namedlet).
 
 *Syntax:* Bindings has the form
 
-    ((\hyperi{variable} \hyperi{init}) \dotsfoo)\rm,
+    ((<variable> <init>) ...)\rm,
 
 and body is a sequence of zero or more definitions followed by one or
 more expressions as described in section [\[lambda\]](#lambda).
@@ -2425,7 +2425,7 @@ variables need not be distinct.
 (letrec *bindings body*)  syntax
 *Syntax:* Bindings has the form
 
-    ((\hyperi{variable} \hyperi{init}) \dotsfoo)\rm,
+    ((<variable> <init>) ...)\rm,
 
 and body is a sequence of zero or more definitions followed by one or
 more expressions as described in section [\[lambda\]](#lambda). It is an
@@ -2466,7 +2466,7 @@ automatically.
 (letrec\* *bindings body*)  syntax
 *Syntax:* Bindings has the form
 
-    ((\hyperi{variable} \hyperi{init}) \dotsfoo)\rm,
+    ((<variable> <init>) ...)\rm,
 
 and body is a sequence of zero or more definitions followed by one or
 more expressions as described in section [\[lambda\]](#lambda). It is an
@@ -2514,7 +2514,7 @@ Evaluating (means ’(3 (1 4))) returns three values: 8/3,
 (let-values *mv binding spec body*)  syntax
 *Syntax:* Mv binding spec has the form
 
-    ((\hyperi{formals} \hyperi{init}) \dotsfoo)\rm,
+    ((<formals> <init>) ...)\rm,
 
 where each init is an expression, and body is zero or more definitions
 followed by a sequence of one or more expressions as described in
@@ -2541,7 +2541,7 @@ by the corresponding init.
 
 *Syntax:* Mv binding spec has the form
 
-    ((\hyper{formals} \hyper{init}) \dotsfoo)\rm,
+    ((<formals> <init>) ...)\rm,
 
 and body is a sequence of zero or more definitions followed by one or
 more expressions as described in section [\[lambda\]](#lambda). In each
@@ -2602,7 +2602,7 @@ see section [\[librarydeclarations\]](#librarydeclarations).
 #### Iteration
 
 (do ((variable<sub>1</sub> init<sub>1</sub> step<sub>1</sub>)  syntax
-` \ldots\,) (test expression \ldots\,) command \ldots\,)`
+` ...) (test expression ...) command ...)`
 
 *Syntax:* All of init, step, test, and command are expressions.
 
@@ -2701,7 +2701,7 @@ promise, then a value is computed and returned. The value of the promise
 must be cached (or “memoized”) so that if it is forced a second time,
 the previously computed value is returned. Consequently, a delayed
 expression is evaluated using the parameter values and exception handler
-of the call to force which first requested its value. If *promise* is
+of the call to force which first requested its value. If `promise` is
 not a promise, it may be returned unchanged.
 
 ```scheme
@@ -2802,8 +2802,8 @@ Scheme types such as procedures.
 
 (make-promise **obj**)  lazy library procedure
 The make-promise procedure returns a promise which, when forced, will
-return *obj*. It is similar to delay, but does not delay its argument:
-it is a procedure rather than syntax. If *obj* is already a promise, it
+return `obj`. It is similar to delay, but does not delay its argument:
+it is a procedure rather than syntax. If `obj` is already a promise, it
 is returned.
 
 #### Dynamic bindings
@@ -2822,8 +2822,8 @@ bindings at a given time is called the *dynamic environment*.
 (make-parameter *init converter*)  procedure
 Returns a newly allocated parameter object, which is a procedure that
 accepts zero arguments and returns the value associated with the
-parameter object. Initially, this value is the value of (*converter*
-*init*), or of *init* if the conversion procedure *converter* is not
+parameter object. Initially, this value is the value of (`converter`
+`init`), or of `init` if the conversion procedure `converter` is not
 specified. The associated value can be temporarily changed using
 parameterize, which is described below.
 
@@ -2851,7 +2851,7 @@ to the conversion procedure. The results of the last expression in the
 body are returned as the results of the entire parameterize expression.
 
 *Note:* If the conversion procedure is not idempotent, the results of
-(parameterize ((x (x))) ...), which appears to bind the parameter *x* to
+(parameterize ((x (x))) ...), which appears to bind the parameter `x` to
 its current value, might not be what the user expects.
 
 If an implementation supports multiple threads of execution, then
@@ -2888,7 +2888,7 @@ call chain explicitly.
 #### Exception handling
 
 (guard (variable  syntax
-` cond clause_2 \ldots\,) )`
+` cond clause_2 ...) )`
 *Syntax:* Each cond clause is as in the specification of cond.
 
 *Semantics:* The body is evaluated with an exception handler that binds
@@ -3053,16 +3053,16 @@ clause.
 Scheme programs can define and use new derived expression types, called
 *macros*. Program-defined expression types have the syntax
 
-    (\hyper{keyword} {\hyper{datum}} ...)
+    (<keyword> <datum> ...)
 
 where keyword is an identifier that uniquely determines the expression
 type. This identifier is called the *syntactic keyword*, or simply
-*keyword*, of the macro. The number of the datums, and their syntax,
+`keyword`, of the macro. The number of the datums, and their syntax,
 depends on the expression type.
 
 Each instance of a macro is called a *use* of the macro. The set of
 rules that specifies how a use of a macro is transcribed into a more
-primitive expression is called the *transformer* of the macro.
+primitive expression is called the `transformer` of the macro.
 
 The macro definition facility consists of two parts:
 
@@ -3105,7 +3105,7 @@ section [\[define-syntax\]](#define-syntax).
 (let-syntax *bindings body*)  syntax
 *Syntax:* Bindings has the form
 
-    ((\hyper{keyword} \hyper{transformer spec}) \dotsfoo)
+    ((<keyword> <transformer-spec>) ...)
 
 Each keyword is an identifier, each transformer spec is an instance of
 syntax-rules, and body is a sequence of zero or more definitions
@@ -3170,36 +3170,36 @@ expression.
 A transformer spec has one of the following forms:
 
 (syntax-rules (pattern literal … )  syntax
-` \ldots\,) ` (syntax-rules ellipsis (pattern literal … )  syntax
-` \ldots\,)`
+` ...) ` (syntax-rules ellipsis (pattern literal … )  syntax
+` ...)`
 \_  auxiliary syntax
 …   auxiliary syntax
 *Syntax:* It is an error if any of the pattern literals, or the ellipsis
 in the second form, is not an identifier. It is also an error if
 syntax rule is not of the form
 
-    (\hyper{pattern} \hyper{template})
+    (<pattern> <template>)
 
 The pattern in a syntax rule is a list pattern whose first element is an
 identifier.
 
 A pattern is either an identifier, a constant, or one of the following
 
-    (\hyper{pattern} \ldots)
-    (\hyper{pattern} \hyper{pattern} \ldots . \hyper{pattern})
-    (\hyper{pattern} \ldots \hyper{pattern} \hyper{ellipsis} \hyper{pattern} \ldots)
-    (\hyper{pattern} \ldots \hyper{pattern} \hyper{ellipsis} \hyper{pattern} \ldots
-      . \hyper{pattern})
-    #(\hyper{pattern} \ldots)
-    #(\hyper{pattern} \ldots \hyper{pattern} \hyper{ellipsis} \hyper{pattern} \ldots)
+    (<pattern> ...)
+    (<pattern> <pattern> ... . <pattern>)
+    (<pattern> ... <pattern> ... <pattern> ...)
+    (<pattern> ... <pattern> ... <pattern> ...
+      . <pattern>)
+    #(<pattern> ...)
+    #(<pattern> ... <pattern> ... <pattern> ...)
 
 and a template is either an identifier, a constant, or one of the
 following
 
-    (\hyper{element} \ldots)
-    (\hyper{element} \hyper{element} \ldots . \hyper{template})
-    (\hyper{ellipsis} \hyper{template})
-    #(\hyper{element} \ldots)
+    (<element> ...)
+    (<element> <element> ... . <template>)
+    (... <template>)
+    #(<element> ...)
 
 where an element is a template optionally followed by an ellipsis. An
 ellipsis is the identifier specified in the second form of syntax-rules,
@@ -3407,9 +3407,9 @@ specifically at the outermost level of a program and at the beginning of
 a body.
 
 At the outermost level of a program,
-`(begin expression or definition_1 \ldots\,)` is equivalent to the
+`(begin expression or definition_1 ...)` is equivalent to the
 sequence of expressions and definitions in the `begin`. Similarly, in a
-body, `(begin definition_1 \ldots\,)` is equivalent to the sequence
+body, `(begin definition_1 ...)` is equivalent to the sequence
 definition<sub>1</sub> … . Macros can expand into such begin forms. For
 the formal definition, see [\[sequencing\]](#sequencing).
 
@@ -3443,13 +3443,13 @@ of the following forms:
 
 -   `library name`
 
--   `(only import set identifier \ldots\,)`
+-   `(only import set identifier ...)`
 
--   `(except import set identifier \ldots\,)`
+-   `(except import set identifier ...)`
 
 -   `(prefix import set identifier)`
 
--   `(rename import set  (identifier_1 identifier_2) \ldots\,)`
+-   `(rename import set  (identifier_1 identifier_2) ...)`
 
 In the first form, all of the identifiers in the named library’s export
 clauses are imported with the same names (or the exported names if
@@ -3511,11 +3511,11 @@ takes one of the following forms:
 
 At the outermost level of a program, a definition
 
-    (define <variable> \hyper{expression})
+    (define <variable> <expression>)
 
 has essentially the same effect as the assignment expression
 
-    (set!}\ <variable> \hyper{expression})
+    (set! <variable> <expression>)
 
 if variable is bound to a non-syntax value. However, if variable is not
 bound, or is a syntactic keyword, then the definition will bind variable
@@ -3570,7 +3570,7 @@ It is an error to define the same identifier more than once in the same
 body.
 
 Wherever an internal definition can occur,
-`(begin definition_1 \ldots\,)` is equivalent to the sequence of
+`(begin definition_1 ...)` is equivalent to the sequence of
 definitions that form the body of the `begin`.
 
 #### Multiple-value definitions
@@ -3669,15 +3669,15 @@ and mutators are defined for each record type.
 
 *Syntax:* name and pred are identifiers. The constructor is of the form
 
-    (\hyper{constructor name} \hyper{field name} ...)
+    (<constructore-name> <field-name> ...)
 
 and each field is either of the form
 
-    (\hyper{field name} \hyper{accessor name})
+    (<field-name> <accessor-name>)
 
 or of the form
 
-    (\hyper{field name} \hyper{accessor name} \hyper{modifier name})
+    (<field-name> <accessor-name> <modified-name>)
 
 It is an error for the same identifier to occur more than once as a
 field name. It is also an error for the same identifier to occur more
@@ -3753,8 +3753,8 @@ section defines the notation and semantics for libraries.
 
 A library definition takes the following form:
 
-    (define-library \hyper{library name}
-      \hyper{library declaration} ...)
+    (define-library <library-name>
+      <library-declaration> ...)
 
 library name is a list whose members are identifiers and exact
 non-negative integers. It is used to identify the library uniquely when
@@ -3768,19 +3768,19 @@ control characters after escapes are expanded.
 
 A library declaration is any of:
 
--   `(export export spec \ldots\,)`
+-   `(export export spec ...)`
 
--   `(import import set \ldots\,)`
+-   `(import import set ...)`
 
--   `(begin command or definition \ldots\,)`
+-   `(begin command or definition ...)`
 
--   `(include filename_1 filename_2 \ldots\,)`
+-   `(include filename_1 filename_2 ...)`
 
--   `(include-ci filename_1 filename_2 \ldots\,)`
+-   `(include-ci filename_1 filename_2 ...)`
 
--   `(include-library-declarations filename_1 filename_2 \ldots\,)`
+-   `(include-library-declarations filename_1 filename_2 ...)`
 
--   `(cond-expand ce-clause_1 ce-clause_2 \ldots\,)`
+-   `(cond-expand ce-clause_1 ce-clause_2 ...)`
 
 An `export` declaration specifies a list of identifiers which can be
 made visible to other libraries or programs. An export spec takes one of
@@ -4754,9 +4754,9 @@ such that <span class="math inline">${\\hbox{$n_1$\\/}} =
 each of the division operators, there are three procedures defined as
 follows:
 
-    (\hyper{operator}/ \vri{n} \vrii{n}) ;; => \vr{n_q} \vr{n_r}
-    (\hyper{operator}-quotient \vri{n} \vrii{n}) ;; => \vr{n_q}
-    (\hyper{operator}-remainder \vri{n} \vrii{n}) ;; => \vr{n_r}
+    (<operator>/ \vri{n} \vrii{n}) ;; => \vr{n_q} \vr{n_r}
+    (<operator>-quotient \vri{n} \vrii{n}) ;; => \vr{n_q}
+    (<operator>-remainder \vri{n} \vrii{n}) ;; => \vr{n_r}
 
 The remainder *n*<sub>*r*</sub> is determined by the choice of integer
 *n*<sub>*q*</sub>: <span class="math inline">${\\hbox{$n_r$\\/}} =
@@ -4771,8 +4771,8 @@ set of operators uses a different choice of *n*<sub>*q*</sub>:
 For any of the operators, and for integers *n*<sub>1</sub> and
 *n*<sub>2</sub> with *n*<sub>2</sub> not equal to 0,
 
-         (= \vri{n} (+ (* \vrii{n} (\hyper{operator}-quotient \vri{n} \vrii{n}))
-               (\hyper{operator}-remainder \vri{n} \vrii{n})))
+         (= \vri{n} (+ (* \vrii{n} (<operator>-quotient \vri{n} \vrii{n}))
+               (<operator>-remainder \vri{n} \vrii{n})))
  ;; => #t
 
 provided all numbers involved in that computation are exact.
@@ -6060,7 +6060,7 @@ integers less than the length of the vector. The first element in a
 vector is indexed by zero, and the last element is indexed by one less
 than the length of the vector.
 
-Vectors are written using the notation `#(obj \ldots\,)`. For example, a
+Vectors are written using the notation `#(obj ...)`. For example, a
 vector of length 3 containing the number zero in element 0, the list (2
 2 2 2) in element 1, and the string "Anna" in element 2 can be written
 as follows:
@@ -6229,7 +6229,7 @@ is created. The *valid indexes* of a bytevector are the exact
 non-negative integers less than the length of the bytevector, starting
 at index zero as with vectors.
 
-Bytevectors are written using the notation `#u8(byte \ldots\,)`. For
+Bytevectors are written using the notation `#u8(byte ...)`. For
 example, a bytevector of length 3 containing the byte 0 in element 0,
 the byte 10 in element 1, and the byte 5 in element 2 can be written as
 follows:

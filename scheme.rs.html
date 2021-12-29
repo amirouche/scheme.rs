@@ -713,7 +713,7 @@
 <p>The formal syntax of Scheme is described in section <a href="#BNF">[BNF]</a>.</p>
 <h3 id="notation-and-terminology">Notation and terminology</h3>
 <h4 id="base-and-optional-features">Base and optional features</h4>
-<p>Every identifier defined in this report appears in one or more of several <em>libraries</em>. Identifiers defined in the <em>base library</em> are not marked specially in the body of the report. This library includes the core syntax of Scheme and generally useful procedures that manipulate data. For example, the variable abs is bound to a procedure of one argument that computes the absolute value of a number, and the variable + is bound to a procedure that computes sums. The full list all the standard libraries and the identifiers they export is given in Appendix <a href="#stdlibraries">[stdlibraries]</a>.</p>
+<p>Every identifier defined in this report appears in one or more of several <code>libraries</code>. Identifiers defined in the <em>base library</em> are not marked specially in the body of the report. This library includes the core syntax of Scheme and generally useful procedures that manipulate data. For example, the variable abs is bound to a procedure of one argument that computes the absolute value of a number, and the variable + is bound to a procedure that computes sums. The full list all the standard libraries and the identifiers they export is given in Appendix <a href="#stdlibraries">[stdlibraries]</a>.</p>
 <p>All implementations of Scheme:</p>
 <ul>
 <li><p>Must provide the base library and all the identifiers exported from it.</p></li>
@@ -740,18 +740,18 @@
 <blockquote>
 <p><em>template</em>  <em>name</em> library <em>category</em></p>
 </blockquote>
-<p>where <em>name</em> is the short name of a library as defined in Appendix <a href="#stdlibraries">[stdlibraries]</a>.</p>
-<p>If <em>category</em> is “syntax,” the entry describes an expression type, and the template gives the syntax of the expression type. Components of expressions are designated by syntactic variables, which are written using angle brackets, for example expression and variable. Syntactic variables are intended to denote segments of program text; for example, expression stands for any string of characters which is a syntactically valid expression. The notation</p>
+<p>where <code>name</code> is the short name of a library as defined in Appendix <a href="#stdlibraries">[stdlibraries]</a>.</p>
+<p>If <code>category</code> is “syntax,” the entry describes an expression type, and the template gives the syntax of the expression type. Components of expressions are designated by syntactic variables, which are written using angle brackets, for example expression and variable. Syntactic variables are intended to denote segments of program text; for example, expression stands for any string of characters which is a syntactically valid expression. The notation</p>
 <pre><code>thing ...</code></pre>
 <p>indicates zero or more occurrences of a <code>thing</code>, and</p>
 <pre><code>thing thing ...</code></pre>
 <p>indicates one or more occurrences of a thing.</p>
-<p>If <em>category</em> is “auxiliary syntax,” then the entry describes a syntax binding that occurs only as part of specific surrounding expressions. Any use as an independent syntactic construct or variable is an error.</p>
-<p>If <em>category</em> is “procedure,” then the entry describes a procedure, and the header line gives a template for a call to the procedure. Argument names in the template are <em>italicized</em>. Thus the header line</p>
+<p>If <code>category</code> is “auxiliary syntax,” then the entry describes a syntax binding that occurs only as part of specific surrounding expressions. Any use as an independent syntactic construct or variable is an error.</p>
+<p>If <code>category</code> is “procedure,” then the entry describes a procedure, and the header line gives a template for a call to the procedure. Argument names in the template are <em>italicized</em>. Thus the header line</p>
 <blockquote>
 <p><code>(vector-ref vector k)</code> <em>procedure</em></p>
 </blockquote>
-<p>indicates that the procedure bound to the <code>vector-ref</code> variable takes two arguments, a vector <em>vector</em> and an exact non-negative integer <em>k</em> (see below). The header lines</p>
+<p>indicates that the procedure bound to the <code>vector-ref</code> variable takes two arguments, a vector <code>vector</code> and an exact non-negative integer <code>k</code> (see below). The header lines</p>
 <blockquote>
 <p>(make-vector <em>k</em>)  procedure</p>
 </blockquote>
@@ -858,11 +858,11 @@
 </table>
 <p>The names <em>s<strong>t</strong>a<strong>r</strong>t</em> and <em>e<strong>n</strong>d</em> are used as indexes into strings, vectors, and bytevectors. Their use implies the following:</p>
 <ul>
-<li><p>It is an error if <em>start</em> is greater than <em>end</em>.</p></li>
-<li><p>It is an error if <em>end</em> is greater than the length of the string, vector, or bytevector.</p></li>
-<li><p>If <em>start</em> is omitted, it is assumed to be zero.</p></li>
-<li><p>If <em>end</em> is omitted, it assumed to be the length of the string, vector, or bytevector.</p></li>
-<li><p>The index <em>start</em> is always inclusive and the index <em>end</em> is always exclusive. As an example, consider a string. If <em>start</em> and <em>end</em> are the same, an empty substring is referred to, and if <em>start</em> is zero and <em>end</em> is the length of <em>string</em>, then the entire string is referred to.</p></li>
+<li><p>It is an error if <code>start</code> is greater than <code>end</code>.</p></li>
+<li><p>It is an error if <code>end</code> is greater than the length of the string, vector, or bytevector.</p></li>
+<li><p>If <code>start</code> is omitted, it is assumed to be zero.</p></li>
+<li><p>If <code>end</code> is omitted, it assumed to be the length of the string, vector, or bytevector.</p></li>
+<li><p>The index <code>start</code> is always inclusive and the index <code>end</code> is always exclusive. As an example, consider a string. If <code>start</code> and <code>end</code> are the same, an empty substring is referred to, and if <code>start</code> is zero and <code>end</code> is the length of <code>string</code>, then the entire string is referred to.</p></li>
 </ul>
 <h4 id="evaluation-examples">Evaluation examples</h4>
 <p>The symbol “⟶” used in program examples is read “evaluates to.” For example,</p>
@@ -881,7 +881,7 @@
 <p>All implementations of Scheme must support the following extended identifier characters:</p>
 <pre><code>!\ \$ \% \verb&quot;&amp;&quot; * + - . / :\ &lt; = &gt; ? @ \verb&quot;^&quot; \verb&quot;_&quot; \verb&quot;~&quot; %</code></pre>
 <p>Alternatively, an identifier can be represented by a sequence of zero or more characters enclosed within vertical lines (|), analogous to string literals. Any character, including whitespace characters, but excluding the backslash and vertical line characters, can appear verbatim in such an identifier. In addition, characters can be specified using either an inline hex escape or the same escapes available in strings.</p>
-<p>For example, the identifier <code>|H\x65;llo|</code> is the same identifier as <code>Hello</code>, and in an implementation that supports the appropriate Unicode character the identifier <code>|\x3BB;|</code> is the same as the identifier <em>λ</em>. What is more, <code>|\t\t|</code> and <code>|\x9;\x9;|</code> are the same. Note that <code>||</code> is a valid identifier that is different from any other identifier.</p>
+<p>For example, the identifier <code>|H\x65;llo|</code> is the same identifier as <code>Hello</code>, and in an implementation that supports the appropriate Unicode character the identifier <code>|\x3BB;|</code> is the same as the identifier <code>λ</code>. What is more, <code>|\t\t|</code> and <code>|\x9;\x9;|</code> are the same. Note that <code>||</code> is a valid identifier that is different from any other identifier.</p>
 <p>Here are some examples of identifiers:</p>
 <pre><code>    ...                      {+}
     +soup+                   &lt;=?
@@ -1072,9 +1072,9 @@
 <span id="cb56-11"><a href="#cb56-11" aria-hidden="true" tabindex="-1"></a>(add4 <span class="dv">6</span>) <span class="co">;; =&gt; 10</span></span></code></pre></div>
 <p>Formals have one of the following forms:</p>
 <ul>
-<li><p><code>(variable_1 \ldots\,)</code>: The procedure takes a fixed number of arguments; when the procedure is called, the arguments will be stored in fresh locations that are bound to the corresponding variables.</p></li>
+<li><p><code>(variable_1 ...)</code>: The procedure takes a fixed number of arguments; when the procedure is called, the arguments will be stored in fresh locations that are bound to the corresponding variables.</p></li>
 <li><p>variable: The procedure takes any number of arguments; when the procedure is called, the sequence of actual arguments is converted into a newly allocated list, and the list is stored in a fresh location that is bound to variable.</p></li>
-<li><p><code>(variable_1 \ldots\, variable_{n} . variable_{n+1})</code>: If a space-delimited period precedes the last variable, then the procedure takes <em>n</em> or more arguments, where <em>n</em> is the number of formal arguments before the period (it is an error if there is not at least one). The value stored in the binding of the last variable will be a newly allocated list of the actual arguments left over after all the other actual arguments have been matched up against the other formal arguments.</p></li>
+<li><p><code>(variable_1 ... variable_{n} . variable_{n+1})</code>: If a space-delimited period precedes the last variable, then the procedure takes <em>n</em> or more arguments, where <em>n</em> is the number of formal arguments before the period (it is an error if there is not at least one). The value stored in the binding of the last variable will be a newly allocated list of the actual arguments left over after all the other actual arguments have been matched up against the other formal arguments.</p></li>
 </ul>
 <p>It is an error for a variable to appear more than once in formals.</p>
 <div class="sourceCode" id="cb57"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>((<span class="kw">lambda</span> x x) <span class="dv">3</span> <span class="dv">4</span> <span class="dv">5</span> <span class="dv">6</span>) <span class="co">;; =&gt; (3 4 5 6)</span></span>
@@ -1101,11 +1101,11 @@
 <p>The constructs in this section are hygienic, as discussed in section <a href="#macrosection">[macrosection]</a>. For reference purposes, section <a href="#derivedsection">[derivedsection]</a> gives syntax definitions that will convert most of the constructs described in this section into the primitive constructs described in the previous section.</p>
 <h4 id="conditionals-1">Conditionals</h4>
 <p>(cond <em>clause<sub>1</sub> clause<sub>2</sub> … </em>)  syntax else  auxiliary syntax =&gt;  auxiliary syntax <em>Syntax:</em> Clauses take one of two forms, either</p>
-<pre><code>(\hyper{test} \hyperi{expression} \dotsfoo)</code></pre>
+<pre><code>(&lt;test&gt; &lt;expression&gt; ...)</code></pre>
 <p>where test is any expression, or</p>
-<pre><code>(\hyper{test} =&gt; \hyper{expression})</code></pre>
+<pre><code>(&lt;test&gt; =&gt; &lt;expression&gt;)</code></pre>
 <p>The last clause can be an “else clause,” which has the form</p>
-<pre><code>(else \hyperi{expression} \hyperii{expression} \dotsfoo)\rm.</code></pre>
+<pre><code>(else &lt;expression&gt; &lt;expression&gt; ...)\rm.</code></pre>
 <p><em>Semantics:</em> A cond expression is evaluated by evaluating the test expressions of successive clauses in order until one of them evaluates to a true value (see section <a href="#booleansection">[booleansection]</a>). When a test evaluates to a true value, the remaining expressions in its clause are evaluated in order, and the results of the last expression in the clause are returned as the results of the entire cond expression.</p>
 <p>If the selected clause contains only the test and no expressions, then the value of the test is returned as the result. If the selected clause uses the <code>=&gt;</code> alternate form, then the expression is evaluated. It is an error if its value is not a procedure that accepts one argument. This procedure is then called on the value of the test and the values returned by this procedure are returned by the cond expression.</p>
 <p>If all tests evaluate to #f, and there is no else clause, then the result of the conditional expression is unspecified; if there is an else clause, then its expressions are evaluated in order, and the values of the last one are returned.</p>
@@ -1119,13 +1119,13 @@
 <span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>(<span class="kw">cond</span> ((<span class="kw">assv</span> &#39;b &#39;((a <span class="dv">1</span>) (b <span class="dv">2</span>))) <span class="op">=&gt;</span> <span class="kw">cadr</span>)</span>
 <span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a>      (<span class="kw">else</span> <span class="dv">#f</span>)) <span class="co">;; =&gt; 2</span></span></code></pre></div>
 <p>(case <em>key clause<sub>1</sub> clause<sub>2</sub> … </em>)  syntax <em>Syntax:</em> Key can be any expression. Each clause has the form</p>
-<pre><code>((\hyperi{datum} \dotsfoo) \hyperi{expression} \hyperii{expression} \dotsfoo)\rm,</code></pre>
+<pre><code>((&lt;datum&gt; ...) &lt;expression&gt; &lt;expression&gt; ...)\rm,</code></pre>
 <p>where each datum is an external representation of some object. It is an error if any of the datums are the same anywhere in the expression. Alternatively, a clause can be of the form</p>
-<pre><code>((\hyperi{datum} \dotsfoo) =&gt; \hyper{expression})</code></pre>
+<pre><code>((&lt;datum&gt; ...) =&gt; &lt;expression&gt;)</code></pre>
 <p>The last clause can be an “else clause,” which has one of the forms</p>
-<pre><code>(else \hyperi{expression} \hyperii{expression} \dotsfoo)</code></pre>
+<pre><code>(else &lt;expression&gt; &lt;expression&gt; ...)</code></pre>
 <p>or</p>
-<pre><code>(else =&gt; \hyper{expression})\rm.</code></pre>
+<pre><code>(else =&gt; &lt;expression&gt;)\rm.</code></pre>
 <p><em>Semantics:</em> A case expression is evaluated as follows. Key is evaluated and its result is compared against each datum. If the result of evaluating key is the same (in the sense of eqv?; see section <a href="#eqv?">[eqv?]</a>) to a datum, then the expressions in the corresponding clause are evaluated in order and the results of the last expression in the clause are returned as the results of the case expression.</p>
 <p>If the result of evaluating key is different from every datum, then if there is an else clause, its expressions are evaluated and the results of the last are the results of the case expression; otherwise the result of the case expression is unspecified.</p>
 <p>If the selected clause or else clause uses the <code>=&gt;</code> alternate form, then the expression is evaluated. It is an error if its value is not a procedure accepting one argument. This procedure is then called on the value of the key and the values returned by this procedure are returned by the case expression.</p>
@@ -1163,15 +1163,15 @@
 <span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">display</span> <span class="st">&quot;2&quot;</span>)) <span class="co">;; =&gt; unspecified</span></span>
 <span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a><span class="co">;; and prints nothing</span></span></code></pre></div>
 <p>(cond-expand <em>ce-clause<sub>1</sub> ce-clause<sub>2</sub> … </em>)  syntax <em>Syntax:</em> The <code>cond-expand</code> expression type provides a way to statically expand different expressions depending on the implementation. A ce-clause takes the following form:</p>
-<p><code>(feature requirement expression \ldots\,)</code></p>
+<p><code>(feature requirement expression ...)</code></p>
 <p>The last clause can be an “else clause,” which has the form</p>
-<p><code>(else expression \ldots\,)</code></p>
+<p><code>(else expression ...)</code></p>
 <p>A feature requirement takes one of the following forms:</p>
 <ul>
 <li><p><code>feature identifier</code></p></li>
 <li><p><code>(library library name)</code></p></li>
-<li><p><code>(and feature requirement \ldots\,)</code></p></li>
-<li><p><code>(or feature requirement \ldots\,)</code></p></li>
+<li><p><code>(and feature requirement ...)</code></p></li>
+<li><p><code>(or feature requirement ...)</code></p></li>
 <li><p><code>(not feature requirement)</code></p></li>
 </ul>
 <p><em>Semantics:</em> Each implementation maintains a list of feature identifiers which are present, as well as a list of libraries which can be imported. The value of a feature requirement is determined by replacing each feature identifier and <code>(library library name)</code> on the implementation’s lists with #t, and all other feature identifiers and library names with #f, then evaluating the resulting expression as a Scheme boolean expression under the normal interpretation of and, or, and not.</p>
@@ -1180,7 +1180,7 @@
 <h4 id="binding-constructs">Binding constructs</h4>
 <p>The binding constructs let, let*, letrec, letrec*, let-values, and let*-values give Scheme a block structure, like Algol 60. The syntax of the first four constructs is identical, but they differ in the regions they establish for their variable bindings. In a let expression, the initial values are computed before any of the variables become bound; in a let* expression, the bindings and evaluations are performed sequentially; while in letrec and letrec* expressions, all the bindings are in effect while their initial values are being computed, thus allowing mutually recursive definitions. The let-values and let*-values constructs are analogous to let and let* respectively, but are designed to handle multiple-valued expressions, binding different identifiers to the returned values.</p>
 <p>(let <em>bindings body</em>)  syntax <em>Syntax:</em> Bindings has the form</p>
-<pre><code>((\hyperi{variable} \hyperi{init}) \dotsfoo)\rm,</code></pre>
+<pre><code>((&lt;variable&gt; &lt;init&gt;) ...)\rm,</code></pre>
 <p>where each init is an expression, and body is a sequence of zero or more definitions followed by a sequence of one or more expressions as described in section <a href="#lambda">[lambda]</a>. It is an error for a variable to appear more than once in the list of variables being bound.</p>
 <p><em>Semantics:</em> The inits are evaluated in the current environment (in some unspecified order), the variables are bound to fresh locations holding the results, the body is evaluated in the extended environment, and the values of the last expression of body are returned. Each binding of a variable has body as its region.</p>
 <div class="sourceCode" id="cb74"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">let</span> ((x <span class="dv">2</span>) (y <span class="dv">3</span>))</span>
@@ -1193,7 +1193,7 @@
 <p>See also “named let,” section <a href="#namedlet">[namedlet]</a>.</p>
 <p>(let* <em>bindings body</em>)  syntax</p>
 <p><em>Syntax:</em> Bindings has the form</p>
-<pre><code>((\hyperi{variable} \hyperi{init}) \dotsfoo)\rm,</code></pre>
+<pre><code>((&lt;variable&gt; &lt;init&gt;) ...)\rm,</code></pre>
 <p>and body is a sequence of zero or more definitions followed by one or more expressions as described in section <a href="#lambda">[lambda]</a>.</p>
 <p><em>Semantics:</em> The let* binding construct is similar to let, but the bindings are performed sequentially from left to right, and the region of a binding indicated by (variable init) is that part of the let* expression to the right of the binding. Thus the second binding is done in an environment in which the first binding is visible, and so on. The variables need not be distinct.</p>
 <div class="sourceCode" id="cb76"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">let</span> ((x <span class="dv">2</span>) (y <span class="dv">3</span>))</span>
@@ -1201,7 +1201,7 @@
 <span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>         (z (<span class="op">+</span> x y)))</span>
 <span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>    (<span class="op">*</span> z x))) <span class="co">;; =&gt; 70</span></span></code></pre></div>
 <p>(letrec <em>bindings body</em>)  syntax <em>Syntax:</em> Bindings has the form</p>
-<pre><code>((\hyperi{variable} \hyperi{init}) \dotsfoo)\rm,</code></pre>
+<pre><code>((&lt;variable&gt; &lt;init&gt;) ...)\rm,</code></pre>
 <p>and body is a sequence of zero or more definitions followed by one or more expressions as described in section <a href="#lambda">[lambda]</a>. It is an error for a variable to appear more than once in the list of variables being bound.</p>
 <p><em>Semantics:</em> The variables are bound to fresh locations holding unspecified values, the inits are evaluated in the resulting environment (in some unspecified order), each variable is assigned to the result of the corresponding init, the body is evaluated in the resulting environment, and the values of the last expression in body are returned. Each binding of a variable has the entire letrec expression as its region, making it possible to define mutually recursive procedures.</p>
 <div class="sourceCode" id="cb78"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">letrec</span> ((<span class="kw">even?</span></span>
@@ -1218,7 +1218,7 @@
 <span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a><span class="co">;; =&gt; #t</span></span></code></pre></div>
 <p>One restriction on letrec is very important: if it is not possible to evaluate each init without assigning or referring to the value of any variable, it is an error. The restriction is necessary because letrec is defined in terms of a procedure call where a lambda expression binds the variables to the values of the inits. In the most common uses of letrec, all the inits are lambda expressions and the restriction is satisfied automatically.</p>
 <p>(letrec* <em>bindings body</em>)  syntax <em>Syntax:</em> Bindings has the form</p>
-<pre><code>((\hyperi{variable} \hyperi{init}) \dotsfoo)\rm,</code></pre>
+<pre><code>((&lt;variable&gt; &lt;init&gt;) ...)\rm,</code></pre>
 <p>and body is a sequence of zero or more definitions followed by one or more expressions as described in section <a href="#lambda">[lambda]</a>. It is an error for a variable to appear more than once in the list of variables being bound.</p>
 <p><em>Semantics:</em> The variables are bound to fresh locations, each variable is assigned in left-to-right order to the result of evaluating the corresponding init (interleaving evaluations and assignments), the body is evaluated in the resulting environment, and the values of the last expression in body are returned. Despite the left-to-right evaluation and assignment order, each binding of a variable has the entire letrec* expression as its region, making it possible to define mutually recursive procedures.</p>
 <p>If it is not possible to evaluate each init without assigning or referring to the value of the corresponding variable or the variable of any of the bindings that follow it in bindings, it is an error. Another restriction is that it is an error to invoke the continuation of an init more than once.</p>
@@ -1243,7 +1243,7 @@
             (mean / /))))</code></pre>
 <p>Evaluating (means ’(3 (1 4))) returns three values: 8/3, 2.28942848510666 (approximately), and 36/19.</p>
 <p>(let-values <em>mv binding spec body</em>)  syntax <em>Syntax:</em> Mv binding spec has the form</p>
-<pre><code>((\hyperi{formals} \hyperi{init}) \dotsfoo)\rm,</code></pre>
+<pre><code>((&lt;formals&gt; &lt;init&gt;) ...)\rm,</code></pre>
 <p>where each init is an expression, and body is zero or more definitions followed by a sequence of one or more expressions as described in section <a href="#lambda">[lambda]</a>. It is an error for a variable to appear more than once in the set of formals.</p>
 <p><em>Semantics:</em> The inits are evaluated in the current environment (in some unspecified order) as if by invoking call-with-values, and the variables occurring in the formals are bound to fresh locations holding the values returned by the inits, where the formals are matched to the return values in the same way that the formals in a lambda expression are matched to the arguments in a procedure call. Then, the body is evaluated in the extended environment, and the values of the last expression of body are returned. Each binding of a variable has body as its region.</p>
 <p>It is an error if the formals do not match the number of values returned by the corresponding init.</p>
@@ -1251,7 +1251,7 @@
   (* root rem)) ;; =&gt; 35</code></pre>
 <p>(let*-values <em>mv binding spec body</em>)  syntax</p>
 <p><em>Syntax:</em> Mv binding spec has the form</p>
-<pre><code>((\hyper{formals} \hyper{init}) \dotsfoo)\rm,</code></pre>
+<pre><code>((&lt;formals&gt; &lt;init&gt;) ...)\rm,</code></pre>
 <p>and body is a sequence of zero or more definitions followed by one or more expressions as described in section <a href="#lambda">[lambda]</a>. In each formals, it is an error if any variable appears more than once.</p>
 <p><em>Semantics:</em> The let*-values construct is similar to let-values, but the inits are evaluated and bindings created sequentially from left to right, with the region of the bindings of each formals including the inits to its right as well as body. Thus the second init is evaluated in an environment in which the first set of bindings is visible and initialized, and so on.</p>
 <div class="sourceCode" id="cb84"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">let</span> ((a &#39;a) (b &#39;b) (x &#39;x) (y &#39;y))</span>
@@ -1274,7 +1274,7 @@
 <span id="cb85-9"><a href="#cb85-9" aria-hidden="true" tabindex="-1"></a><span class="co">;; and prints 4 plus 1 equals 5</span></span></code></pre></div>
 <p>Note that there is a third form of begin used as a library declaration: see section <a href="#librarydeclarations">[librarydeclarations]</a>.</p>
 <h4 id="iteration">Iteration</h4>
-<p>(do ((variable<sub>1</sub> init<sub>1</sub> step<sub>1</sub>)  syntax <code>\ldots\,) (test expression \ldots\,) command \ldots\,)</code></p>
+<p>(do ((variable<sub>1</sub> init<sub>1</sub> step<sub>1</sub>)  syntax <code>...) (test expression ...) command ...)</code></p>
 <p><em>Syntax:</em> All of init, step, test, and command are expressions.</p>
 <p><em>Semantics:</em> A do expression is an iteration construct. It specifies a set of variables to be bound, how they are to be initialized at the start, and how they are to be updated on each iteration. When a termination condition is met, the loop exits after evaluating the expressions.</p>
 <p>A do expression is evaluated as follows: The init expressions are evaluated (in some unspecified order), the variables are bound to fresh locations, the results of the init expressions are stored in the bindings of the variables, and then the iteration phase begins.</p>
@@ -1309,7 +1309,7 @@
 <p>(delay <em>expression</em>)  lazy library syntax <em>Semantics:</em> The delay construct is used together with the procedure <code>force</code> to implement <em>lazy evaluation</em> or <em>call by need</em>. <code>(delay expression)</code> returns an object called a <em>promise</em> which at some point in the future can be asked (by the force procedure) to evaluate expression, and deliver the resulting value.</p>
 <p>The effect of expression returning multiple values is unspecified.</p>
 <p>(delay-force <em>expression</em>)  lazy library syntax <em>Semantics:</em> The expression (delay-force <em>expression</em>) is conceptually similar to (delay (force <em>expression</em>)), with the difference that forcing the result of delay-force will in effect result in a tail call to (force <em>expression</em>), while forcing the result of (delay (force <em>expression</em>)) might not. Thus iterative lazy algorithms that might result in a long series of chains of delay and force can be rewritten using delay-force to prevent consuming unbounded space during evaluation.</p>
-<p>(force <em>promise</em>)  lazy library procedure The force procedure forces the value of a <em>promise</em> created by <code>delay</code>, <code>delay-force</code>, or <code>make-promise</code>. If no value has been computed for the promise, then a value is computed and returned. The value of the promise must be cached (or “memoized”) so that if it is forced a second time, the previously computed value is returned. Consequently, a delayed expression is evaluated using the parameter values and exception handler of the call to force which first requested its value. If <em>promise</em> is not a promise, it may be returned unchanged.</p>
+<p>(force <em>promise</em>)  lazy library procedure The force procedure forces the value of a <em>promise</em> created by <code>delay</code>, <code>delay-force</code>, or <code>make-promise</code>. If no value has been computed for the promise, then a value is computed and returned. The value of the promise must be cached (or “memoized”) so that if it is forced a second time, the previously computed value is returned. Consequently, a delayed expression is evaluated using the parameter values and exception handler of the call to force which first requested its value. If <code>promise</code> is not a promise, it may be returned unchanged.</p>
 <div class="sourceCode" id="cb88"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">force</span> (delay (<span class="op">+</span> <span class="dv">1</span> <span class="dv">2</span>))) <span class="co">;; =&gt; 3</span></span>
 <span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>(<span class="kw">let</span> ((p (delay (<span class="op">+</span> <span class="dv">1</span> <span class="dv">2</span>))))</span>
 <span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">list</span> (<span class="kw">force</span> p) (<span class="kw">force</span> p)))</span>
@@ -1365,18 +1365,18 @@
 <span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a> (<span class="kw">list</span> (delay (<span class="op">*</span> <span class="dv">3</span> <span class="dv">7</span>)) <span class="dv">13</span>)) <span class="co">;; =&gt; a promise</span></span></code></pre></div></li>
 </ul>
 <p>(promise? <strong>obj</strong>)  lazy library procedure The promise? procedure returns #t if its argument is a promise, and #f otherwise. Note that promises are not necessarily disjoint from other Scheme types such as procedures.</p>
-<p>(make-promise <strong>obj</strong>)  lazy library procedure The make-promise procedure returns a promise which, when forced, will return <em>obj</em>. It is similar to delay, but does not delay its argument: it is a procedure rather than syntax. If <em>obj</em> is already a promise, it is returned.</p>
+<p>(make-promise <strong>obj</strong>)  lazy library procedure The make-promise procedure returns a promise which, when forced, will return <code>obj</code>. It is similar to delay, but does not delay its argument: it is a procedure rather than syntax. If <code>obj</code> is already a promise, it is returned.</p>
 <h4 id="dynamic-bindings">Dynamic bindings</h4>
 <p>The <em>dynamic extent</em> of a procedure call is the time between when it is initiated and when it returns. In Scheme, call-with-current-continuation (section <a href="#continuations">[continuations]</a>) allows reentering a dynamic extent after its procedure call has returned. Thus, the dynamic extent of a call might not be a single, continuous time period.</p>
 <p>This sections introduces <em>parameter objects</em>, which can be bound to new values for the duration of a dynamic extent. The set of all parameter bindings at a given time is called the <em>dynamic environment</em>.</p>
-<p>(make-parameter <em>init</em>)  procedure (make-parameter <em>init converter</em>)  procedure Returns a newly allocated parameter object, which is a procedure that accepts zero arguments and returns the value associated with the parameter object. Initially, this value is the value of (<em>converter</em> <em>init</em>), or of <em>init</em> if the conversion procedure <em>converter</em> is not specified. The associated value can be temporarily changed using parameterize, which is described below.</p>
+<p>(make-parameter <em>init</em>)  procedure (make-parameter <em>init converter</em>)  procedure Returns a newly allocated parameter object, which is a procedure that accepts zero arguments and returns the value associated with the parameter object. Initially, this value is the value of (<code>converter</code> <code>init</code>), or of <code>init</code> if the conversion procedure <code>converter</code> is not specified. The associated value can be temporarily changed using parameterize, which is described below.</p>
 <p>The effect of passing arguments to a parameter object is implementation-dependent.</p>
 <p>(parameterize ((param<sub>1</sub> value<sub>1</sub>) … )  syntax <code>)</code></p>
 <p><em>Syntax:</em> Both param<sub>1</sub> and value<sub>1</sub> are expressions.</p>
 <p>It is an error if the value of any param expression is not a parameter object.</p>
 <p><em>Semantics:</em> A parameterize expression is used to change the values returned by specified parameter objects during the evaluation of the body.</p>
 <p>The param and value expressions are evaluated in an unspecified order. The body is evaluated in a dynamic environment in which calls to the parameters return the results of passing the corresponding values to the conversion procedure specified when the parameters were created. Then the previous values of the parameters are restored without passing them to the conversion procedure. The results of the last expression in the body are returned as the results of the entire parameterize expression.</p>
-<p><em>Note:</em> If the conversion procedure is not idempotent, the results of (parameterize ((x (x))) …), which appears to bind the parameter <em>x</em> to its current value, might not be what the user expects.</p>
+<p><em>Note:</em> If the conversion procedure is not idempotent, the results of (parameterize ((x (x))) …), which appears to bind the parameter <code>x</code> to its current value, might not be what the user expects.</p>
 <p>If an implementation supports multiple threads of execution, then parameterize must not change the associated values of any parameters in any thread other than the current thread and threads created inside body.</p>
 <p>Parameter objects can be used to specify configurable settings for a computation without the need to pass the value to every procedure in the call chain explicitly.</p>
 <div class="sourceCode" id="cb93"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>(<span class="ex">define</span><span class="fu"> radix</span></span>
@@ -1399,7 +1399,7 @@
 <span id="cb93-18"><a href="#cb93-18" aria-hidden="true" tabindex="-1"></a>(parameterize ((radix <span class="dv">0</span>))</span>
 <span id="cb93-19"><a href="#cb93-19" aria-hidden="true" tabindex="-1"></a>  (f <span class="dv">12</span>)) <span class="co">;; =&gt; error</span></span></code></pre></div>
 <h4 id="exception-handling">Exception handling</h4>
-<p>(guard (variable  syntax <code>cond clause_2 \ldots\,) )</code> <em>Syntax:</em> Each cond clause is as in the specification of cond.</p>
+<p>(guard (variable  syntax <code>cond clause_2 ...) )</code> <em>Syntax:</em> Each cond clause is as in the specification of cond.</p>
 <p><em>Semantics:</em> The body is evaluated with an exception handler that binds the raised object (see <code>raise</code> in section <a href="#exceptionsection">[exceptionsection]</a>) to variable and, within the scope of that binding, evaluates the clauses as if they were the clauses of a cond expression. That implicit cond expression is evaluated with the continuation and dynamic environment of the guard expression. If every cond clause’s test evaluates to #f and there is no else clause, then raise-continuable is invoked on the raised object within the dynamic environment of the original call to raise or raise-continuable, except that the current exception handler is that of the guard expression.</p>
 <p>See section <a href="#exceptionsection">[exceptionsection]</a> for a more complete discussion of exceptions.</p>
 <div class="sourceCode" id="cb94"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">guard</span> (<span class="kw">condition</span></span>
@@ -1467,9 +1467,9 @@
 <span id="cb101-9"><a href="#cb101-9" aria-hidden="true" tabindex="-1"></a>(range <span class="dv">3</span> <span class="dv">5</span>) <span class="co">;; =&gt; (3 4)</span></span></code></pre></div>
 <h3 id="macros">Macros</h3>
 <p>Scheme programs can define and use new derived expression types, called <em>macros</em>. Program-defined expression types have the syntax</p>
-<pre><code>(\hyper{keyword} {\hyper{datum}} ...)</code></pre>
-<p>where keyword is an identifier that uniquely determines the expression type. This identifier is called the <em>syntactic keyword</em>, or simply <em>keyword</em>, of the macro. The number of the datums, and their syntax, depends on the expression type.</p>
-<p>Each instance of a macro is called a <em>use</em> of the macro. The set of rules that specifies how a use of a macro is transcribed into a more primitive expression is called the <em>transformer</em> of the macro.</p>
+<pre><code>(&lt;keyword&gt; &lt;datum&gt; ...)</code></pre>
+<p>where keyword is an identifier that uniquely determines the expression type. This identifier is called the <em>syntactic keyword</em>, or simply <code>keyword</code>, of the macro. The number of the datums, and their syntax, depends on the expression type.</p>
+<p>Each instance of a macro is called a <em>use</em> of the macro. The set of rules that specifies how a use of a macro is transcribed into a more primitive expression is called the <code>transformer</code> of the macro.</p>
 <p>The macro definition facility consists of two parts:</p>
 <ul>
 <li><p>A set of expressions used to establish that certain identifiers are macro keywords, associate them with macro transformers, and control the scope within which a macro is defined, and</p></li>
@@ -1485,7 +1485,7 @@
 <h4 id="binding-constructs-for-syntactic-keywords">Binding constructs for syntactic keywords</h4>
 <p>The let-syntax and letrec-syntax binding constructs are analogous to let and letrec, but they bind syntactic keywords to macro transformers instead of binding variables to locations that contain values. Syntactic keywords can also be bound globally or locally with define-syntax; see section <a href="#define-syntax">[define-syntax]</a>.</p>
 <p>(let-syntax <em>bindings body</em>)  syntax <em>Syntax:</em> Bindings has the form</p>
-<pre><code>((\hyper{keyword} \hyper{transformer spec}) \dotsfoo)</code></pre>
+<pre><code>((&lt;keyword&gt; &lt;transformer-spec&gt;) ...)</code></pre>
 <p>Each keyword is an identifier, each transformer spec is an instance of syntax-rules, and body is a sequence of zero or more definitions followed by one or more expressions. It is an error for a keyword to appear more than once in the list of keywords being bound.</p>
 <p><em>Semantics:</em> The body is expanded in the syntactic environment obtained by extending the syntactic environment of the let-syntax expression with macros whose keywords are the keywords, bound to the specified transformers. Each binding of a keyword has body as its region.</p>
 <div class="sourceCode" id="cb104"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">let-syntax</span> ((given-that (<span class="kw">syntax-rules</span> ()</span>
@@ -1523,22 +1523,22 @@
 <span id="cb105-18"><a href="#cb105-18" aria-hidden="true" tabindex="-1"></a>           y))) <span class="co">;; =&gt; 7</span></span></code></pre></div>
 <h4 id="pattern-language">Pattern language</h4>
 <p>A transformer spec has one of the following forms:</p>
-<p>(syntax-rules (pattern literal … )  syntax <code>\ldots\,)</code> (syntax-rules ellipsis (pattern literal … )  syntax <code>\ldots\,)</code> _  auxiliary syntax …   auxiliary syntax <em>Syntax:</em> It is an error if any of the pattern literals, or the ellipsis in the second form, is not an identifier. It is also an error if syntax rule is not of the form</p>
-<pre><code>(\hyper{pattern} \hyper{template})</code></pre>
+<p>(syntax-rules (pattern literal … )  syntax <code>...)</code> (syntax-rules ellipsis (pattern literal … )  syntax <code>...)</code> _  auxiliary syntax …   auxiliary syntax <em>Syntax:</em> It is an error if any of the pattern literals, or the ellipsis in the second form, is not an identifier. It is also an error if syntax rule is not of the form</p>
+<pre><code>(&lt;pattern&gt; &lt;template&gt;)</code></pre>
 <p>The pattern in a syntax rule is a list pattern whose first element is an identifier.</p>
 <p>A pattern is either an identifier, a constant, or one of the following</p>
-<pre><code>(\hyper{pattern} \ldots)
-(\hyper{pattern} \hyper{pattern} \ldots . \hyper{pattern})
-(\hyper{pattern} \ldots \hyper{pattern} \hyper{ellipsis} \hyper{pattern} \ldots)
-(\hyper{pattern} \ldots \hyper{pattern} \hyper{ellipsis} \hyper{pattern} \ldots
-  . \hyper{pattern})
-#(\hyper{pattern} \ldots)
-#(\hyper{pattern} \ldots \hyper{pattern} \hyper{ellipsis} \hyper{pattern} \ldots)</code></pre>
+<pre><code>(&lt;pattern&gt; ...)
+(&lt;pattern&gt; &lt;pattern&gt; ... . &lt;pattern&gt;)
+(&lt;pattern&gt; ... &lt;pattern&gt; ... &lt;pattern&gt; ...)
+(&lt;pattern&gt; ... &lt;pattern&gt; ... &lt;pattern&gt; ...
+  . &lt;pattern&gt;)
+#(&lt;pattern&gt; ...)
+#(&lt;pattern&gt; ... &lt;pattern&gt; ... &lt;pattern&gt; ...)</code></pre>
 <p>and a template is either an identifier, a constant, or one of the following</p>
-<pre><code>(\hyper{element} \ldots)
-(\hyper{element} \hyper{element} \ldots . \hyper{template})
-(\hyper{ellipsis} \hyper{template})
-#(\hyper{element} \ldots)</code></pre>
+<pre><code>(&lt;element&gt; ...)
+(&lt;element&gt; &lt;element&gt; ... . &lt;template&gt;)
+(... &lt;template&gt;)
+#(&lt;element&gt; ...)</code></pre>
 <p>where an element is a template optionally followed by an ellipsis. An ellipsis is the identifier specified in the second form of syntax-rules, or the default identifier … (three consecutive periods) otherwise.</p>
 <p><em>Semantics:</em> An instance of syntax-rules produces a new macro transformer by specifying a sequence of hygienic rewrite rules. A use of a macro whose keyword is associated with a transformer specified by syntax-rules is matched against the patterns contained in the syntax rules, beginning with the leftmost syntax rule. When a match is found, the macro use is transcribed hygienically according to the template.</p>
 <p>An identifier appearing within a pattern can be an underscore (_), a literal identifier listed in the list of pattern literals, or the ellipsis. All other identifiers appearing within a pattern are <em>pattern variables</em>.</p>
@@ -1600,7 +1600,7 @@
 <h2 id="program-structure">Program structure</h2>
 <h3 id="programs">Programs</h3>
 <p>A Scheme program consists of one or more import declarations followed by a sequence of expressions and definitions. Import declarations specify the libraries on which a program or library depends; a subset of the identifiers exported by the libraries are made available to the program. Expressions are described in chapter <a href="#expressionchapter">[expressionchapter]</a>. Definitions are either variable definitions, syntax definitions, or record-type definitions, all of which are explained in this chapter. They are valid in some, but not all, contexts where expressions are allowed, specifically at the outermost level of a program and at the beginning of a body.</p>
-<p>At the outermost level of a program, <code>(begin expression or definition_1 \ldots\,)</code> is equivalent to the sequence of expressions and definitions in the <code>begin</code>. Similarly, in a body, <code>(begin definition_1 \ldots\,)</code> is equivalent to the sequence definition<sub>1</sub> … . Macros can expand into such begin forms. For the formal definition, see <a href="#sequencing">[sequencing]</a>.</p>
+<p>At the outermost level of a program, <code>(begin expression or definition_1 ...)</code> is equivalent to the sequence of expressions and definitions in the <code>begin</code>. Similarly, in a body, <code>(begin definition_1 ...)</code> is equivalent to the sequence definition<sub>1</sub> … . Macros can expand into such begin forms. For the formal definition, see <a href="#sequencing">[sequencing]</a>.</p>
 <p>Import declarations and definitions cause bindings to be created in the global environment or modify the value of existing global bindings. The initial environment of a program is empty, so at least one import declaration is needed to introduce initial bindings.</p>
 <p>Expressions occurring at the outermost level of a program do not create any bindings. They are executed in order when the program is invoked or loaded, and typically perform some kind of initialization.</p>
 <p>Programs and libraries are typically stored in files, although in some implementations they can be entered interactively into a running Scheme system. Other paradigms are possible. Implementations which store libraries in files should document the mapping from the name of a library to its location in the file system.</p>
@@ -1610,10 +1610,10 @@
 <p>An import declaration provides a way to import identifiers exported by a library. Each import set names a set of bindings from a library and possibly specifies local names for the imported bindings. It takes one of the following forms:</p>
 <ul>
 <li><p><code>library name</code></p></li>
-<li><p><code>(only import set identifier \ldots\,)</code></p></li>
-<li><p><code>(except import set identifier \ldots\,)</code></p></li>
+<li><p><code>(only import set identifier ...)</code></p></li>
+<li><p><code>(except import set identifier ...)</code></p></li>
 <li><p><code>(prefix import set identifier)</code></p></li>
-<li><p><code>(rename import set  (identifier_1 identifier_2) \ldots\,)</code></p></li>
+<li><p><code>(rename import set  (identifier_1 identifier_2) ...)</code></p></li>
 </ul>
 <p>In the first form, all of the identifiers in the named library’s export clauses are imported with the same names (or the exported names if exported with <code>rename</code>). The additional import set forms modify this set as follows:</p>
 <ul>
@@ -1638,9 +1638,9 @@
 </ul>
 <h4 id="top-level-definitions">Top level definitions</h4>
 <p>At the outermost level of a program, a definition</p>
-<pre><code>(define &lt;variable&gt; \hyper{expression})</code></pre>
+<pre><code>(define &lt;variable&gt; &lt;expression&gt;)</code></pre>
 <p>has essentially the same effect as the assignment expression</p>
-<pre><code>(set!}\ &lt;variable&gt; \hyper{expression})</code></pre>
+<pre><code>(set! &lt;variable&gt; &lt;expression&gt;)</code></pre>
 <p>if variable is bound to a non-syntax value. However, if variable is not bound, or is a syntactic keyword, then the definition will bind variable to a new location before performing the assignment, whereas it would be an error to perform a set! on an unbound variable.</p>
 <div class="sourceCode" id="cb119"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a>(<span class="ex">define</span><span class="fu"> add3</span></span>
 <span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">lambda</span> (x) (<span class="op">+</span> x <span class="dv">3</span>)))</span>
@@ -1660,7 +1660,7 @@
 <span id="cb121-4"><a href="#cb121-4" aria-hidden="true" tabindex="-1"></a>    (foo (<span class="op">+</span> x <span class="dv">3</span>))))</span></code></pre></div>
 <p>Just as for the equivalent letrec* expression, it is an error if it is not possible to evaluate each expression of every internal definition in a body without assigning or referring to the value of the corresponding variable or the variable of any of the definitions that follow it in body.</p>
 <p>It is an error to define the same identifier more than once in the same body.</p>
-<p>Wherever an internal definition can occur, <code>(begin definition_1 \ldots\,)</code> is equivalent to the sequence of definitions that form the body of the <code>begin</code>.</p>
+<p>Wherever an internal definition can occur, <code>(begin definition_1 ...)</code> is equivalent to the sequence of definitions that form the body of the <code>begin</code>.</p>
 <h4 id="multiple-value-definitions">Multiple-value definitions</h4>
 <p>Another kind of definition is provided by define-values, which creates multiple definitions from a single expression returning multiple values. It is allowed wherever define is allowed.</p>
 <p>(define-values <em>formals expression</em>)  syntax</p>
@@ -1705,11 +1705,11 @@
 <p><em>Record-type definitions</em> are used to introduce new data types, called <em>record types</em>. Like other definitions, they can appear either at the outermost level or in a body. The values of a record type are called <em>records</em> and are aggregations of zero or more <em>fields</em>, each of which holds a single location. A predicate, a constructor, and field accessors and mutators are defined for each record type.</p>
 <p>(define-record-type name  syntax )</p>
 <p><em>Syntax:</em> name and pred are identifiers. The constructor is of the form</p>
-<pre><code>(\hyper{constructor name} \hyper{field name} ...)</code></pre>
+<pre><code>(&lt;constructore-name&gt; &lt;field-name&gt; ...)</code></pre>
 <p>and each field is either of the form</p>
-<pre><code>(\hyper{field name} \hyper{accessor name})</code></pre>
+<pre><code>(&lt;field-name&gt; &lt;accessor-name&gt;)</code></pre>
 <p>or of the form</p>
-<pre><code>(\hyper{field name} \hyper{accessor name} \hyper{modifier name})</code></pre>
+<pre><code>(&lt;field-name&gt; &lt;accessor-name&gt; &lt;modified-name&gt;)</code></pre>
 <p>It is an error for the same identifier to occur more than once as a field name. It is also an error for the same identifier to occur more than once as an accessor or mutator name.</p>
 <p>The define-record-type construct is generative: each use creates a new record type that is distinct from all existing types, including Scheme’s predefined types and other record types — even record types of the same name or structure.</p>
 <p>An instance of define-record-type is equivalent to the following definitions:</p>
@@ -1738,18 +1738,18 @@
 <p>Libraries provide a way to organize Scheme programs into reusable parts with explicitly defined interfaces to the rest of the program. This section defines the notation and semantics for libraries.</p>
 <h4 id="library-syntax">Library Syntax</h4>
 <p>A library definition takes the following form:</p>
-<pre><code>(define-library \hyper{library name}
-  \hyper{library declaration} ...)</code></pre>
+<pre><code>(define-library &lt;library-name&gt;
+  &lt;library-declaration&gt; ...)</code></pre>
 <p>library name is a list whose members are identifiers and exact non-negative integers. It is used to identify the library uniquely when importing from other programs or libraries. Libraries whose first identifier is scheme are reserved for use by this report and future versions of this report. Libraries whose first identifier is srfi are reserved for libraries implementing Scheme Requests for Implementation. It is inadvisable, but not an error, for identifiers in library names to contain any of the characters | <code>'</code> ? * &lt; ” : &gt; + [ ] / or control characters after escapes are expanded.</p>
 <p>A library declaration is any of:</p>
 <ul>
-<li><p><code>(export export spec \ldots\,)</code></p></li>
-<li><p><code>(import import set \ldots\,)</code></p></li>
-<li><p><code>(begin command or definition \ldots\,)</code></p></li>
-<li><p><code>(include filename_1 filename_2 \ldots\,)</code></p></li>
-<li><p><code>(include-ci filename_1 filename_2 \ldots\,)</code></p></li>
-<li><p><code>(include-library-declarations filename_1 filename_2 \ldots\,)</code></p></li>
-<li><p><code>(cond-expand ce-clause_1 ce-clause_2 \ldots\,)</code></p></li>
+<li><p><code>(export export spec ...)</code></p></li>
+<li><p><code>(import import set ...)</code></p></li>
+<li><p><code>(begin command or definition ...)</code></p></li>
+<li><p><code>(include filename_1 filename_2 ...)</code></p></li>
+<li><p><code>(include-ci filename_1 filename_2 ...)</code></p></li>
+<li><p><code>(include-library-declarations filename_1 filename_2 ...)</code></p></li>
+<li><p><code>(cond-expand ce-clause_1 ce-clause_2 ...)</code></p></li>
 </ul>
 <p>An <code>export</code> declaration specifies a list of identifiers which can be made visible to other libraries or programs. An export spec takes one of the following forms:</p>
 <ul>
@@ -2112,9 +2112,9 @@
 <p>(abs <em>x</em>)  procedure The abs procedure returns the absolute value of its argument.</p>
 <div class="sourceCode" id="cb149"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">abs</span> -<span class="dv">7</span>) <span class="co">;; =&gt; 7</span></span></code></pre></div>
 <p>(floor/ <strong>n<em><sub>1</sub> </em>n<em><sub>2</sub></em>)  procedure (floor-quotient </strong>n<em><sub>1</sub> </em>n<em><sub>2</sub></em>)  procedure (floor-remainder <strong>n<em><sub>1</sub> </em>n<em><sub>2</sub></em>)  procedure (truncate/ </strong>n<em><sub>1</sub> </em>n<em><sub>2</sub></em>)  procedure (truncate-quotient <strong>n<em><sub>1</sub> </em>n<em><sub>2</sub></em>)  procedure (truncate-remainder </strong>n<em><sub>1</sub> </em>n<em><sub>2</sub></em>)  procedure These procedures implement number-theoretic (integer) division. It is an error if <em>n</em><sub>2</sub> is zero. The procedures ending in / return two integers; the other procedures return an integer. All the procedures compute a quotient <em>n</em><sub><em>q</em></sub> and remainder <em>n</em><sub><em>r</em></sub> such that <span class="math inline"><span class="math inline">${\\hbox{$</span>n_1<span class="math inline">$\\/}} = {\\hbox{$</span>n_2<span class="math inline">$\\/}} {\\hbox{$</span>n_q<span class="math inline">$\\/}} + {\\hbox{$</span>n_r<span class="math inline">$\\/}}$</span></span>. For each of the division operators, there are three procedures defined as follows:</p>
-<pre><code>(\hyper{operator}/ \vri{n} \vrii{n}) ;; =&gt; \vr{n_q} \vr{n_r}
-(\hyper{operator}-quotient \vri{n} \vrii{n}) ;; =&gt; \vr{n_q}
-(\hyper{operator}-remainder \vri{n} \vrii{n}) ;; =&gt; \vr{n_r}</code></pre>
+<pre><code>(&lt;operator&gt;/ \vri{n} \vrii{n}) ;; =&gt; \vr{n_q} \vr{n_r}
+(&lt;operator&gt;-quotient \vri{n} \vrii{n}) ;; =&gt; \vr{n_q}
+(&lt;operator&gt;-remainder \vri{n} \vrii{n}) ;; =&gt; \vr{n_r}</code></pre>
 <p>The remainder <em>n</em><sub><em>r</em></sub> is determined by the choice of integer <em>n</em><sub><em>q</em></sub>: <span class="math inline"><span class="math inline">${\\hbox{$</span>n_r<span class="math inline">$\\/}} = {\\hbox{$</span>n_1<span class="math inline">$\\/}} - {\\hbox{$</span>n_2<span class="math inline">$\\/}} {\\hbox{$</span>n_q<span class="math inline">$\\/}}$</span></span>. Each set of operators uses a different choice of <em>n</em><sub><em>q</em></sub>:</p>
 <table>
 <colgroup>
@@ -2133,8 +2133,8 @@
 </tbody>
 </table>
 <p>For any of the operators, and for integers <em>n</em><sub>1</sub> and <em>n</em><sub>2</sub> with <em>n</em><sub>2</sub> not equal to 0,</p>
-<pre><code>     (= \vri{n} (+ (* \vrii{n} (\hyper{operator}-quotient \vri{n} \vrii{n}))
-           (\hyper{operator}-remainder \vri{n} \vrii{n})))</code></pre>
+<pre><code>     (= \vri{n} (+ (* \vrii{n} (&lt;operator&gt;-quotient \vri{n} \vrii{n}))
+           (&lt;operator&gt;-remainder \vri{n} \vrii{n})))</code></pre>
 <p>;; =&gt; #t</p>
 <p>provided all numbers involved in that computation are exact.</p>
 <p>Examples:</p>
@@ -2780,7 +2780,7 @@ x_4}$$</span></span> Then all of</p>
 <h3 id="vectors">Vectors</h3>
 <p>Vectors are heterogeneous structures whose elements are indexed by integers. A vector typically occupies less space than a list of the same length, and the average time needed to access a randomly chosen element is typically less for the vector than for the list.</p>
 <p>The <em>length</em> of a vector is the number of elements that it contains. This number is a non-negative integer that is fixed when the vector is created. The <em>valid indexes</em> of a vector are the exact non-negative integers less than the length of the vector. The first element in a vector is indexed by zero, and the last element is indexed by one less than the length of the vector.</p>
-<p>Vectors are written using the notation <code>#(obj \ldots\,)</code>. For example, a vector of length 3 containing the number zero in element 0, the list (2 2 2 2) in element 1, and the string “Anna” in element 2 can be written as follows:</p>
+<p>Vectors are written using the notation <code>#(obj ...)</code>. For example, a vector of length 3 containing the number zero in element 0, the list (2 2 2 2) in element 1, and the string “Anna” in element 2 can be written as follows:</p>
 <div class="sourceCode" id="cb197"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb197-1"><a href="#cb197-1" aria-hidden="true" tabindex="-1"></a>#(<span class="dv">0</span> (<span class="dv">2</span> <span class="dv">2</span> <span class="dv">2</span> <span class="dv">2</span>) <span class="st">&quot;Anna&quot;</span>)</span></code></pre></div>
 <p>Vector constants are self-evaluating, so they do not need to be quoted in programs.</p>
 <p>(vector? <em>obj</em>)  procedure Returns #t if <em>obj</em> is a vector; otherwise returns #f.</p>
@@ -2835,7 +2835,7 @@ x_4}$$</span></span> Then all of</p>
 <h3 id="bytevectors">Bytevectors</h3>
 <p><em>Bytevectors</em> represent blocks of binary data. They are fixed-length sequences of bytes, where a <em>byte</em> is an exact integer in the range from 0 to 255 inclusive. A bytevector is typically more space-efficient than a vector containing the same values.</p>
 <p>The <em>length</em> of a bytevector is the number of elements that it contains. This number is a non-negative integer that is fixed when the bytevector is created. The <em>valid indexes</em> of a bytevector are the exact non-negative integers less than the length of the bytevector, starting at index zero as with vectors.</p>
-<p>Bytevectors are written using the notation <code>#u8(byte \ldots\,)</code>. For example, a bytevector of length 3 containing the byte 0 in element 0, the byte 10 in element 1, and the byte 5 in element 2 can be written as follows:</p>
+<p>Bytevectors are written using the notation <code>#u8(byte ...)</code>. For example, a bytevector of length 3 containing the byte 0 in element 0, the byte 10 in element 1, and the byte 5 in element 2 can be written as follows:</p>
 <div class="sourceCode" id="cb207"><pre class="sourceCode scheme"><code class="sourceCode scheme"><span id="cb207-1"><a href="#cb207-1" aria-hidden="true" tabindex="-1"></a>#u8(<span class="dv">0</span> <span class="dv">10</span> <span class="dv">5</span>)</span></code></pre></div>
 <p>Bytevector constants are self-evaluating, so they do not need to be quoted in programs.</p>
 <p>(bytevector? <em>obj</em>)  procedure Returns #t if <em>obj</em> is a bytevector. Otherwise, #f is returned.</p>
