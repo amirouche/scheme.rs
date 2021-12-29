@@ -1,11 +1,17 @@
-all: html
+all:
 	poetry install
 	poetry run python maji.py https://localhost:8000/
-	python3 -m http.server
+	make serve
 
-html:
+md:
 	cat index.md discourse/index.md tutorial/index.md $(shell find scheme/ -name "index.md") > scheme.rs.md
-	pandoc scheme.rs.md -o scheme.rs.html
+
+html: md
+	pandoc  scheme.rs.md --standalone -o scheme.rs.html
+
+pdf: md
+	pandoc --from=markdown scheme.rs.md --pdf-engine=xelatex --standalone -o scheme.rs.tex
+	echo Q | xelatex scheme.rs.tex || true
 
 serve:
 	python3 -m http.server

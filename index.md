@@ -82,8 +82,8 @@ Or, like others, to make it your secret sauce.
 
 You can find the [source over the
 rainbow](https://git.sr.ht/~amirouche/scheme.rs). There is available a
-[single markdown file](scheme.rs.md), and a [(slightly broken) single
-html file](scheme.rs.html);
+[single markdown file](scheme.rs.md), and a [single
+html file](scheme.rs.html) and a [pdf](scheme.rs.pdf);
 
 ## LICENSE
 

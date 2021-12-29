@@ -1,11 +1,14 @@
 # A cheatsheet on Discourse.
 
-**The three gates of speech** : Before you speak, let your words pass
-through three gates.
+## The three gates of speech
+
+Before you speak, let your words pass through three gates.
 
 * At the first gate, ask yourself, is it true.
 * At the second gate ask, is it necessary.
 * At the third gate ask, is it kind.
+
+## Rogerian rhetoric
 
 > 1. You should attempt to re-express your target's position so
 >    clearly, vividly, and fairly that your target says, "Thanks, I
@@ -14,11 +17,10 @@ through three gates.
 > 2. You should list any points of agreement (especially if they are
 >    not matters of general or widespread agreement).
 >
-> 3. You should list any points of agreement (especially if they are
->    not matters of general or widespread agreement).
+> 3. You should mention anything you have learned from your target.
 >
-> 4. You should list any points of agreement (especially if they are
->    not matters of general or widespread agreement).
+> 4. Only then are you permitted to say so much as a word of rebuttal
+>    or criticism.
 >
 > — [Dennett's version of Rapoport's Rules](https://wikiless.org/wiki/Rogerian_rhetoric?lang=en#Dennett's_version)
 
@@ -206,16 +208,20 @@ regard they are different from a code of conduct.
   that may be vitally important to your own interests but are contrary to the
   interests of the other that is seeking to make you act in their interests.
 
+## Quotes
+
 > "Kings speak for the realm, governors for the state, popes for the church.
 > Indeed, the titled, as titled, cannot speak **with** annyone."
 >
 > — James P. Carse, Finite and Infinite Games
 
-> Instead of trying to prove your opponent wrong, try to see in what sense he might be right.
-> — Robert Nozick, Anarchy, State, and Utopia
+> "Instead of trying to prove your opponent wrong, try to see in what
+> sense he might be right."  — Robert Nozick, Anarchy, State, and
+> Utopia
 
 > "I don't argue: I just say what I know or what I believe, as the case may be."
 > — John W. Cohan
+
 
 > "You should mention anything you have learned from your target."
 
@@ -223,9 +229,9 @@ regard they are different from a code of conduct.
 
 The whole page is licensed under
 [cc-by-nc-sa](https://creativecommons.org/licenses/by-nc-sa/4.0); it
-slightly adapted from https://wiki.xxiivv.com/site/discourse.html to
-be able to support the static site generator used on https://scheme.rs
-and to avoid the words `bad` (replaced with `wrong`) and `faith`
-(replaced with `discourse`), a few other changes, see
+is slightly adapted from https://wiki.xxiivv.com/site/discourse.html
+to be able to support the static site generator used on
+https://scheme.rs and to avoid the words "bad" (replaced with "wrong")
+and "faith" (replaced with "discourse"), a few other changes, see
 [history](https://git.sr.ht/~amirouche/scheme.rs/log/main/item/discourse/index.md)
 for complete log.
