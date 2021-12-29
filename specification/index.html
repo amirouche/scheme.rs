@@ -278,7 +278,7 @@ errors and handle signaled errors.</p>
 <p>The phrase “an error that satisfies <em>predicate</em> is signaled” means
 that an error is signaled as above. Furthermore, if the object that is
 signaled is passed to the specified predicate (such as file-error? or
-read-error?), the predicate returns #t.</p>
+read-error?), the predicate returns <code>#t</code>.</p>
 <p>If such wording does not appear in the discussion of an error, then
 implementations are not required to detect or report the error, though
 they are encouraged to do so. Such a situation is sometimes, but not
@@ -376,7 +376,7 @@ type restrictions:</p>
 </tr>
 <tr>
 <td style="text-align:left"><em>b<strong>o</strong>o<strong>l</strong>e<strong>a</strong>n</em></td>
-<td style="text-align:left">boolean value (#t or #f)</td>
+<td style="text-align:left">boolean value (<code>#t</code> or <code>#f</code>)</td>
 </tr>
 <tr>
 <td style="text-align:left"><em>b<strong>y</strong>t**e</em></td>
@@ -698,9 +698,9 @@ the object labelled by #n= is not well defined in this case.</p>
 <p>It is an error for a program or library to include circular references
 except in literals. In particular, it is an error for quasiquote
 (section <a href="#quasiquote">[quasiquote]</a>) to contain them.</p>
-
-<div><pre>#1=(begin (display #\x) #1#)
- ;; =&gt; \scherror</pre></div>
+<div class="highlight"><pre><span></span><span class="o">#</span><span class="mi">1</span><span class="nv">=</span><span class="p">(</span><span class="k">begin </span><span class="p">(</span><span class="nb">display </span><span class="sc">#\x</span><span class="p">)</span> <span class="o">#</span><span class="mi">1</span><span class="o">#</span><span class="p">)</span>
+<span class="c1">;; =&gt; error</span>
+</pre></div>
 <h2>Basic concepts</h2>
 <h3>Variables, syntactic keywords, and regions</h3>
 <p>An identifier can name either a type of syntax or a location where a
@@ -752,12 +752,12 @@ identifier, it is said to be <em>unbound</em>.</p>
 <p>These predicates define the types <em>boolean, bytevector, character</em>, the
 empty list object, <em>eof-object, number, pair, port, procedure, string,
 symbol, vector</em>, and all record types.</p>
-<p>Although there is a separate boolean type, any Scheme value can be used
-as a boolean value for the purpose of a conditional test. As explained
-in section <a href="#booleansection">[booleansection]</a>, all values count as
-true in such a test except for #f. This report uses the word “true” to
-refer to any Scheme value except #f, and the word “false” to refer to</p>
-<h1>f.</h1>
+<p>Although there is a separate boolean type, any Scheme value can be
+used as a boolean value for the purpose of a conditional test. As
+explained in section <a href="#booleansection">[booleansection]</a>, all values
+count as true in such a test except for #f. This report uses the word
+“true” to refer to any Scheme value except #f, and the word “false” to
+refer to #f.</p>
 <h3>External representations</h3>
 <p>An important concept in Scheme (and Lisp) is that of the <em>external
 representation</em> of an object as a sequence of characters. For example,
@@ -877,28 +877,40 @@ occurrences of body with tail body, some occurrences of expression
 with tail expression, and some occurrences of sequence with
 tail sequence. Only those rules that contain tail contexts are shown
 here.</p>
-<p>̄ | ̄ (if expression tail expression tail expression) (if
-expression tail expression)</p>
-<p>(cond cond clause<sup>+</sup>) (cond cond clause (else
-tail sequence))</p>
-<p>(cāse expression <sup>+</sup>) (cāse expression (else
-tail sequence))</p>
-<p>(and expression tail expression) (or expression tail expression)</p>
-<p>(when test tail sequence) (unless test tail sequence)</p>
-<p>(let (binding spec) tail body) (let variable (binding spec)
-tail body) (let* (binding spec) tail body) (letrec (binding spec)
-tail body) (letrec* (binding spec) tail body) (let-values
-(mv binding spec) tail body) (let*-values (mv binding spec)
-tail body)</p>
-<p>(let-syntax (syntax spec) tail body) (letrec-syntax (syntax spec)
-tail body)</p>
-<p>(begin tail sequence)</p>
-<p>(dō (̄iteration spec) (test tail sequence) )</p>
-<p>where</p>
-<p>cond clause ⟶ (test tail sequence) case clause ⟶ ((datum)
-tail sequence)</p>
-<p>tail body ⟶ definition tail sequence tail sequence ⟶ expression
-tail expression</p>
+<div class="highlight"><pre><span></span><span class="err">̄</span> <span class="err">\</span><span class="nv">|</span> <span class="err">̄</span> <span class="p">(</span><span class="k">if </span><span class="nv">expression</span> <span class="nv">tail</span> <span class="nv">expression</span> <span class="nv">tail</span> <span class="nv">expression</span><span class="p">)</span> <span class="p">(</span><span class="nf">if</span>
+<span class="nv">expression</span> <span class="nv">tail</span> <span class="nv">expression</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">cond </span><span class="nv">cond</span> <span class="nv">clause&lt;sup&gt;+&lt;/sup&gt;</span><span class="p">)</span> <span class="p">(</span><span class="k">cond </span><span class="nv">cond</span> <span class="nv">clause</span> <span class="p">(</span><span class="nf">else</span>
+<span class="nv">tail</span> <span class="nv">sequence</span><span class="p">))</span>
+
+<span class="p">(</span><span class="nf">cāse</span> <span class="nv">expression</span> <span class="nv">&lt;sup&gt;+&lt;/sup&gt;</span><span class="p">)</span> <span class="p">(</span><span class="nf">cāse</span> <span class="nv">expression</span> <span class="p">(</span><span class="nf">else</span>
+<span class="nv">tail</span> <span class="nv">sequence</span><span class="p">))</span>
+
+<span class="p">(</span><span class="k">and </span><span class="nv">expression</span> <span class="nv">tail</span> <span class="nv">expression</span><span class="p">)</span> <span class="p">(</span><span class="k">or </span><span class="nv">expression</span> <span class="nv">tail</span> <span class="nv">expression</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">when</span> <span class="nv">test</span> <span class="nv">tail</span> <span class="nv">sequence</span><span class="p">)</span> <span class="p">(</span><span class="nf">unless</span> <span class="nv">test</span> <span class="nv">tail</span> <span class="nv">sequence</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">let </span><span class="p">(</span><span class="nf">binding</span> <span class="nv">spec</span><span class="p">)</span> <span class="nv">tail</span> <span class="nv">body</span><span class="p">)</span> <span class="p">(</span><span class="k">let </span><span class="nv">variable</span> <span class="p">(</span><span class="nf">binding</span> <span class="nv">spec</span><span class="p">)</span>
+<span class="nv">tail</span> <span class="nv">body</span><span class="p">)</span> <span class="p">(</span><span class="nf">let</span><span class="err">\</span><span class="nv">*</span> <span class="p">(</span><span class="nf">binding</span> <span class="nv">spec</span><span class="p">)</span> <span class="nv">tail</span> <span class="nv">body</span><span class="p">)</span> <span class="p">(</span><span class="k">letrec </span><span class="p">(</span><span class="nf">binding</span> <span class="nv">spec</span><span class="p">)</span>
+<span class="nv">tail</span> <span class="nv">body</span><span class="p">)</span> <span class="p">(</span><span class="nf">letrec</span><span class="err">\</span><span class="nv">*</span> <span class="p">(</span><span class="nf">binding</span> <span class="nv">spec</span><span class="p">)</span> <span class="nv">tail</span> <span class="nv">body</span><span class="p">)</span> <span class="p">(</span><span class="nf">let-values</span>
+<span class="p">(</span><span class="nf">mv</span> <span class="nv">binding</span> <span class="nv">spec</span><span class="p">)</span> <span class="nv">tail</span> <span class="nv">body</span><span class="p">)</span> <span class="p">(</span><span class="nf">let</span><span class="err">\</span><span class="nv">*-values</span> <span class="p">(</span><span class="nf">mv</span> <span class="nv">binding</span> <span class="nv">spec</span><span class="p">)</span>
+<span class="nv">tail</span> <span class="nv">body</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">let-syntax </span><span class="p">(</span><span class="nf">syntax</span> <span class="nv">spec</span><span class="p">)</span> <span class="nv">tail</span> <span class="nv">body</span><span class="p">)</span> <span class="p">(</span><span class="k">letrec-syntax </span><span class="p">(</span><span class="nf">syntax</span> <span class="nv">spec</span><span class="p">)</span>
+<span class="nv">tail</span> <span class="nv">body</span><span class="p">)</span>
+
+<span class="p">(</span><span class="k">begin </span><span class="nv">tail</span> <span class="nv">sequence</span><span class="p">)</span>
+
+<span class="p">(</span><span class="nf">dō</span> <span class="p">(</span><span class="err">̄</span><span class="nv">iteration</span> <span class="nv">spec</span><span class="p">)</span> <span class="p">(</span><span class="nf">test</span> <span class="nv">tail</span> <span class="nv">sequence</span><span class="p">)</span> <span class="p">)</span>
+
+<span class="nv">where</span>
+
+<span class="nv">cond</span> <span class="nv">clause</span> <span class="err">⟶</span> <span class="p">(</span><span class="nf">test</span> <span class="nv">tail</span> <span class="nv">sequence</span><span class="p">)</span> <span class="nv">case</span> <span class="nv">clause</span> <span class="err">⟶</span> <span class="p">((</span><span class="nf">datum</span><span class="p">)</span>
+<span class="nv">tail</span> <span class="nv">sequence</span><span class="p">)</span>
+
+<span class="nv">tail</span> <span class="nv">body</span> <span class="err">⟶</span> <span class="nv">definition</span> <span class="nv">tail</span> <span class="nv">sequence</span> <span class="nv">tail</span> <span class="nv">sequence</span> <span class="err">⟶</span> <span class="nv">expression</span>
+<span class="nv">tail</span> <span class="nv">expression</span>
+</pre></div>
 </li>
 <li><p>If a cond or case expression is in a tail context, and has a clause
 of the form (expression<sub>1</sub> =&gt; expression<sub>2</sub>) then
@@ -1138,7 +1150,7 @@ else  auxiliary syntax
 <div><pre>(&lt;test&gt; =&gt; &lt;expression&gt;)</pre></div>
 <p>The last clause can be an “else clause,” which has the form</p>
 
-<div><pre>(else &lt;expression&gt; &lt;expression&gt; ...)\rm.</pre></div>
+<div><pre>(else &lt;expression&gt; &lt;expression&gt; ...)</pre></div>
 <p><em>Semantics:</em> A cond expression is evaluated by evaluating the test
 expressions of successive clauses in order until one of them evaluates
 to a true value (see section <a href="#booleansection">[booleansection]</a>).
@@ -1168,7 +1180,7 @@ the last one are returned.</p>
 <p>(case <em>key clause<sub>1</sub> clause<sub>2</sub> … </em>)  syntax
 <em>Syntax:</em> Key can be any expression. Each clause has the form</p>
 
-<div><pre>((&lt;datum&gt; ...) &lt;expression&gt; &lt;expression&gt; ...)\rm,</pre></div>
+<div><pre>((&lt;datum&gt; ...) &lt;expression&gt; &lt;expression&gt; ...)</pre></div>
 <p>where each datum is an external representation of some object. It is an
 error if any of the datums are the same anywhere in the expression.
 Alternatively, a clause can be of the form</p>
@@ -1179,7 +1191,7 @@ Alternatively, a clause can be of the form</p>
 <div><pre>(else &lt;expression&gt; &lt;expression&gt; ...)</pre></div>
 <p>or</p>
 
-<div><pre>(else =&gt; &lt;expression&gt;)\rm.</pre></div>
+<div><pre>(else =&gt; &lt;expression&gt;)</pre></div>
 <p><em>Semantics:</em> A case expression is evaluated as follows. Key is evaluated
 and its result is compared against each datum. If the result of
 evaluating key is the same (in the sense of eqv?; see
@@ -1209,11 +1221,11 @@ by the case expression.</p>
 </pre></div>
 <p>(and <em>test<sub>1</sub> … </em>)  syntax
 <em>Semantics:</em> The test expressions are evaluated from left to right, and
-if any expression evaluates to #f (see
-section <a href="#booleansection">[booleansection]</a>), then #f is returned. Any
+if any expression evaluates to <code>#f</code> (see
+section <a href="#booleansection">[booleansection]</a>), then <code>#f</code> is returned. Any
 remaining expressions are not evaluated. If all the expressions evaluate
 to true values, the values of the last expression are returned. If there
-are no expressions, then #t is returned.</p>
+are no expressions, then <code>#t</code> is returned.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="k">and </span><span class="p">(</span><span class="nb">= </span><span class="mi">2</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="nb">&gt; </span><span class="mi">2</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">;; =&gt; #t</span>
 <span class="p">(</span><span class="k">and </span><span class="p">(</span><span class="nb">= </span><span class="mi">2</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt; </span><span class="mi">2</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">;; =&gt; #f</span>
 <span class="p">(</span><span class="k">and </span><span class="mi">1</span> <span class="mi">2</span> <span class="ss">&#39;c</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">f</span> <span class="nv">g</span><span class="p">))</span> <span class="c1">;; =&gt; (f g)</span>
@@ -1223,8 +1235,8 @@ are no expressions, then #t is returned.</p>
 <em>Semantics:</em> The test expressions are evaluated from left to right, and
 the value of the first expression that evaluates to a true value (see
 section <a href="#booleansection">[booleansection]</a>) is returned. Any
-remaining expressions are not evaluated. If all expressions evaluate to</p>
-<h1>f or if there are no expressions, then #f is returned.</h1>
+remaining expressions are not evaluated. If all expressions evaluate to <code>#f</code>
+or if there are no expressions, then <code>#f</code> is returned.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="k">or </span><span class="p">(</span><span class="nb">= </span><span class="mi">2</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="nb">&gt; </span><span class="mi">2</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">;; =&gt; #t</span>
 <span class="p">(</span><span class="k">or </span><span class="p">(</span><span class="nb">= </span><span class="mi">2</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt; </span><span class="mi">2</span> <span class="mi">1</span><span class="p">))</span> <span class="c1">;; =&gt; #t</span>
 <span class="p">(</span><span class="k">or </span><span class="no">#f</span> <span class="no">#f</span> <span class="no">#f</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
@@ -1245,8 +1257,8 @@ expression is unspecified.</p>
  syntax
 <em>Syntax:</em> The test is an expression.</p>
 <p><em>Semantics:</em> The test is evaluated, and if it evaluates to #f, the
-expressions are evaluated in order. The result of the unless expression
-is unspecified.</p>
+expressions are evaluated in order. The result of the unless
+expression is unspecified.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">unless</span> <span class="p">(</span><span class="nb">= </span><span class="mi">1</span> <span class="mf">1.0</span><span class="p">)</span>
   <span class="p">(</span><span class="nb">display </span><span class="s">&quot;1&quot;</span><span class="p">)</span>
   <span class="p">(</span><span class="nb">display </span><span class="s">&quot;2&quot;</span><span class="p">))</span> <span class="c1">;; =&gt; unspecified</span>
@@ -1276,11 +1288,11 @@ ce-clause takes the following form:</p>
 which are present, as well as a list of libraries which can be imported.
 The value of a feature requirement is determined by replacing each
 feature identifier and <code>(library library name)</code> on the implementation’s
-lists with #t, and all other feature identifiers and library names with</p>
-<h1>f, then evaluating the resulting expression as a Scheme boolean</h1>
-<p>expression under the normal interpretation of and, or, and not.</p>
+lists with <code>#t</code>, and all other feature identifiers and library names with #f,
+then evaluating the resulting expression as a Scheme boolean
+expression under the normal interpretation of and, or, and not.</p>
 <p>A <code>cond-expand</code> is then expanded by evaluating the feature requirements
-of successive ce-clauses in order until one of them returns #t. When a
+of successive ce-clauses in order until one of them returns <code>#t</code>. When a
 true clause is found, the corresponding expressions are expanded to a
 begin, and the remaining clauses are ignored. If none of the
 feature requirements evaluate to #t, then if there is an else clause,
@@ -1306,7 +1318,7 @@ the returned values.</p>
 <p>(let <em>bindings body</em>)  syntax
 <em>Syntax:</em> Bindings has the form</p>
 
-<div><pre>((&lt;variable&gt; &lt;init&gt;) ...)\rm,</pre></div>
+<div><pre>((&lt;variable&gt; &lt;init&gt;) ...)</pre></div>
 <p>where each init is an expression, and body is a sequence of zero or more
 definitions followed by a sequence of one or more expressions as
 described in section <a href="#lambda">[lambda]</a>. It is an error for a
@@ -1328,7 +1340,7 @@ variable has body as its region.</p>
 <p>(let* <em>bindings body</em>)  syntax</p>
 <p><em>Syntax:</em> Bindings has the form</p>
 
-<div><pre>((&lt;variable&gt; &lt;init&gt;) ...)\rm,</pre></div>
+<div><pre>((&lt;variable&gt; &lt;init&gt;) ...)</pre></div>
 <p>and body is a sequence of zero or more definitions followed by one or
 more expressions as described in section <a href="#lambda">[lambda]</a>.</p>
 <p><em>Semantics:</em> The let* binding construct is similar to let, but the
@@ -1345,7 +1357,7 @@ variables need not be distinct.</p>
 <p>(letrec <em>bindings body</em>)  syntax
 <em>Syntax:</em> Bindings has the form</p>
 
-<div><pre>((&lt;variable&gt; &lt;init&gt;) ...)\rm,</pre></div>
+<div><pre>((&lt;variable&gt; &lt;init&gt;) ...)</pre></div>
 <p>and body is a sequence of zero or more definitions followed by one or
 more expressions as described in section <a href="#lambda">[lambda]</a>. It is an
 error for a variable to appear more than once in the list of variables
@@ -1380,7 +1392,7 @@ automatically.</p>
 <p>(letrec* <em>bindings body</em>)  syntax
 <em>Syntax:</em> Bindings has the form</p>
 
-<div><pre>((&lt;variable&gt; &lt;init&gt;) ...)\rm,</pre></div>
+<div><pre>((&lt;variable&gt; &lt;init&gt;) ...)</pre></div>
 <p>and body is a sequence of zero or more definitions followed by one or
 more expressions as described in section <a href="#lambda">[lambda]</a>. It is an
 error for a variable to appear more than once in the list of variables
@@ -1398,32 +1410,32 @@ referring to the value of the corresponding variable or the variable of
 any of the bindings that follow it in bindings, it is an error. Another
 restriction is that it is an error to invoke the continuation of an init
 more than once.</p>
-
-<div><pre>;; Returns the arithmetic, geometric, and
-;; harmonic means of a nested list of numbers
-(define (means ton)
-  (letrec*
-     ((mean
-        (lambda (f g)
-          (f (/ (sum g ton) n))))
-      (sum
-        (lambda (g ton)
-          (if (null? ton)
-            (+)
-            (if (number? ton)
-                (g ton)
-                (+ (sum g (car ton))
-                   (sum g (cdr ton)))))))
-      (n (sum (lambda (x) 1) ton)))
-    (values (mean values values)
-            (mean exp log)
-            (mean / /))))</pre></div>
+<div class="highlight"><pre><span></span><span class="c1">;; Returns the arithmetic, geometric, and</span>
+<span class="c1">;; harmonic means of a nested list of numbers</span>
+<span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">means</span> <span class="nv">ton</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">letrec*</span>
+      <span class="p">((</span><span class="nf">mean</span>
+        <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">f</span> <span class="nv">g</span><span class="p">)</span>
+          <span class="p">(</span><span class="nf">f</span> <span class="p">(</span><span class="nb">/ </span><span class="p">(</span><span class="nf">sum</span> <span class="nv">g</span> <span class="nv">ton</span><span class="p">)</span> <span class="nv">n</span><span class="p">))))</span>
+       <span class="p">(</span><span class="nf">sum</span>
+        <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">g</span> <span class="nv">ton</span><span class="p">)</span>
+          <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">null? </span><span class="nv">ton</span><span class="p">)</span>
+              <span class="p">(</span><span class="nf">+</span><span class="p">)</span>
+              <span class="p">(</span><span class="k">if </span><span class="p">(</span><span class="nb">number? </span><span class="nv">ton</span><span class="p">)</span>
+                  <span class="p">(</span><span class="nf">g</span> <span class="nv">ton</span><span class="p">)</span>
+                  <span class="p">(</span><span class="nb">+ </span><span class="p">(</span><span class="nf">sum</span> <span class="nv">g</span> <span class="p">(</span><span class="nb">car </span><span class="nv">ton</span><span class="p">))</span>
+                     <span class="p">(</span><span class="nf">sum</span> <span class="nv">g</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">ton</span><span class="p">)))))))</span>
+       <span class="p">(</span><span class="nf">n</span> <span class="p">(</span><span class="nf">sum</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="mi">1</span><span class="p">)</span> <span class="nv">ton</span><span class="p">)))</span>
+    <span class="p">(</span><span class="nb">values </span><span class="p">(</span><span class="nf">mean</span> <span class="nv">values</span> <span class="nv">values</span><span class="p">)</span>
+            <span class="p">(</span><span class="nf">mean</span> <span class="nv">exp</span> <span class="nv">log</span><span class="p">)</span>
+            <span class="p">(</span><span class="nf">mean</span> <span class="nv">/</span> <span class="nv">/</span><span class="p">))))</span>
+</pre></div>
 <p>Evaluating (means ’(3 (1 4))) returns three values: 8/3,
 2.28942848510666 (approximately), and 36/19.</p>
 <p>(let-values <em>mv binding spec body</em>)  syntax
 <em>Syntax:</em> Mv binding spec has the form</p>
 
-<div><pre>((&lt;formals&gt; &lt;init&gt;) ...)\rm,</pre></div>
+<div><pre>((&lt;formals&gt; &lt;init&gt;) ...)</pre></div>
 <p>where each init is an expression, and body is zero or more definitions
 followed by a sequence of one or more expressions as described in
 section <a href="#lambda">[lambda]</a>. It is an error for a variable to appear
@@ -1445,7 +1457,7 @@ by the corresponding init.</p>
 <p>(let*-values <em>mv binding spec body</em>)  syntax</p>
 <p><em>Syntax:</em> Mv binding spec has the form</p>
 
-<div><pre>((&lt;formals&gt; &lt;init&gt;) ...)\rm,</pre></div>
+<div><pre>((&lt;formals&gt; &lt;init&gt;) ...)</pre></div>
 <p>and body is a sequence of zero or more definitions followed by one or
 more expressions as described in section <a href="#lambda">[lambda]</a>. In each
 formals, it is an error if any variable appears more than once.</p>
@@ -1547,7 +1559,7 @@ variable.</p>
         <span class="p">((</span><span class="nb">&lt; </span><span class="p">(</span><span class="nb">car </span><span class="nv">numbers</span><span class="p">)</span> <span class="mi">0</span><span class="p">)</span>
          <span class="p">(</span><span class="nf">loop</span> <span class="p">(</span><span class="nb">cdr </span><span class="nv">numbers</span><span class="p">)</span>
                <span class="nv">nonneg</span>
-               <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">car </span><span class="nv">numbers</span><span class="p">)</span> <span class="nv">neg</span><span class="p">)))))</span> 
+               <span class="p">(</span><span class="nb">cons </span><span class="p">(</span><span class="nb">car </span><span class="nv">numbers</span><span class="p">)</span> <span class="nv">neg</span><span class="p">)))))</span>
 <span class="c1">;; =&gt; ((6 1 3) (-5 -2))</span>
 </pre></div>
 <h4>Delayed evaluation</h4>
@@ -1640,7 +1652,7 @@ the object.</p>
 </li>
 <li><p>It may be the case that there is no means by which a promise can be
 operationally distinguished from its forced value. That is,
-expressions like the following may evaluate to either #t or to #f,
+expressions like the following may evaluate to either <code>#t</code> or to #f,
 depending on the implementation:</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">eqv? </span><span class="p">(</span><span class="k">delay </span><span class="mi">1</span><span class="p">)</span> <span class="mi">1</span><span class="p">)</span> <span class="c1">;; =&gt; unspecified</span>
 <span class="p">(</span><span class="nb">pair? </span><span class="p">(</span><span class="k">delay </span><span class="p">(</span><span class="nb">cons </span><span class="mi">1</span> <span class="mi">2</span><span class="p">)))</span> <span class="c1">;; =&gt; unspecified</span>
@@ -1657,7 +1669,7 @@ uniformly on their arguments, like list, must not force them.</p>
 </li>
 </ul>
 <p>(promise? <strong>obj</strong>)  lazy library procedure
-The promise? procedure returns #t if its argument is a promise, and #f
+The promise? procedure returns <code>#t</code> if its argument is a promise, and #f
 otherwise. Note that promises are not necessarily disjoint from other
 Scheme types such as procedures.</p>
 <p>(make-promise <strong>obj</strong>)  lazy library procedure
@@ -1739,7 +1751,7 @@ section <a href="#exceptionsection">[exceptionsection]</a>) to variable and,
 within the scope of that binding, evaluates the clauses as if they were
 the clauses of a cond expression. That implicit cond expression is
 evaluated with the continuation and dynamic environment of the guard
-expression. If every cond clause’s test evaluates to #f and there is no
+expression. If every cond clause’s test evaluates to <code>#f</code> and there is no
 else clause, then raise-continuable is invoked on the raised object
 within the dynamic environment of the original call to raise or
 raise-continuable, except that the current exception handler is that of
@@ -1781,13 +1793,13 @@ comma at-sign normally appears only within a list or vector qq template.</p>
 necessary to use either an explicit unquote or to put whitespace after
 the comma, to avoid colliding with the comma at-sign sequence.</p>
 <div class="highlight"><pre><span></span><span class="o">`</span><span class="p">(</span><span class="nb">list </span><span class="o">,</span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="mi">4</span><span class="p">)</span> <span class="c1">;; =&gt; (list 3 4)</span>
-<span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">name</span> <span class="ss">&#39;a</span><span class="p">))</span> <span class="o">`</span><span class="p">(</span><span class="nb">list </span><span class="o">,</span><span class="nv">name</span> <span class="ss">&#39;,name</span><span class="p">))</span> 
+<span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">name</span> <span class="ss">&#39;a</span><span class="p">))</span> <span class="o">`</span><span class="p">(</span><span class="nb">list </span><span class="o">,</span><span class="nv">name</span> <span class="ss">&#39;,name</span><span class="p">))</span>
 <span class="c1">;; =&gt; (list a (quote a))</span>
-<span class="o">`</span><span class="p">(</span><span class="nf">a</span> <span class="o">,</span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="o">,@</span><span class="p">(</span><span class="nb">map </span><span class="nv">abs</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">4</span> <span class="mi">-5</span> <span class="mi">6</span><span class="p">))</span> <span class="nv">b</span><span class="p">)</span> 
+<span class="o">`</span><span class="p">(</span><span class="nf">a</span> <span class="o">,</span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="o">,@</span><span class="p">(</span><span class="nb">map </span><span class="nv">abs</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">4</span> <span class="mi">-5</span> <span class="mi">6</span><span class="p">))</span> <span class="nv">b</span><span class="p">)</span>
 <span class="c1">;; =&gt; (a 3 4 5 6 b)</span>
-<span class="o">`</span><span class="p">((</span><span class="nf">foo</span> <span class="o">,</span><span class="p">(</span><span class="nb">- </span><span class="mi">10</span> <span class="mi">3</span><span class="p">))</span> <span class="o">,@</span><span class="p">(</span><span class="nb">cdr </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">c</span><span class="p">))</span> <span class="o">.</span> <span class="o">,</span><span class="p">(</span><span class="nb">car </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">cons</span><span class="p">)))</span> 
+<span class="o">`</span><span class="p">((</span><span class="nf">foo</span> <span class="o">,</span><span class="p">(</span><span class="nb">- </span><span class="mi">10</span> <span class="mi">3</span><span class="p">))</span> <span class="o">,@</span><span class="p">(</span><span class="nb">cdr </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">c</span><span class="p">))</span> <span class="o">.</span> <span class="o">,</span><span class="p">(</span><span class="nb">car </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">cons</span><span class="p">)))</span>
 <span class="c1">;; =&gt; ((foo 7) . cons)</span>
-<span class="o">`#</span><span class="p">(</span><span class="mi">10</span> <span class="mi">5</span> <span class="o">,</span><span class="p">(</span><span class="nb">sqrt </span><span class="mi">4</span><span class="p">)</span> <span class="o">,@</span><span class="p">(</span><span class="nb">map </span><span class="nv">sqrt</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">16</span> <span class="mi">9</span><span class="p">))</span> <span class="mi">8</span><span class="p">)</span> 
+<span class="o">`#</span><span class="p">(</span><span class="mi">10</span> <span class="mi">5</span> <span class="o">,</span><span class="p">(</span><span class="nb">sqrt </span><span class="mi">4</span><span class="p">)</span> <span class="o">,@</span><span class="p">(</span><span class="nb">map </span><span class="nv">sqrt</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">16</span> <span class="mi">9</span><span class="p">))</span> <span class="mi">8</span><span class="p">)</span>
 <span class="c1">;; =&gt; #(10 5 2 4 3 8)</span>
 <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">foo</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">foo</span> <span class="nv">bar</span><span class="p">))</span> <span class="p">(</span><span class="nf">@baz</span> <span class="ss">&#39;baz</span><span class="p">))</span>
   <span class="o">`</span><span class="p">(</span><span class="nb">list </span><span class="o">,@</span><span class="nv">foo</span> <span class="o">,</span> <span class="nv">@baz</span><span class="p">))</span>
@@ -1797,11 +1809,11 @@ the comma, to avoid colliding with the comma at-sign sequence.</p>
 unquoted components appearing at the same nesting level as the outermost
 quasiquote. The nesting level increases by one inside each successive
 quasiquotation, and decreases by one inside each unquotation.</p>
-<div class="highlight"><pre><span></span><span class="o">`</span><span class="p">(</span><span class="nf">a</span> <span class="o">`</span><span class="p">(</span><span class="nf">b</span> <span class="o">,</span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="o">,</span><span class="p">(</span><span class="nf">foo</span> <span class="o">,</span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">3</span><span class="p">)</span> <span class="nv">d</span><span class="p">)</span> <span class="nv">e</span><span class="p">)</span> <span class="nv">f</span><span class="p">)</span> 
+<div class="highlight"><pre><span></span><span class="o">`</span><span class="p">(</span><span class="nf">a</span> <span class="o">`</span><span class="p">(</span><span class="nf">b</span> <span class="o">,</span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span><span class="p">)</span> <span class="o">,</span><span class="p">(</span><span class="nf">foo</span> <span class="o">,</span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">3</span><span class="p">)</span> <span class="nv">d</span><span class="p">)</span> <span class="nv">e</span><span class="p">)</span> <span class="nv">f</span><span class="p">)</span>
 <span class="c1">;; =&gt; (a `(b ,(+ 1 2) ,(foo 4 d) e) f)</span>
 <span class="p">(</span><span class="k">let </span><span class="p">((</span><span class="nf">name1</span> <span class="ss">&#39;x</span><span class="p">)</span>
       <span class="p">(</span><span class="nf">name2</span> <span class="ss">&#39;y</span><span class="p">))</span>
-  <span class="o">`</span><span class="p">(</span><span class="nf">a</span> <span class="o">`</span><span class="p">(</span><span class="nf">b</span> <span class="o">,,</span><span class="nv">name1</span> <span class="o">,</span><span class="ss">&#39;,name2</span> <span class="nv">d</span><span class="p">)</span> <span class="nv">e</span><span class="p">))</span> 
+  <span class="o">`</span><span class="p">(</span><span class="nf">a</span> <span class="o">`</span><span class="p">(</span><span class="nf">b</span> <span class="o">,,</span><span class="nv">name1</span> <span class="o">,</span><span class="ss">&#39;,name2</span> <span class="nv">d</span><span class="p">)</span> <span class="nv">e</span><span class="p">))</span>
 <span class="c1">;; =&gt; (a `(b ,x ,&#39;y d) e)</span>
 </pre></div>
 <p>A quasiquote expression may return either newly allocated, mutable
@@ -1824,9 +1836,9 @@ need to be rebuilt are always literal. Thus,</p>
 identical in all respects. ,expression is identical to (unquote
 expression), and ,@expression is identical to (unquote-splicing
 expression). The</code>write` procedure may output either format.</p>
-<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">quasiquote </span><span class="p">(</span><span class="nb">list </span><span class="p">(</span><span class="k">unquote </span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span><span class="p">))</span> <span class="mi">4</span><span class="p">))</span> 
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">quasiquote </span><span class="p">(</span><span class="nb">list </span><span class="p">(</span><span class="k">unquote </span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span><span class="p">))</span> <span class="mi">4</span><span class="p">))</span>
 <span class="c1">;; =&gt; (list 3 4)</span>
-<span class="o">&#39;</span><span class="p">(</span><span class="k">quasiquote </span><span class="p">(</span><span class="nb">list </span><span class="p">(</span><span class="k">unquote </span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span><span class="p">))</span> <span class="mi">4</span><span class="p">))</span> 
+<span class="o">&#39;</span><span class="p">(</span><span class="k">quasiquote </span><span class="p">(</span><span class="nb">list </span><span class="p">(</span><span class="k">unquote </span><span class="p">(</span><span class="nb">+ </span><span class="mi">1</span> <span class="mi">2</span><span class="p">))</span> <span class="mi">4</span><span class="p">))</span>
 <span class="c1">;; =&gt; `(list ,(+ 1 2) 4)</span>
 <span class="c1">;; i.e., (quasiquote (list (unquote (+ 1 2)) 4))</span>
 </pre></div>
@@ -2410,8 +2422,8 @@ argument as their initial value. The initial values of all other
 fields are unspecified. It is an error for a field name to appear in
 constructor but not as a field name.</p>
 </li>
-<li><p>pred is bound to a predicate that returns #t when given a value
-returned by the procedure bound to constructor name and #f for
+<li><p>pred is bound to a predicate that returns <code>#t</code> when given a value
+returned by the procedure bound to constructor name and <code>#f</code> for
 everything else.</p>
 </li>
 <li><p>Each accessor name is bound to a procedure that takes a record of
@@ -2638,7 +2650,7 @@ base library. This library includes the core syntax of Scheme and
 generally useful procedures that manipulate data. For example, the
 variable abs is bound to a procedure of one argument that computes the
 absolute value of a number, and the variable + is bound to a procedure
-that computes sums. The full list of (scheme base) bindings can be found
+that computes sums. The full list of <code>(scheme base)</code> bindings can be found
 in Appendix <a href="#stdlibraries">[stdlibraries]</a>.</p>
 <p>Implementations may provide an initial REPL environment which behaves as
 if all possible variables are bound to locations, most of which contain
@@ -2675,13 +2687,13 @@ eq? is the finest or most discriminating, equal? is the coarsest, and
 eqv? is slightly less discriminating than eq?.</p>
 <p>(eqv? <strong>obj<sub>1</sub><em> </em>obj<sub>2</sub></strong>)  procedure
 The eqv? procedure defines a useful equivalence relation on objects.
-Briefly, it returns #t if <em>obj<sub>1</sub></em> and <em>obj<sub>2</sub></em> are
+Briefly, it returns <code>#t</code> if <em>obj<sub>1</sub></em> and <em>obj<sub>2</sub></em> are
 normally regarded as the same object. This relation is left slightly
 open to interpretation, but the following partial specification of eqv?
 holds for all implementations of Scheme.</p>
-<p>The eqv? procedure returns #t if:</p>
+<p>The eqv? procedure returns <code>#t</code> if:</p>
 <ul>
-<li><p><em>obj<sub>1</sub></em> and <em>obj<sub>2</sub></em> are both #t or both #f.</p>
+<li><p><em>obj<sub>1</sub></em> and <em>obj<sub>2</sub></em> are both <code>#t</code> or both #f.</p>
 </li>
 <li><p><em>obj<sub>1</sub></em> and <em>obj<sub>2</sub></em> are both symbols and are the
 same symbol according to the symbol=? procedure
@@ -2711,12 +2723,12 @@ the store (section <a href="#storagemodel">[storagemodel]</a>).</p>
 location tags are equal (section <a href="#lambda">[lambda]</a>).</p>
 </li>
 </ul>
-<p>The eqv? procedure returns #f if:</p>
+<p>The eqv? procedure returns <code>#f</code> if:</p>
 <ul>
 <li><p><em>obj<sub>1</sub></em> and <em>obj<sub>2</sub></em> are of different types
 (section <a href="#disjointness">[disjointness]</a>).</p>
 </li>
-<li><p>one of <em>obj<sub>1</sub></em> and <em>obj<sub>2</sub></em> is #t but the other
+<li><p>one of <em>obj<sub>1</sub></em> and <em>obj<sub>2</sub></em> is <code>#t</code> but the other
 is #f.</p>
 </li>
 <li><p><em>obj<sub>1</sub></em> and <em>obj<sub>2</sub></em> are symbols but are not the
@@ -2778,8 +2790,8 @@ cases is that the value returned by eqv? must be a boolean.</p>
 <span class="p">(</span><span class="nb">eqv? </span><span class="mf">1.0</span><span class="nv">e0</span> <span class="mf">1.0</span><span class="nv">f0</span><span class="p">)</span> <span class="c1">;; =&gt; unspecified</span>
 <span class="p">(</span><span class="nb">eqv? </span><span class="nv">+nan</span><span class="o">.</span><span class="mi">0</span> <span class="nv">+nan</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span> <span class="c1">;; =&gt; unspecified</span>
 </pre></div>
-<p>Note that (eqv? 0.0 -0.0) will return #f if negative zero is
-distinguished, and #t if negative zero is not distinguished.</p>
+<p>Note that (eqv? 0.0 -0.0) will return <code>#f</code> if negative zero is
+distinguished, and <code>#t</code> if negative zero is not distinguished.</p>
 <p>The next set of examples shows the use of eqv? with procedures that have
 local state. The gen-counter procedure must return a distinct procedure
 every time, since each procedure has its own internal counter. The
@@ -2836,7 +2848,7 @@ inexact numbers for bitwise equality is correct by the above definition.</p>
 <p>(eq? <strong>obj<sub>1</sub><em> </em>obj<sub>2</sub></strong>)  procedure
 The eq? procedure is similar to eqv? except that in some cases it is
 capable of discerning distinctions finer than those detectable by eqv?.
-It must always return #f when eqv? also would, but may return #f in some
+It must always return <code>#f</code> when eqv? also would, but may return <code>#f</code> in some
 cases where eqv? would return #t.</p>
 <p>On symbols, booleans, the empty list, pairs, and records, and also on
 non-empty strings, vectors, and bytevectors, eq? and eqv? are guaranteed
@@ -2871,12 +2883,12 @@ whereas eq? implemented as pointer comparison will always finish in
 constant time.</p>
 <p>(equal? <strong>obj<sub>1</sub><em> </em>obj<sub>2</sub></strong>)  procedure
 The equal? procedure, when applied to pairs, vectors, strings and
-bytevectors, recursively compares them, returning #t when the unfoldings
+bytevectors, recursively compares them, returning <code>#t</code> when the unfoldings
 of its arguments into (possibly infinite) trees are equal (in the sense
-of equal?) as ordered trees, and #f otherwise. It returns the same as
+of equal?) as ordered trees, and <code>#f</code> otherwise. It returns the same as
 eqv? when applied to booleans, symbols, numbers, characters, ports,
 procedures, and the empty list. If two objects are eqv?, they must be
-equal? as well. In all other cases, equal? may return either #t or #f.</p>
+equal? as well. In all other cases, equal? may return either <code>#t</code> or #f.</p>
 <p>Even if its arguments are circular data structures, equal? must always
 terminate.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">equal? </span><span class="ss">&#39;a</span> <span class="ss">&#39;a</span><span class="p">)</span> <span class="c1">;; =&gt; #t</span>
@@ -3156,7 +3168,7 @@ binary doubles to represent inexact numbers.</p>
 (rational? <em>obj</em>)  procedure
 (integer? <em>obj</em>)  procedure
 These numerical type predicates can be applied to any kind of argument,
-including non-numbers. They return #t if the object is of the named
+including non-numbers. They return <code>#t</code> if the object is of the named
 type, and otherwise they return #f. In general, if a type predicate is
 true of a number then all higher type predicates are also true of that
 number. Consequently, if a type predicate is false of a number, then all
@@ -3197,13 +3209,13 @@ true.</p>
 <span class="p">(</span><span class="nb">inexact? </span><span class="mi">3</span><span class="o">.</span><span class="p">)</span> <span class="c1">;; =&gt; #t</span>
 </pre></div>
 <p>(exact-integer? <strong>z</strong>)  procedure
-Returns #t if <em>z</em> is both exact and an integer; otherwise returns #f.</p>
+Returns <code>#t</code> if <em>z</em> is both exact and an integer; otherwise returns #f.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">exact-integer?</span> <span class="mi">32</span><span class="p">)</span> <span class="c1">;; =&gt; #t{}</span>
 <span class="p">(</span><span class="nf">exact-integer?</span> <span class="mf">32.0</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
 <span class="p">(</span><span class="nf">exact-integer?</span> <span class="mi">32</span><span class="nv">/5</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
 </pre></div>
 <p>(finite? <strong>z</strong>)  inexact library procedure
-The finite? procedure returns #t on all real numbers except +inf.0,
+The finite? procedure returns <code>#t</code> on all real numbers except +inf.0,
 -inf.0, and +nan.0, and on complex numbers if their real and imaginary
 parts are both finite. Otherwise it returns #f.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">finite?</span> <span class="mi">3</span><span class="p">)</span> <span class="c1">;; =&gt; #t</span>
@@ -3211,7 +3223,7 @@ parts are both finite. Otherwise it returns #f.</p>
 <span class="p">(</span><span class="nf">finite?</span> <span class="mf">3.0</span><span class="nv">+inf</span><span class="o">.</span><span class="mi">0</span><span class="nv">i</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
 </pre></div>
 <p>(infinite? <strong>z</strong>)  inexact library procedure
-The infinite? procedure returns #t on the real numbers +inf.0 and
+The infinite? procedure returns <code>#t</code> on the real numbers +inf.0 and
 -inf.0, and on complex numbers if their real or imaginary parts or both
 are infinite. Otherwise it returns #f.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">infinite?</span> <span class="mi">3</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
@@ -3220,7 +3232,7 @@ are infinite. Otherwise it returns #f.</p>
 <span class="p">(</span><span class="nf">infinite?</span> <span class="mf">3.0</span><span class="nv">+inf</span><span class="o">.</span><span class="mi">0</span><span class="nv">i</span><span class="p">)</span> <span class="c1">;; =&gt; #t</span>
 </pre></div>
 <p>(nan? <strong>z</strong>)  inexact library procedure
-The nan? procedure returns #t on +nan.0, and on complex numbers if their
+The nan? procedure returns <code>#t</code> on +nan.0, and on complex numbers if their
 real or imaginary parts or both are +nan.0. Otherwise it returns #f.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">nan?</span> <span class="nv">+nan</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span> <span class="c1">;; =&gt; #t</span>
 <span class="p">(</span><span class="nf">nan?</span> <span class="mi">32</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
@@ -3232,9 +3244,9 @@ real or imaginary parts or both are +nan.0. Otherwise it returns #f.</p>
 (&gt; <strong>x<em><sub>1</sub> </em>x<em><sub>2</sub> </em>x<em><sub>3</sub> … </em>)  procedure
 (\&lt;= </strong>x<em><sub>1</sub> </em>x<em><sub>2</sub> </em>x<em><sub>3</sub> … </em>)  procedure
 (&gt;= *<em>x</em><sub>1</sub> <em>x</em><sub>2</sub> <em>x</em><sub>3</sub> … *)  procedure
-These procedures return #t if their arguments are (respectively): equal,
+These procedures return <code>#t</code> if their arguments are (respectively): equal,
 monotonically increasing, monotonically decreasing, monotonically
-non-decreasing, or monotonically non-increasing, and #f otherwise. If
+non-decreasing, or monotonically non-increasing, and <code>#f</code> otherwise. If
 any of the arguments are +nan.0, all the predicates return #f. They do
 not distinguish between inexact zero and inexact negative zero.</p>
 <p>These predicates are required to be transitive.</p>
@@ -3258,7 +3270,7 @@ doubt, consult a numerical analyst.</p>
 (odd? <strong>n</strong>)  procedure
 (even? <strong>n</strong>)  procedure
 These numerical predicates test a number for a particular property,
-returning #t or #f. See note above.</p>
+returning <code>#t</code> or #f. See note above.</p>
 <p>(max <strong>x<em><sub>1</sub> </em>x<em><sub>2</sub> … </em>)  procedure
 (min </strong>x<em><sub>1</sub> </em>x<em><sub>2</sub> … </em>)  procedure
 These procedures return the maximum or minimum of their arguments.</p>
@@ -3630,18 +3642,18 @@ implementations in the following ways. If all numbers supported by an
 implementation are real, then string-&gt;number is permitted to return #f
 whenever <em>s<strong>t</strong>r<strong>i</strong>n**g</em> uses the polar or rectangular notations for
 complex numbers. If all numbers are integers, then string-&gt;number may
-return #f whenever the fractional notation is used. If all numbers are
-exact, then string-&gt;number may return #f whenever an exponent marker or
+return <code>#f</code> whenever the fractional notation is used. If all numbers are
+exact, then string-&gt;number may return <code>#f</code> whenever an exponent marker or
 explicit exactness prefix is used. If all inexact numbers are integers,
-then string-&gt;number may return #f whenever a decimal point is used.</p>
+then string-&gt;number may return <code>#f</code> whenever a decimal point is used.</p>
 <p>The rules used by a particular implementation for string-&gt;number must
 also be applied to read and to the routine that reads programs, in order
 to maintain consistency between internal numeric processing, I/O, and
 the processing of programs. As a consequence, the
-R<sup><small>5</small></sup>RS permission to return #f when <em>string</em> has an explicit
+R<sup><small>5</small></sup>RS permission to return <code>#f</code> when <em>string</em> has an explicit
 radix prefix has been withdrawn.</p>
 <h3>Booleans</h3>
-<p>The standard boolean objects for true and false are written as #t and</p>
+<p>The standard boolean objects for true and false are written as <code>#t</code> and</p>
 <h1>f. Alternatively, they can be written #true and #false, respectively.</h1>
 <p>What really matters, though, are the objects that the Scheme conditional
 expressions (if, cond, and, or, when, unless, do) treat as true or
@@ -3649,9 +3661,9 @@ false. The phrase “a true value” (or sometimes just “true”) means any
 object treated as true by the conditional expressions, and the phrase “a
 false value” (or “false”) means any object treated as false by the
 conditional expressions.</p>
-<p>Of all the Scheme values, only #f counts as false in conditional
+<p>Of all the Scheme values, only <code>#f</code> counts as false in conditional
 expressions. All other Scheme values, including #t, count as true.</p>
-<p><em>Note:</em> Unlike some other dialects of Lisp, Scheme distinguishes #f and
+<p><em>Note:</em> Unlike some other dialects of Lisp, Scheme distinguishes <code>#f</code> and
 the empty list from each other and from the symbol <code>nil</code>.</p>
 <p>Boolean constants evaluate to themselves, so they do not need to be
 quoted in programs.</p>
@@ -3660,7 +3672,7 @@ quoted in programs.</p>
 <span class="o">&#39;</span><span class="no">#f</span> <span class="c1">;; =&gt; #f</span>
 </pre></div>
 <p>(not <em>obj</em>)  procedure
-The not procedure returns #t if <em>obj</em> is false, and returns #f
+The not procedure returns <code>#t</code> if <em>obj</em> is false, and returns #f
 otherwise.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">not </span><span class="no">#t</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
 <span class="p">(</span><span class="nb">not </span><span class="mi">3</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
@@ -3671,15 +3683,15 @@ otherwise.</p>
 <span class="p">(</span><span class="nb">not </span><span class="ss">&#39;nil</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
 </pre></div>
 <p>(boolean? <em>obj</em>)  procedure
-The boolean? predicate returns #t if <em>obj</em> is either #t or #f and
-returns #f otherwise.</p>
+The boolean? predicate returns <code>#t</code> if <em>obj</em> is either <code>#t</code> or <code>#f</code> and
+returns <code>#f</code> otherwise.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">boolean? </span><span class="no">#f</span><span class="p">)</span> <span class="c1">;; =&gt; #t</span>
 <span class="p">(</span><span class="nb">boolean? </span><span class="mi">0</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
 <span class="p">(</span><span class="nb">boolean? </span><span class="o">&#39;</span><span class="p">())</span> <span class="c1">;; =&gt; #f</span>
 </pre></div>
 <p>(boolean=? *<em>boolean<sub>1</sub></em> <em>boolean<sub>2</sub></em> <em>boolean<sub>3</sub></em> … *)
  procedure
-Returns #t if all the arguments are #t or all are #f.</p>
+Returns <code>#t</code> if all the arguments are <code>#t</code> or all are #f.</p>
 <h3>Pairs and lists</h3>
 <p>A <em>pair</em> (sometimes called a <em>dotted pair</em>) is a record structure with
 two fields called the car and cdr fields (for historical reasons). Pairs
@@ -3753,7 +3765,7 @@ section <a href="#datum">[datum]</a>). Among other things, this permits the use
 of the read procedure to parse Scheme programs. See
 section <a href="#externalreps">[externalreps]</a>.</p>
 <p>(pair? <em>obj</em>)  procedure
-The pair? predicate returns #t if <em>obj</em> is a pair, and otherwise returns</p>
+The pair? predicate returns <code>#t</code> if <em>obj</em> is a pair, and otherwise returns</p>
 <h1>f.</h1>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">pair? </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="o">.</span> <span class="nv">b</span><span class="p">))</span> <span class="c1">;; =&gt; #t</span>
 <span class="p">(</span><span class="nb">pair? </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span> <span class="c1">;; =&gt; #t</span>
@@ -3812,13 +3824,13 @@ to 1 ⋮  to 1 ⋮
 (cddddr <em>pair</em>)  cxr library procedure
 These twenty-four procedures are further compositions of car and cdr on
 the same principles. For example, caddr could be defined by</p>
-<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">caddr</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">car </span><span class="p">(</span><span class="nb">cdr </span><span class="p">(</span><span class="nb">cdr </span><span class="nv">x</span><span class="p">)))))</span><span class="err">{\</span><span class="nv">rm</span><span class="o">.</span><span class="err">}</span>
+<div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">caddr</span> <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">car </span><span class="p">(</span><span class="nb">cdr </span><span class="p">(</span><span class="nb">cdr </span><span class="nv">x</span><span class="p">)))))</span>
 </pre></div>
 <p>Arbitrary compositions up to four deep are provided.</p>
 <p>(null? <em>obj</em>)  procedure
-Returns #t if <em>obj</em> is the empty list, otherwise returns #f.</p>
+Returns <code>#t</code> if <em>obj</em> is the empty list, otherwise returns #f.</p>
 <p>(list? <em>obj</em>)  procedure
-Returns #t if <em>obj</em> is a list. Otherwise, it returns #f. By definition,
+Returns <code>#t</code> if <em>obj</em> is a list. Otherwise, it returns #f. By definition,
 all lists have finite length and are terminated by the empty list.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">list? </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">))</span> <span class="c1">;; =&gt; #t</span>
 <span class="p">(</span><span class="nb">list? </span><span class="o">&#39;</span><span class="p">())</span> <span class="c1">;; =&gt; #t</span>
@@ -3900,7 +3912,7 @@ It is an error if <em>k</em> is not a valid index of <em>list</em>.</p>
 These procedures return the first sublist of <em>list</em> whose car is <em>obj</em>,
 where the sublists of <em>list</em> are the non-empty lists returned by
 <code>(list-tail list k)</code> for <em>k</em> less than the length of <em>list</em>. If <em>obj</em>
-does not occur in <em>list</em>, then #f (not the empty list) is returned. The
+does not occur in <em>list</em>, then <code>#f</code> (not the empty list) is returned. The
 memq procedure uses eq? to compare <em>obj</em> with the elements of <em>list</em>,
 while memv uses eqv? and member uses <em>compare</em>, if given, and equal?
 otherwise.</p>
@@ -3924,7 +3936,7 @@ It is an error if <em>alist</em> (for “association list”) is not a list of
 pairs.</p>
 <p>These procedures find the first pair in <em>alist</em> whose car field is
 <em>obj</em>, and returns that pair. If no pair in <em>alist</em> has <em>obj</em> as its
-car, then #f (not the empty list) is returned. The assq procedure uses
+car, then <code>#f</code> (not the empty list) is returned. The assq procedure uses
 eq? to compare <em>obj</em> with the car fields of the pairs in <em>alist</em>, while
 assv uses eqv? and assoc uses <em>compare</em> if given and equal? otherwise.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">e</span> <span class="o">&#39;</span><span class="p">((</span><span class="nf">a</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nf">b</span> <span class="mi">2</span><span class="p">)</span> <span class="p">(</span><span class="nf">c</span> <span class="mi">3</span><span class="p">)))</span>
@@ -3944,7 +3956,7 @@ assv uses eqv? and assoc uses <em>compare</em> if given and equal? otherwise.</
 </pre></div>
 <p><em>Rationale:</em> Although they are often used as predicates, memq, memv,
 member, assq, assv, and assoc do not have question marks in their names
-because they return potentially useful values rather than just #t or #f.</p>
+because they return potentially useful values rather than just <code>#t</code> or #f.</p>
 <p>(list-copy <em>obj</em>)  procedure
 Returns a newly allocated copy of the given <em>obj</em> if it is a list. Only
 the pairs themselves are copied; the cars of the result are the same (in
@@ -3976,7 +3988,7 @@ symbols are the same if and only if their names are spelled the same.
 This report does not specify the behavior of implementation-dependent
 extensions.</p>
 <p>(symbol? <em>obj</em>)  procedure
-Returns #t if <em>obj</em> is a symbol, otherwise returns #f.</p>
+Returns <code>#t</code> if <em>obj</em> is a symbol, otherwise returns #f.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">symbol? </span><span class="ss">&#39;foo</span><span class="p">)</span> <span class="c1">;; =&gt; #t</span>
 <span class="p">(</span><span class="nb">symbol? </span><span class="p">(</span><span class="nb">car </span><span class="o">&#39;</span><span class="p">(</span><span class="nv">a</span> <span class="nv">b</span><span class="p">)))</span> <span class="c1">;; =&gt; #t</span>
 <span class="p">(</span><span class="nb">symbol? </span><span class="s">&quot;bar&quot;</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
@@ -3986,7 +3998,7 @@ Returns #t if <em>obj</em> is a symbol, otherwise returns #f.</p>
 </pre></div>
 <p>(symbol=? *<em>symbol<sub>1</sub></em> <em>symbol<sub>2</sub></em> <em>symbol<sub>3</sub></em> … *)
  procedure
-Returns #t if all the arguments all have the same names in the sense of
+Returns <code>#t</code> if all the arguments all have the same names in the sense of
 string=?.</p>
 <p><em>Note:</em> The definition above assumes that none of the arguments are
 uninterned symbols.</p>
@@ -4180,7 +4192,7 @@ they do not have to be quoted in programs.</p>
 between upper case and lower case. The procedures that ignore case have
 “<code>-ci</code>” (for “case insensitive”) embedded in their names.</p>
 <p>(char? <em>obj</em>)  procedure
-Returns #t if <em>obj</em> is a character, otherwise returns #f.</p>
+Returns <code>#t</code> if <em>obj</em> is a character, otherwise returns #f.</p>
 <p>(char=? <strong>c</strong>h<strong>a</strong>r<em><sub>1</sub> </em>c<strong>h</strong>a<strong>r<em><sub>2</sub> </em>c</strong>h<strong>a</strong>r<em><sub>3</sub> … </em>)
  procedure
 (char\&lt;? <strong>c</strong>h<strong>a</strong>r<em><sub>1</sub> </em>c<strong>h</strong>a<strong>r<em><sub>2</sub> </em>c</strong>h<strong>a</strong>r<em><sub>3</sub> … </em>)
@@ -4191,7 +4203,7 @@ Returns #t if <em>obj</em> is a character, otherwise returns #f.</p>
  procedure
 (char&gt;=? <strong>c</strong>h<strong>a</strong>r<em><sub>1</sub> </em>c<strong>h</strong>a<strong>r<em><sub>2</sub> </em>c</strong>h<strong>a</strong>r<em><sub>3</sub> … </em>)
  procedure
-These procedures return #t if the results of passing their arguments to
+These procedures return <code>#t</code> if the results of passing their arguments to
 charinteger are respectively equal, monotonically increasing,
 monotonically decreasing, monotonically non-decreasing, or monotonically
 non-increasing.</p>
@@ -4216,17 +4228,17 @@ to their arguments before they were compared.</p>
 (char-whitespace? <em>char</em>)  char library procedure
 (char-upper-case? <em>letter</em>)  char library procedure
 (char-lower-case? <em>letter</em>)  char library procedure
-These procedures return #t if their arguments are alphabetic, numeric,
+These procedures return <code>#t</code> if their arguments are alphabetic, numeric,
 whitespace, upper case, or lower case characters, respectively,
 otherwise they return #f.</p>
-<p>Specifically, they must return #t when applied to characters with the
+<p>Specifically, they must return <code>#t</code> when applied to characters with the
 Unicode properties Alphabetic, Numeric_Type=Decimal, White_Space,
-Uppercase, and Lowercase respectively, and #f when applied to any other
+Uppercase, and Lowercase respectively, and <code>#f</code> when applied to any other
 Unicode characters. Note that many Unicode characters are alphabetic but
 neither upper nor lower case.</p>
 <p>(digit-value <em>char</em>)  char library procedure
 This procedure returns the numeric value (0 to 9) of its argument if it
-is a numeric digit (that is, if char-numeric? returns #t), or #f on any
+is a numeric digit (that is, if char-numeric? returns #t), or <code>#f</code> on any
 other character.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nf">digit-value</span> <span class="sc">#\3</span><span class="p">)</span> <span class="c1">;; =&gt; 3</span>
 <span class="p">(</span><span class="nf">digit-value</span> <span class="sc">#\x0664</span><span class="p">)</span> <span class="c1">;; =&gt; 4</span>
@@ -4332,7 +4344,7 @@ procedure passed to string-map (see section <a href="#stringmap">[stringmap]</a
 to return a forbidden character, or for read-string (see
 section <a href="#readstring">[readstring]</a>) to attempt to read one.</p>
 <p>(string? <em>obj</em>)  procedure
-Returns #t if <em>obj</em> is a string, otherwise returns #f.</p>
+Returns <code>#t</code> if <em>obj</em> is a string, otherwise returns #f.</p>
 <p>(make-string <strong>k</strong>)  procedure
 (make-string *<em>k</em> char<em>)  procedure
 The make-string procedure returns a newly allocated string of length</em>k<em>. If </em>char<em> is given, then all the characters of the string are
@@ -4362,11 +4374,11 @@ There is no requirement for this procedure to execute in constant time.</p>
 </pre></div>
 <p>(string=? <strong>s</strong>t<strong>r</strong>i<strong>n</strong>g<em><sub>1</sub> </em>s<strong>t</strong>r<strong>i</strong>n<strong>g<em><sub>2</sub> </em>s</strong>t<strong>r</strong>i<strong>n</strong>g<em><sub>3</sub> … </em>)
  procedure
-Returns #t if all the strings are the same length and contain exactly
+Returns <code>#t</code> if all the strings are the same length and contain exactly
 the same characters in the same positions, otherwise returns #f.</p>
 <p>(string-ci=? <strong>s</strong>t<strong>r</strong>i<strong>n</strong>g<em><sub>1</sub> </em>s<strong>t</strong>r<strong>i</strong>n<strong>g<em><sub>2</sub> </em>s</strong>t<strong>r</strong>i<strong>n</strong>g<em><sub>3</sub> … </em>)
  char library procedure
-Returns #t if, after case-folding, all the strings are the same length
+Returns <code>#t</code> if, after case-folding, all the strings are the same length
 and contain the same characters in the same positions, otherwise returns</p>
 <h1>f. Specifically, these procedures behave as if string-foldcase were</h1>
 <p>applied to their arguments before comparing them.</p>
@@ -4386,7 +4398,7 @@ and contain the same characters in the same positions, otherwise returns</p>
  procedure
 (string-ci&gt;=? <strong>s</strong>t<strong>r</strong>i<strong>n</strong>g<em><sub>1</sub> </em>s<strong>t</strong>r<strong>i</strong>n<strong>g<em><sub>2</sub> </em>s</strong>t<strong>r</strong>i<strong>n</strong>g<em><sub>3</sub> … </em>)
  char library procedure
-These procedures return #t if their arguments are (respectively):
+These procedures return <code>#t</code> if their arguments are (respectively):
 monotonically increasing, monotonically decreasing, monotonically
 non-decreasing, or monotonically non-increasing.</p>
 <p>These predicates are required to be transitive.</p>
@@ -4490,7 +4502,7 @@ as follows:</p>
 <p>Vector constants are self-evaluating, so they do not need to be quoted
 in programs.</p>
 <p>(vector? <em>obj</em>)  procedure
-Returns #t if <em>obj</em> is a vector; otherwise returns #f.</p>
+Returns <code>#t</code> if <em>obj</em> is a vector; otherwise returns #f.</p>
 <p>(make-vector <em>k</em>)  procedure
 (make-vector <em>k fill</em>)  procedure
 Returns a newly allocated vector of <em>k</em> elements. If a second argument
@@ -4616,7 +4628,7 @@ follows:</p>
 <p>Bytevector constants are self-evaluating, so they do not need to be
 quoted in programs.</p>
 <p>(bytevector? <em>obj</em>)  procedure
-Returns #t if <em>obj</em> is a bytevector. Otherwise, #f is returned.</p>
+Returns <code>#t</code> if <em>obj</em> is a bytevector. Otherwise, <code>#f</code> is returned.</p>
 <p>(make-bytevector <em>k</em>)  procedure
 (make-bytevector <em>k byte</em>)  procedure
 The make-bytevector procedure returns a newly allocated bytevector of
@@ -4701,7 +4713,7 @@ that invoke procedure arguments always do so in the same dynamic
 environment as the call of the original procedure. The
 procedure? predicate is also described here.</p>
 <p>(procedure? <em>obj</em>)  procedure
-Returns #t if <em>obj</em> is a procedure, otherwise returns #f.</p>
+Returns <code>#t</code> if <em>obj</em> is a procedure, otherwise returns #f.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="nb">procedure? </span><span class="nv">car</span><span class="p">)</span> <span class="c1">;; =&gt; #t</span>
 <span class="p">(</span><span class="nb">procedure? </span><span class="ss">&#39;car</span><span class="p">)</span> <span class="c1">;; =&gt; #f</span>
 <span class="p">(</span><span class="nb">procedure? </span><span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">* </span><span class="nv">x</span> <span class="nv">x</span><span class="p">)))</span>
@@ -5080,7 +5092,7 @@ become the values returned by the call to raise-continuable.</p>
 <p>Raises an exception as if by calling raise on a newly allocated
 implementation-defined object which encapsulates the information
 provided by <em>message</em>, as well as any <em>obj</em>s, known as the <em>irritants</em>.
-The procedure error-object? must return #t on such objects.</p>
+The procedure error-object? must return <code>#t</code> on such objects.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="p">(</span><span class="nf">null-list?</span> <span class="nv">l</span><span class="p">)</span>
   <span class="p">(</span><span class="k">cond </span><span class="p">((</span><span class="nb">pair? </span><span class="nv">l</span><span class="p">)</span> <span class="no">#f</span><span class="p">)</span>
         <span class="p">((</span><span class="nb">null? </span><span class="nv">l</span><span class="p">)</span> <span class="no">#t</span><span class="p">)</span>
@@ -5090,7 +5102,7 @@ The procedure error-object? must return #t on such objects.</p>
           <span class="nv">l</span><span class="p">))))</span>
 </pre></div>
 <p>(error-object? <em>obj</em>)  procedure
-Returns #t if <em>obj</em> is an object created by error or one of an
+Returns <code>#t</code> if <em>obj</em> is an object created by error or one of an
 implementation-defined set of objects. Otherwise, it returns #f. The
 objects used to signal errors, including those which satisfy the
 predicates file-error? and read-error?, may or may not satisfy
@@ -5101,7 +5113,7 @@ Returns the message encapsulated by <em>error-object</em>.</p>
 Returns a list of the irritants encapsulated by <em>error-object</em>.</p>
 <p>(read-error? <em>obj</em>)  procedure
 (file-error? <em>obj</em>)  procedure
-Error type predicates. Returns #t if <em>obj</em> is an object raised by the
+Error type predicates. Returns <code>#t</code> if <em>obj</em> is an object raised by the
 read procedure or by the inability to open an input or output port on a
 file, respectively. Otherwise, it returns #f.</p>
 <h3>Environments and evaluation</h3>
@@ -5144,7 +5156,7 @@ be immutable.</p>
 <p>(interaction-environment)  repl library procedure
 This procedure returns a specifier for a mutable environment that
 contains an implementation-defined set of bindings, typically a superset
-of those exported by (scheme base). The intent is that this procedure
+of those exported by <code>(scheme base)</code>. The intent is that this procedure
 will return the environment in which the implementation would evaluate
 expressions entered by the user into a REPL.</p>
 <p>(eval <em>expr-or-def environment-specifier</em>)  eval library procedure
@@ -5208,13 +5220,13 @@ call-with-port.</p>
 (textual-port? <em>obj</em>)  procedure
 (binary-port? <em>obj</em>)  procedure
 (port? <em>obj</em>)  procedure
-These procedures return #t if <em>obj</em> is an input port, output port,
+These procedures return <code>#t</code> if <em>obj</em> is an input port, output port,
 textual port, binary port, or any kind of port, respectively. Otherwise
 they return #f.</p>
 <p>(input-port-open? <em>port</em>)  procedure
 (output-port-open? <em>port</em>)  procedure
-Returns #t if <em>port</em> is still open and capable of performing input or
-output, respectively, and #f otherwise.</p>
+Returns <code>#t</code> if <em>port</em> is still open and capable of performing input or
+output, respectively, and <code>#f</code> otherwise.</p>
 <p>(current-input-port)  procedure
 (current-output-port)  procedure
 (current-error-port)  procedure
@@ -5346,7 +5358,7 @@ of a carriage return character followed by a linefeed character.
 Implementations may also recognize other end of line characters or
 sequences.</p>
 <p>(eof-object? <em>obj</em>)  procedure
-Returns #t if <em>obj</em> is an end-of-file object, otherwise returns #f. The
+Returns <code>#t</code> if <em>obj</em> is an end-of-file object, otherwise returns #f. The
 precise set of end-of-file objects will vary among implementations, but
 in any case no end-of-file object will ever be an object that can be
 read in using read.</p>
@@ -5354,8 +5366,8 @@ read in using read.</p>
 Returns an end-of-file object, not necessarily unique.</p>
 <p>(char-ready?)  procedure
 (char-ready? <em>port</em>)  procedure
-Returns #t if a character is ready on the textual input <em>port</em> and
-returns #f otherwise. If char-ready returns #t then the next read-char
+Returns <code>#t</code> if a character is ready on the textual input <em>port</em> and
+returns <code>#f</code> otherwise. If char-ready returns <code>#t</code> then the next read-char
 operation on the given <em>port</em> is guaranteed not to hang. If the <em>port</em>
 is at end of file then char-ready? returns #t.</p>
 <p><em>Rationale:</em> The char-ready? procedure exists to make it possible for a
@@ -5363,7 +5375,7 @@ program to accept characters from interactive ports without getting
 stuck waiting for input. Any input editors associated with such ports
 must ensure that characters whose existence has been asserted by
 char-ready? cannot be removed from the input. If char-ready? were to
-return #f at end of file, a port at end of file would be
+return <code>#f</code> at end of file, a port at end of file would be
 indistinguishable from an interactive port that has no ready characters.</p>
 <p>(read-string <em>k</em>)  procedure
 (read-string <em>k port</em>)  procedure
@@ -5383,8 +5395,8 @@ Returns the next byte available from the binary input <em>port</em>, but
 bytes are available, an end-of-file object is returned.</p>
 <p>(u8-ready?)  procedure
 (u8-ready? <em>port</em>)  procedure
-Returns #t if a byte is ready on the binary input <em>port</em> and returns #f
-otherwise. If u8-ready? returns #t then the next read-u8 operation on
+Returns <code>#t</code> if a byte is ready on the binary input <em>port</em> and returns #f
+otherwise. If u8-ready? returns <code>#t</code> then the next read-u8 operation on
 the given <em>port</em> is guaranteed not to hang. If the <em>port</em> is at end of
 file then u8-ready? returns #t.</p>
 <p>(read-bytevector <em>k</em>)  procedure
@@ -5502,8 +5514,8 @@ operation on other kinds of files necessarily varies among
 implementations.</p>
 <p>(file-exists? <em>filename</em>)  file library procedure
 It is an error if <em>filename</em> is not a string.</p>
-<p>The file-exists? procedure returns #t if the named file exists at the
-time the procedure is called, and #f otherwise.</p>
+<p>The file-exists? procedure returns <code>#t</code> if the named file exists at the
+time the procedure is called, and <code>#f</code> otherwise.</p>
 <p>(delete-file <em>filename</em>)  file library procedure
 It is an error if <em>filename</em> is not a string.</p>
 <p>The delete-file procedure deletes the named file if it exists and can be
@@ -5541,7 +5553,7 @@ is not to be confused with the Scheme environments that can be passed to
 eval: see section <a href="#environments">[environments]</a>.) Both the name and
 value of an environment variable are strings. The procedure
 get-environment-variable returns the value of the environment variable
-<em>name</em>, or #f if the named environment variable is not found. It may use
+<em>name</em>, or <code>#f</code> if the named environment variable is not found. It may use
 locale information to encode the name and decode the value of the
 environment variable. It is an error if
 get-environment-variable can’t decode the value. It is also an error to
@@ -5865,7 +5877,7 @@ the begin contains no definitions.</p>
 </pre></div>
 <p>The following syntax definition of do uses a trick to expand the
 variable clauses. As with letrec above, an auxiliary macro would also
-work. The expression (if #f #f) is used to obtain an unspecific value.</p>
+work. The expression (if <code>#f</code> #f) is used to obtain an unspecific value.</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define-syntax </span><span class="nv">do</span>
   <span class="p">(</span><span class="k">syntax-rules </span><span class="p">()</span>
     <span class="p">((</span><span class="k">do </span><span class="p">((</span><span class="nf">var</span> <span class="nv">init</span> <span class="nv">step</span> <span class="o">...</span><span class="p">)</span> <span class="o">...</span><span class="p">)</span>
@@ -6144,7 +6156,7 @@ supported by all implementations, or which might be expensive to load.</p>
 <p>The scheme library prefix is used for all standard libraries, and is
 reserved for use by future standards.</p>
 <h3>Base Library</h3>
-<p>The (scheme base) library exports many of the procedures and syntax
+<p>The <code>(scheme base)</code> library exports many of the procedures and syntax
 bindings that are traditionally associated with Scheme. The division
 between the base library and the other standard libraries is based on
 use, not on construction. In particular, some facilities that are
@@ -6155,242 +6167,383 @@ token, some exports of the base library are implementable in terms of
 other exports. They are redundant in the strict sense of the word, but
 they capture common patterns of usage, and are therefore provided as
 convenient abbreviations.</p>
-
-<div><pre>{\cf *}                       {\cf +}
-{\cf -}                       {\cf ...}
-{\cf /}                       {\cf &lt;}
-{\cf &lt;=}                      {\cf =}
-{\cf =&gt;}                      {\cf &gt;}
-{\cf &gt;=}                      {\cf _}
-{\cf abs}                     {\cf and}
-{\cf append}                  {\cf apply}
-{\cf assoc}                   {\cf assq}
-{\cf assv}                    {\cf begin}
-{\cf binary-port?\ }           {\cf boolean=?}
-{\cf boolean?\ }               {\cf bytevector}
-{\cf bytevector-append}       {\cf bytevector-copy}
-{\cf bytevector-copy!}        {\cf bytevector-length}
-{\cf bytevector-u8-ref}       {\cf bytevector-u8-set!}
-{\cf bytevector?\ }            {\cf caar}
-{\cf cadr}
-{\cf call-with-current-continuation}
-{\cf call-with-port}          {\cf call-with-values}
-{\cf call/cc}                 {\cf car}
-{\cf case}                    {\cf cdar}
-{\cf cddr}                    {\cf cdr}
-{\cf ceiling}                 {\cf char-&gt;integer}
-{\cf char-ready?\ }            {\cf char&lt;=?}
-{\cf char&lt;?\ }                 {\cf char=?}
-{\cf char&gt;=?\ }                {\cf char&gt;?}
-{\cf char?\ }                  {\cf close-input-port}
-{\cf close-output-port}       {\cf close-port}
-{\cf complex?\ }               {\cf cond}
-{\cf cond-expand}             {\cf cons}
-{\cf current-error-port}      {\cf current-input-port}
-{\cf current-output-port}     {\cf define}
-{\cf define-record-type}      {\cf define-syntax}
-{\cf define-values}           {\cf denominator}
-{\cf do}                      {\cf dynamic-wind}
-{\cf else}                    {\cf eof-object}
-{\cf eof-object?\ }            {\cf eq?}
-{\cf equal?\ }                 {\cf eqv?}
-{\cf error}                   {\cf error-object-irritants}
-{\cf error-object-message}    {\cf error-object?}
-{\cf even?\ }                  {\cf exact}
-{\cf exact-integer-sqrt}      {\cf exact-integer?}
-{\cf exact?\ }                 {\cf expt}
-{\cf features}                {\cf file-error?}
-{\cf floor}                   {\cf floor-quotient}
-{\cf floor-remainder}         {\cf floor/}
-{\cf flush-output-port}       {\cf for-each}
-{\cf gcd}                     {\cf get-output-bytevector}
-{\cf get-output-string}       {\cf guard}
-{\cf if}                      {\cf include}
-{\cf include-ci}              {\cf inexact}
-{\cf inexact?\ }               {\cf input-port-open?}
-{\cf input-port?\ }            {\cf integer-&gt;char}
-{\cf integer?\ }               {\cf lambda}
-{\cf lcm}                     {\cf length}
-{\cf let}                     {\cf let*}
-{\cf let*-values}             {\cf let-syntax}
-{\cf let-values}              {\cf letrec}
-{\cf letrec*}                 {\cf letrec-syntax}
-{\cf list}                    {\cf list-&gt;string}
-{\cf list-&gt;vector}            {\cf list-copy}
-{\cf list-ref}                {\cf list-set!}
-{\cf list-tail}               {\cf list?}
-{\cf make-bytevector}         {\cf make-list}
-{\cf make-parameter}          {\cf make-string}
-{\cf make-vector}             {\cf map}
-{\cf max}                     {\cf member}
-{\cf memq}                    {\cf memv}
-{\cf min}                     {\cf modulo}
-{\cf negative?\ }              {\cf newline}
-{\cf not}                     {\cf null?}
-{\cf number-&gt;string}          {\cf number?}
-{\cf numerator}               {\cf odd?}
-{\cf open-input-bytevector}   {\cf open-input-string}
-{\cf open-output-bytevector}  {\cf open-output-string}
-{\cf or}                      {\cf output-port-open?}
-{\cf output-port?\ }           {\cf pair?}
-{\cf parameterize}            {\cf peek-char}
-{\cf peek-u8}                 {\cf port?}
-{\cf positive?\ }              {\cf procedure?}
-{\cf quasiquote}              {\cf quote}
-{\cf quotient}                {\cf raise}
-{\cf raise-continuable}       {\cf rational?}
-{\cf rationalize}             {\cf read-bytevector}
-{\cf read-bytevector!}        {\cf read-char}
-{\cf read-error?\ }            {\cf read-line}
-{\cf read-string}             {\cf read-u8}
-{\cf real?\ }                  {\cf remainder}
-{\cf reverse}                 {\cf round}
-{\cf set!}                    {\cf set-car!}
-{\cf set-cdr!}                {\cf square}
-{\cf string}                  {\cf string-&gt;list}
-{\cf string-&gt;number}          {\cf string-&gt;symbol}
-{\cf string-&gt;utf8}            {\cf string-&gt;vector}
-{\cf string-append}           {\cf string-copy}
-{\cf string-copy!}            {\cf string-fill!}
-{\cf string-for-each}         {\cf string-length}
-{\cf string-map}              {\cf string-ref}
-{\cf string-set!}             {\cf string&lt;=?}
-{\cf string&lt;?\ }               {\cf string=?}
-{\cf string&gt;=?\ }              {\cf string&gt;?}
-{\cf string?\ }                {\cf substring}
-{\cf symbol-&gt;string}          {\cf symbol=?}
-{\cf symbol?\ }                {\cf syntax-error}
-{\cf syntax-rules}            {\cf textual-port?}
-{\cf truncate}                {\cf truncate-quotient}
-{\cf truncate-remainder}      {\cf truncate/}
-{\cf u8-ready?\ }              {\cf unless}
-{\cf unquote}                 {\cf unquote-splicing}
-{\cf utf8-&gt;string}            {\cf values}
-{\cf vector}                  {\cf vector-&gt;list}
-{\cf vector-&gt;string}          {\cf vector-append}
-{\cf vector-copy}             {\cf vector-copy!}
-{\cf vector-fill!}            {\cf vector-for-each}
-{\cf vector-length}           {\cf vector-map}
-{\cf vector-ref}              {\cf vector-set!}
-{\cf vector?\ }                {\cf when}
-{\cf with-exception-handler}  {\cf write-bytevector}
-{\cf write-char}              {\cf write-string}
-{\cf write-u8}                {\cf zero?}</pre></div>
+<div class="highlight"><pre><span></span><span class="nv">*</span>
+<span class="nv">+</span>
+<span class="nv">-</span>
+<span class="o">...</span>
+<span class="nv">/</span>
+<span class="nv">&lt;</span>
+<span class="nv">&lt;=</span>
+<span class="nv">=</span>
+<span class="nv">=&gt;</span>
+<span class="nv">&gt;</span>
+<span class="nv">&gt;=</span>
+<span class="nv">_</span>
+<span class="nv">abs</span>
+<span class="nv">and</span>
+<span class="nv">append</span>
+<span class="nv">apply</span>
+<span class="nv">assoc</span>
+<span class="nv">assq</span>
+<span class="nv">assv</span>
+<span class="nv">begin</span>
+<span class="nv">binary-port?</span>
+<span class="nv">boolean=?</span>
+<span class="nv">boolean?</span>
+<span class="nv">bytevector</span>
+<span class="nv">bytevector-append</span>
+<span class="nv">bytevector-copy</span>
+<span class="nv">bytevector-copy!</span>
+<span class="nv">bytevector-length</span>
+<span class="nv">bytevector-u8-ref</span>
+<span class="nv">bytevector-u8-set!</span>
+<span class="nv">bytevector?</span>
+<span class="nv">caar</span>
+<span class="nv">cadr</span>
+<span class="nv">call-with-current-continuation</span>
+<span class="nv">call-with-port</span>
+<span class="nv">call-with-values</span>
+<span class="nv">call/cc</span>
+<span class="nv">car</span>
+<span class="nv">case</span>
+<span class="nv">cdar</span>
+<span class="nv">cddr</span>
+<span class="nv">cdr</span>
+<span class="nv">ceiling</span>
+<span class="nv">char-&gt;integer</span>
+<span class="nv">char-ready?</span>
+<span class="nv">char&lt;=?</span>
+<span class="nv">char&lt;?</span>
+<span class="nv">char=?</span>
+<span class="nv">char&gt;=?</span>
+<span class="nv">char&gt;?</span>
+<span class="nv">char?</span>
+<span class="nv">close-input-port</span>
+<span class="nv">close-output-port</span>
+<span class="nv">close-port</span>
+<span class="nv">complex?</span>
+<span class="nv">cond</span>
+<span class="nv">cond-expand</span>
+<span class="nv">cons</span>
+<span class="nv">current-error-port</span>
+<span class="nv">current-input-port</span>
+<span class="nv">current-output-port</span>
+<span class="nv">define</span>
+<span class="nv">define-record-type</span>
+<span class="nv">define-syntax</span>
+<span class="nv">define-values</span>
+<span class="nv">denominator</span>
+<span class="nv">do</span>
+<span class="nv">dynamic-wind</span>
+<span class="nv">else</span>
+<span class="nv">eof-object</span>
+<span class="nv">eof-object?</span>
+<span class="nv">eq?</span>
+<span class="nv">equal?</span>
+<span class="nv">eqv?</span>
+<span class="nv">error</span>
+<span class="nv">error-object-irritants</span>
+<span class="nv">error-object-message</span>
+<span class="nv">error-object?</span>
+<span class="nv">even?</span>
+<span class="nv">exact</span>
+<span class="nv">exact-integer-sqrt</span>
+<span class="nv">exact-integer?</span>
+<span class="nv">exact?</span>
+<span class="nv">expt</span>
+<span class="nv">features</span>
+<span class="nv">file-error?</span>
+<span class="nv">floor</span>
+<span class="nv">floor-quotient</span>
+<span class="nv">floor-remainder</span>
+<span class="nv">floor/</span>
+<span class="nv">flush-output-port</span>
+<span class="nv">for-each</span>
+<span class="nv">gcd</span>
+<span class="nv">get-output-bytevector</span>
+<span class="nv">get-output-string</span>
+<span class="nv">guard</span>
+<span class="nv">if</span>
+<span class="nv">include</span>
+<span class="nv">include-ci</span>
+<span class="nv">inexact</span>
+<span class="nv">inexact?</span>
+<span class="nv">input-port-open?</span>
+<span class="nv">input-port?</span>
+<span class="nv">integer-&gt;char</span>
+<span class="nv">integer?</span>
+<span class="nv">lambda</span>
+<span class="nv">lcm</span>
+<span class="nv">length</span>
+<span class="nv">let</span>
+<span class="nv">let*</span>
+<span class="nv">let*-values</span>
+<span class="nv">let-syntax</span>
+<span class="nv">let-values</span>
+<span class="nv">letrec</span>
+<span class="nv">letrec*</span>
+<span class="nv">letrec-syntax</span>
+<span class="nv">list</span>
+<span class="nv">list-&gt;string</span>
+<span class="nv">list-&gt;vector</span>
+<span class="nv">list-copy</span>
+<span class="nv">list-ref</span>
+<span class="nv">list-set!</span>
+<span class="nv">list-tail</span>
+<span class="nv">list?</span>
+<span class="nv">make-bytevector</span>
+<span class="nv">make-list</span>
+<span class="nv">make-parameter</span>
+<span class="nv">make-string</span>
+<span class="nv">make-vector</span>
+<span class="nv">map</span>
+<span class="nv">max</span>
+<span class="nv">member</span>
+<span class="nv">memq</span>
+<span class="nv">memv</span>
+<span class="nv">min</span>
+<span class="nv">modulo</span>
+<span class="nv">negative?</span>
+<span class="nv">newline</span>
+<span class="nv">not</span>
+<span class="nv">null?</span>
+<span class="nv">number-&gt;string</span>
+<span class="nv">number?</span>
+<span class="nv">numerator</span>
+<span class="nv">odd?</span>
+<span class="nv">open-input-bytevector</span>
+<span class="nv">open-input-string</span>
+<span class="nv">open-output-bytevector</span>
+<span class="nv">open-output-string</span>
+<span class="nv">or</span>
+<span class="nv">output-port-open?</span>
+<span class="nv">output-port?</span>
+<span class="nv">pair?</span>
+<span class="nv">parameterize</span>
+<span class="nv">peek-char</span>
+<span class="nv">peek-u8</span>
+<span class="nv">port?</span>
+<span class="nv">positive?</span>
+<span class="nv">procedure?</span>
+<span class="nv">quasiquote</span>
+<span class="nv">quote</span>
+<span class="nv">quotient</span>
+<span class="nv">raise</span>
+<span class="nv">raise-continuable</span>
+<span class="nv">rational?</span>
+<span class="nv">rationalize</span>
+<span class="nv">read-bytevector</span>
+<span class="nv">read-bytevector!</span>
+<span class="nv">read-char</span>
+<span class="nv">read-error?</span>
+<span class="nv">read-line</span>
+<span class="nv">read-string</span>
+<span class="nv">read-u8</span>
+<span class="nv">real?</span>
+<span class="nv">remainder</span>
+<span class="nv">reverse</span>
+<span class="nv">round</span>
+<span class="nv">set!</span>
+<span class="nv">set-car!</span>
+<span class="nv">set-cdr!</span>
+<span class="nv">square</span>
+<span class="nv">string</span>
+<span class="nv">string-&gt;list</span>
+<span class="nv">string-&gt;number</span>
+<span class="nv">string-&gt;symbol</span>
+<span class="nv">string-&gt;utf8</span>
+<span class="nv">string-&gt;vector</span>
+<span class="nv">string-append</span>
+<span class="nv">string-copy</span>
+<span class="nv">string-copy!</span>
+<span class="nv">string-fill!</span>
+<span class="nv">string-for-each</span>
+<span class="nv">string-length</span>
+<span class="nv">string-map</span>
+<span class="nv">string-ref</span>
+<span class="nv">string-set!</span>
+<span class="nv">string&lt;=?</span>
+<span class="nv">string&lt;?</span>
+<span class="nv">string=?</span>
+<span class="nv">string&gt;=?</span>
+<span class="nv">string&gt;?</span>
+<span class="nv">string?</span>
+<span class="nv">substring</span>
+<span class="nv">symbol-&gt;string</span>
+<span class="nv">symbol=?</span>
+<span class="nv">symbol?</span>
+<span class="nv">syntax-error</span>
+<span class="nv">syntax-rules</span>
+<span class="nv">textual-port?</span>
+<span class="nv">truncate</span>
+<span class="nv">truncate-quotient</span>
+<span class="nv">truncate-remainder</span>
+<span class="nv">truncate/</span>
+<span class="nv">u8-ready?</span>
+<span class="nv">unless</span>
+<span class="nv">unquote</span>
+<span class="nv">unquote-splicing</span>
+<span class="nv">utf8-&gt;string</span>
+<span class="nv">values</span>
+<span class="nv">vector</span>
+<span class="nv">vector-&gt;list</span>
+<span class="nv">vector-&gt;string</span>
+<span class="nv">vector-append</span>
+<span class="nv">vector-copy</span>
+<span class="nv">vector-copy!</span>
+<span class="nv">vector-fill!</span>
+<span class="nv">vector-for-each</span>
+<span class="nv">vector-length</span>
+<span class="nv">vector-map</span>
+<span class="nv">vector-ref</span>
+<span class="nv">vector-set!</span>
+<span class="nv">vector?</span>
+<span class="nv">when</span>
+<span class="nv">with-exception-handler</span>
+<span class="nv">write-bytevector</span>
+<span class="nv">write-char</span>
+<span class="nv">write-string</span>
+<span class="nv">write-u8</span>
+<span class="nv">zero?</span>
+</pre></div>
 <h3>Case-Lambda Library</h3>
-<p>The (scheme case-lambda) library exports the case-lambda syntax.</p>
-
-<div><pre>{\cf case-lambda}</pre></div>
+<p>The <code>(scheme case-lambda)</code> library exports the <code>case-lambda</code> syntax.</p>
+<div class="highlight"><pre><span></span><span class="nv">case-lambda</span>
+</pre></div>
 <h3>Char Library</h3>
-<p>The (scheme char) library provides the procedures for dealing with
+<p>The <code>(scheme char)</code> library provides the procedures for dealing with
 characters that involve potentially large tables when supporting all of
 Unicode.</p>
-
-<div><pre>{\cf char-alphabetic?\ }       {\cf char-ci&lt;=?}
-{\cf char-ci&lt;?\ }              {\cf char-ci=?}
-{\cf char-ci&gt;=?\ }             {\cf char-ci&gt;?}
-{\cf char-downcase}           {\cf char-foldcase}
-{\cf char-lower-case?\ }       {\cf char-numeric?}
-{\cf char-upcase}             {\cf char-upper-case?}
-{\cf char-whitespace?\ }       {\cf digit-value}
-{\cf string-ci&lt;=?\ }           {\cf string-ci&lt;?}
-{\cf string-ci=?\ }            {\cf string-ci&gt;=?}
-{\cf string-ci&gt;?\ }            {\cf string-downcase}
-{\cf string-foldcase}         {\cf string-upcase}</pre></div>
+<div class="highlight"><pre><span></span><span class="nv">char-alphabetic?</span>
+<span class="nv">char-ci&lt;=?</span>
+<span class="nv">char-ci&lt;?</span>
+<span class="nv">char-ci=?</span>
+<span class="nv">char-ci&gt;=?</span>
+<span class="nv">char-ci&gt;?</span>
+<span class="nv">char-downcase</span>
+<span class="nv">char-foldcase</span>
+<span class="nv">char-lower-case?</span>
+<span class="nv">char-numeric?</span>
+<span class="nv">char-upcase</span>
+<span class="nv">char-upper-case?</span>
+<span class="nv">char-whitespace?</span>
+<span class="nv">digit-value</span>
+<span class="nv">string-ci&lt;=?</span>
+<span class="nv">string-ci&lt;?</span>
+<span class="nv">string-ci=?</span>
+<span class="nv">string-ci&gt;=?</span>
+<span class="nv">string-ci&gt;?</span>
+<span class="nv">string-downcase</span>
+<span class="nv">string-foldcase</span>
+<span class="nv">string-upcase</span>
+</pre></div>
 <h3>Complex Library</h3>
-<p>The (scheme complex) library exports procedures which are typically only
+<p>The <code>(scheme complex)</code> library exports procedures which are typically only
 useful with non-real numbers.</p>
-
-<div><pre>{\cf angle}                   {\cf imag-part}
-{\cf magnitude}               {\cf make-polar}
-{\cf make-rectangular}        {\cf real-part}</pre></div>
+<div class="highlight"><pre><span></span><span class="nv">angle</span>                   <span class="nv">imag-part</span>
+<span class="nv">magnitude</span>               <span class="nv">make-polar</span>
+<span class="nv">make-rectangular</span>        <span class="nv">real-part</span>
+</pre></div>
 <h3>CxR Library</h3>
-<p>The (scheme cxr) library exports twenty-four procedures which are the
+<p>The <code>(scheme cxr)</code> library exports twenty-four procedures which are the
 compositions of from three to four car and cdr operations. For example
 caddar could be defined by</p>
 <div class="highlight"><pre><span></span><span class="p">(</span><span class="k">define </span><span class="nv">caddar</span>
-  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">car </span><span class="p">(</span><span class="nb">cdr </span><span class="p">(</span><span class="nb">cdr </span><span class="p">(</span><span class="nb">car </span><span class="nv">x</span><span class="p">))))))</span><span class="err">{\</span><span class="nv">rm</span><span class="o">.</span><span class="err">}</span>
+  <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">car </span><span class="p">(</span><span class="nb">cdr </span><span class="p">(</span><span class="nb">cdr </span><span class="p">(</span><span class="nb">car </span><span class="nv">x</span><span class="p">))))))</span>
 </pre></div>
 <p>The procedures car and cdr themselves and the four two-level
 compositions are included in the base library. See
 section <a href="#listsection">[listsection]</a>.</p>
-
-<div><pre>{\cf caaaar}                  {\cf caaadr}
-{\cf caaar}                   {\cf caadar}
-{\cf caaddr}                  {\cf caadr}
-{\cf cadaar}                  {\cf cadadr}
-{\cf cadar}                   {\cf caddar}
-{\cf cadddr}                  {\cf caddr}
-{\cf cdaaar}                  {\cf cdaadr}
-{\cf cdaar}                   {\cf cdadar}
-{\cf cdaddr}                  {\cf cdadr}
-{\cf cddaar}                  {\cf cddadr}
-{\cf cddar}                   {\cf cdddar}
-{\cf cddddr}                  {\cf cdddr}</pre></div>
+<div class="highlight"><pre><span></span><span class="nv">caaaar</span>                  <span class="nv">caaadr</span>
+<span class="nv">caaar</span>                   <span class="nv">caadar</span>
+<span class="nv">caaddr</span>                  <span class="nv">caadr</span>
+<span class="nv">cadaar</span>                  <span class="nv">cadadr</span>
+<span class="nv">cadar</span>                   <span class="nv">caddar</span>
+<span class="nv">cadddr</span>                  <span class="nv">caddr</span>
+<span class="nv">cdaaar</span>                  <span class="nv">cdaadr</span>
+<span class="nv">cdaar</span>                   <span class="nv">cdadar</span>
+<span class="nv">cdaddr</span>                  <span class="nv">cdadr</span>
+<span class="nv">cddaar</span>                  <span class="nv">cddadr</span>
+<span class="nv">cddar</span>                   <span class="nv">cdddar</span>
+<span class="nv">cddddr</span>                  <span class="nv">cdddr</span>
+</pre></div>
 <h3>Eval Library</h3>
-<p>The (scheme eval) library exports procedures for evaluating Scheme data
+<p>The <code>(scheme eval)</code> library exports procedures for evaluating Scheme data
 as programs.</p>
 
-<div><pre>{\cf environment}             {\cf eval}</pre></div>
+<div><pre>environment
+eval</pre></div>
 <h3>File Library</h3>
-<p>The (scheme file) library provides procedures for accessing files.</p>
+<p>The <code>(scheme file)</code> library provides procedures for accessing files.</p>
 
-<div><pre>{\cf call-with-input-file}    {\cf call-with-output-file}
-{\cf delete-file}             {\cf file-exists?}
-{\cf open-binary-input-file}  {\cf open-binary-output-file}
-{\cf open-input-file}         {\cf open-output-file}
-{\cf with-input-from-file}    {\cf with-output-to-file}</pre></div>
+<div><pre>call-with-input-file
+call-with-output-file
+delete-file
+file-exists?
+open-binary-input-file
+open-binary-output-file
+open-input-file
+open-output-file
+with-input-from-file
+with-output-to-file</pre></div>
 <h3>Inexact Library</h3>
-<p>The (scheme inexact) library exports procedures which are typically only
+<p>The <code>(scheme inexact)</code> library exports procedures which are typically only
 useful with inexact values.</p>
-
-<div><pre>{\cf acos}                    {\cf asin}
-{\cf atan}                    {\cf cos}
-{\cf exp}                     {\cf finite?}
-{\cf infinite?\ }              {\cf log}
-{\cf nan?\ }                   {\cf sin}
-{\cf sqrt}                    {\cf tan}</pre></div>
+<div class="highlight"><pre><span></span><span class="nv">acos</span>
+<span class="nv">asin</span>
+<span class="nv">atan</span>
+<span class="nv">cos</span>
+<span class="nv">exp</span>
+<span class="nv">finite?</span>
+<span class="nv">infinite?</span>
+<span class="nv">log</span>
+<span class="nv">nan?</span>
+<span class="nv">sin</span>
+<span class="nv">sqrt</span>
+<span class="nv">tan</span>
+</pre></div>
 <h3>Lazy Library</h3>
-<p>The (scheme lazy) library exports procedures and syntax keywords for
+<p>The <code>(scheme lazy)</code> library exports procedures and syntax keywords for
 lazy evaluation.</p>
-
-<div><pre>{\cf delay}                   {\cf delay-force}
-{\cf force}                   {\cf make-promise}
-{\cf promise?}</pre></div>
+<div class="highlight"><pre><span></span><span class="k">delay </span>                  <span class="nv">delay-force</span>
+<span class="nv">force</span>                   <span class="nv">make-promise</span>
+<span class="nv">promise?</span>
+</pre></div>
 <h3>Load Library</h3>
-<p>The (scheme load) library exports procedures for loading Scheme
+<p>The <code>(scheme load)</code> library exports procedures for loading Scheme
 expressions from files.</p>
-
-<div><pre>{\cf load}</pre></div>
+<div class="highlight"><pre><span></span><span class="nv">load</span>
+</pre></div>
 <h3>Process-Context Library</h3>
-<p>The (scheme process-context) library exports procedures for accessing
+<p>The <code>(scheme process-context)</code> library exports procedures for accessing
 with the program’s calling context.</p>
-
-<div><pre>{\cf command-line}            {\cf emergency-exit}
-{\cf exit}
-{\cf get-environment-variable}
-{\cf get-environment-variables}</pre></div>
+<div class="highlight"><pre><span></span><span class="nv">command-line</span>            <span class="nv">emergency-exit</span>
+<span class="nv">exit</span>
+<span class="nv">get-environment-variable</span>
+<span class="nv">get-environment-variables</span>
+</pre></div>
 <h3>Read Library</h3>
-<p>The (scheme read) library provides procedures for reading Scheme
+<p>The <code>(scheme read)</code> library provides procedures for reading Scheme
 objects.</p>
-
-<div><pre>{\cf read}</pre></div>
+<div class="highlight"><pre><span></span><span class="nv">read</span>
+</pre></div>
 <h3>Repl Library</h3>
-<p>The (scheme repl) library exports the interaction-environment procedure.</p>
+<p>The <code>(scheme repl)</code> library exports the interaction-environment procedure.</p>
 
-<div><pre>{\cf interaction-environment}</pre></div>
+<div><pre>interaction-environment</pre></div>
 <h3>Time Library</h3>
-<p>The (scheme time) library provides access to time-related values.</p>
+<p>The <code>(scheme time)</code> library provides access to time-related values.</p>
 
-<div><pre>{\cf current-jiffy}           {\cf current-second}
-{\cf jiffies-per-second}</pre></div>
+<div><pre>current-jiffy           current-second
+jiffies-per-second</pre></div>
 <h3>Write Library</h3>
-<p>The (scheme write) library provides procedures for writing Scheme
+<p>The <code>(scheme write)</code> library provides procedures for writing Scheme
 objects.</p>
 
-<div><pre>{\cf display}                 {\cf write}
-{\cf write-shared}            {\cf write-simple}</pre></div>
+<div><pre>display                 write
+write-shared            write-simple</pre></div>
 <h3>R5RS Library</h3>
-<p>The (scheme r5rs) library provides the identifiers defined by
+<p>The <code>(scheme r5rs)</code> library provides the identifiers defined by
 R<sup><small>5</small></sup>RS, except that transcript-on and transcript-off are not
 present. Note that the exact and inexact procedures appear under their
 R<sup><small>5</small></sup>RS names inexact-&gt;exact and exact-&gt;inexact respectively.
@@ -6637,7 +6790,7 @@ square, and exact-integer-sqrt have been added.</p>
 <li><p>The - and / procedures and the character and string comparison
 predicates are now required to support more than two arguments.</p>
 </li>
-<li><p>The forms #true and #false are now supported as well as #t and #f.</p>
+<li><p>The forms <code>#true</code> and <code>#false</code> are now supported as well as <code>#t</code> and <code>#f</code>.</p>
 </li>
 <li><p>The procedures make-list, list-copy, list-set!, string-map,
 string-for-each, string-&gt;vector, vector-append, vector-copy,

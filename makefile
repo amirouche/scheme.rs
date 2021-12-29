@@ -7,7 +7,7 @@ md:
 
 html: md
 	python maji.py https://localhost:8000/
-	pandoc  scheme.rs.md --standalone -o scheme.rs.html
+	pandoc scheme.rs.md --mathml --standalone -o scheme.rs.html
 
 pdf: md
 	pandoc --from=markdown scheme.rs.md --pdf-engine=xelatex --standalone -o scheme.rs.tex
