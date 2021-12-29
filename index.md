@@ -33,7 +33,9 @@ Or, like others, to make it your secret sauce.
 
 ## [Tutorial](/tutorial/)
 
-## Standard Library
+## [Specification](/specification/)
+
+## Standard Libraries
 
 - [`(scheme base)`](/scheme/base/) R7RS-small
 - [`(scheme bitwise)`](/scheme/bitwise/)

@@ -3,7 +3,7 @@ all:
 	poetry run make serve
 
 md:
-	cat index.md discourse/index.md tutorial/index.md $(shell find scheme/ -name "index.md") > scheme.rs.md
+	cat index.md discourse/index.md tutorial/index.md specification/index.md $(shell find scheme/ -name "index.md") > scheme.rs.md
 
 html: md
 	python maji.py https://localhost:8000/
