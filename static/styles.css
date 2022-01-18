@@ -1,135 +1,171 @@
-@font-face {
-    font-family: 'tex_gyre_pagellaregular';
-    src: url('texgyrepagella_regular_macroman/texgyrepagella-regular-webfont.woff') format('woff');
-    font-weight: normal;
-    font-style: normal;
+html {
+    line-height: 1.5;
+    font-family: Georgia, serif;
+    font-size: 20px;
+    color: #1a1a1a;
+    background-color: #fdfdfd;
 }
-
-@font-face {
-  font-family: "EB Garamond";
-  src: url("EBGaramond12-Regular.ttf");
-}
-
-* {
-    box-sizing: border-box;
-}
-
 body {
-  font-family: "tex_gyre_pagellaregular", serif;
-  color: #131313;
+    margin: 0 auto;
+    max-width: 36em;
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
 }
-
+@media (max-width: 600px) {
+    body {
+        font-size: 0.9em;
+        padding: 1em;
+    }
+}
+@media print {
+    body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+    }
+    p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+    }
+    h2, h3, h4 {
+        page-break-after: avoid;
+    }
+}
+p {
+    margin: 1em 0;
+}
+a {
+    color: #1a1a1a;
+}
+a:visited {
+    color: #1a1a1a;
+}
+img {
+    max-width: 100%;
+}
 h1, h2, h3, h4, h5, h6 {
-  font-family: "Linux Biolinum", sans;
+    margin-top: 1.4em;
 }
-
-code, pre {
-  font-family: Hack, mono, monospace;
+h5, h6 {
+    font-size: 1em;
+    font-style: italic;
 }
-
-div.highlight {
-    padding: 1rem !important;
+h6 {
+    font-weight: normal;
 }
-
-div.highlight > pre {
+ol, ul {
+    padding-left: 1.7em;
+    margin-top: 1em;
+}
+li > ol, li > ul {
+    margin-top: 0;
+}
+blockquote {
+    margin: 1em 0 1em 1.7em;
+    padding-left: 1em;
+    border-left: 2px solid #e6e6e6;
+    color: #606060;
+}
+code {
+    font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+    font-size: 85%;
     margin: 0;
 }
-
-* {
-    box-sizing: border-box;
+pre {
+    margin: 1em 0;
+    overflow: auto;
 }
-
-body {
-    background-color: #e5e5e5;
-    background-size: cover;
-    margin: 0px;
-    padding: 0px;
-    line-height: 1.6em;
+pre code {
+    padding: 0;
+    overflow: visible;
+    overflow-wrap: normal;
 }
-
-a:link, a:visited, a:active {
-    color: #500001;
+.sourceCode {
+    background-color: transparent;
+    overflow: visible;
 }
-
-a:hover {
-    color: #015101;
+hr {
+    background-color: #1a1a1a;
+    border: none;
+    height: 1px;
+    margin: 1em 0;
 }
-
-
-h1 > a {
+table {
+    margin: 1em 0;
+    border-collapse: collapse;
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+    font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+    margin-bottom: 0.75em;
+}
+tbody {
+    margin-top: 0.5em;
+    border-top: 1px solid #1a1a1a;
+    border-bottom: 1px solid #1a1a1a;
+}
+th {
+    border-top: 1px solid #1a1a1a;
+    padding: 0.25em 0.5em 0.25em 0.5em;
+}
+td {
+    padding: 0.125em 0.5em 0.25em 0.5em;
+}
+header {
+    margin-bottom: 4em;
+    text-align: center;
+}
+#TOC li {
+    list-style: none;
+}
+#TOC a:not(:hover) {
     text-decoration: none;
 }
-
-blockquote {
-    margin: 0.5rem 0rem;
-    border: 1px solid black;
-    border-left: 5px solid black;
-    padding: 0.2rem 0.5rem;
-    text-align: justify;
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+    div.sourceCode { overflow: auto; }
 }
-
-blockquote > p {
-    margin: 0.1rem 0.1rem;
+@media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-
-#overlay {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    min-width: 100%;
-    min-height: 100%;
-    width: auto;
-    height: auto;
-    z-index: -99;
-    transform: translateX(-50%) translateY(-50%);
-    // background: url(overlay-video-dark.png);
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+  position: relative; left: -1em; text-align: right; vertical-align: baseline;
+  border: none; display: inline-block;
+  -webkit-touch-callout: none; -webkit-user-select: none;
+  -khtml-user-select: none; -moz-user-select: none;
+  -ms-user-select: none; user-select: none;
+  padding: 0 4px; width: 4em;
+  color: #aaaaaa;
 }
-
-#container {
-    max-width: 777px;
-    background: hsla(0, 0%, 0%, 0.1);
-    margin: 100px auto;
-    padding: 15px 30px;
-    border-radius: 5px;
-    box-shadow: 0px 0px 5px black;
-    text-align: justify;
-}
-
-.stdout {
-    font-family: Hack, mono, monospace;
-    color: #BBB;
-    margin-bottom: 5px;
-}
-
-.stdin {
-    font-family: Hack, mono, monospace;
-    color: #777;
-    background: hsla(0, 0%, 0%, 0.9);
-    padding: 5px 10px;
-    margin-bottom: 10px;
-}
-
-#input {
-    background: transparent;
-    color: white;
-    border: 1px solid white;
-    width: 100%;
-    padding: 5px 10px;
-    font-family: Hack, mono, monospace;
-    font-size: 20px;
-}
-
-button {
-    padding: 5px;
-    margin: 5px;
-}
-
-button.active {
-    background: green;
-}
-
-div.scheme {
-    padding: 15px;
-    margin: 15px;
-    border: 1px darkgray solid;
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+{   }
+@media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
