@@ -16,3 +16,5 @@
 (mit gnu/linux #t)
 (mit amd64 #t)
 (mit x86 #t)
+(mit aarch64 #t)
+(mit database #t)
